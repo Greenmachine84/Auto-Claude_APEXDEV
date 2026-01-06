@@ -1,7 +1,7 @@
 # Phase 2: Memory System & LLM Integration Architecture
 
 > **Auto-Claude_APEXDEV Enhancement Project**
-> Phase 2 of 5 | File/Folder Architecture Specification
+> Phase 2 of 10 | File/Folder Architecture Specification
 > Created: January 6, 2026
 
 ---
@@ -503,7 +503,7 @@ class PromptComposer:
 ### 11. Tool Calling Module (`llm/tools/`)
 
 #### `tool_definition.py`
-**Purpose**: Define tools for LLM function calling
+**Purpose**: Define tool schemas for LLM
 **Key Components**:
 ```python
 @dataclass
@@ -511,54 +511,100 @@ class ToolDefinition:
     name: str
     description: str
     parameters: JSONSchema
-    handler: Callable
+    required: List[str]
 ```
 
 #### `tool_executor.py`
-**Purpose**: Execute tool calls from LLM responses
+**Purpose**: Execute tool calls from LLM
 **Key Methods**:
 ```python
 class ToolExecutor:
-    async def execute(self, tool_call: ToolCall) -> ToolResult
-    async def execute_batch(self, tool_calls: List[ToolCall]) -> List[ToolResult]
+    def execute(self, tool_name: str, parameters: dict) -> ToolResult
+    def validate_call(self, tool_name: str, parameters: dict) -> bool
 ```
 
 #### `tool_result.py`
-**Purpose**: Standardized tool result handling
+**Purpose**: Handle tool execution results
 **Key Components**:
-```python
-@dataclass
-class ToolResult:
-    tool_name: str
-    success: bool
-    result: Any
-    error: Optional[str]
-    duration_ms: int
-```
+- Success/error result types
+- Result serialization for LLM
 
 #### `tool_validator.py`
 **Purpose**: Validate tool parameters
-**Features**:
+**Key Components**:
 - JSON Schema validation
 - Type coercion
-- Required field checking
+- Error messages
+
+---
+
+### 12. Types Module (`llm/types/`)
+
+#### `llm_types.py`
+```python
+class LLMProvider(Enum):
+    ANTHROPIC = "anthropic"
+    OPENAI = "openai"
+    AZURE = "azure"
+    OLLAMA = "ollama"
+    GOOGLE = "google"
+    GROQ = "groq"
+    OPENROUTER = "openrouter"
+```
+
+#### `message_types.py`
+```python
+@dataclass
+class Message:
+    role: str  # system, user, assistant
+    content: str
+    name: Optional[str] = None
+    tool_calls: Optional[List[ToolCall]] = None
+    tool_call_id: Optional[str] = None
+```
+
+#### `response_types.py`
+```python
+@dataclass
+class LLMResponse:
+    content: str
+    model: str
+    usage: TokenUsage
+    finish_reason: str
+    tool_calls: Optional[List[ToolCall]] = None
+```
+
+#### `token_types.py`
+```python
+@dataclass
+class TokenUsage:
+    prompt_tokens: int
+    completion_tokens: int
+    total_tokens: int
+    
+@dataclass
+class TokenCost:
+    input_cost: float
+    output_cost: float
+    total_cost: float
+```
 
 ---
 
 ## Integration Points
 
 ### With Agent System (Phase 1)
-- Agents receive `MemoryManager` via dependency injection
-- All agent operations auto-store episodes
-- Context retrieved for each agent task
+- Agents use `MemoryManager` for episode storage
+- Agents receive `LLMClient` via dependency injection
+- Enterprise agents use `SemanticSearch` for context
 
 ### With Orchestration (Phase 3)
-- Task history informs priority decisions
-- Memory search aids agent selection
+- `ContextBuilder` provides task-relevant context
+- `CostTracker` informs task scheduling decisions
 
 ### With UI (Phase 4)
-- Memory view displays episodes
-- Cost tracker feeds analytics
+- Memory viewer displays episodes
+- Analytics dashboard shows usage/costs
 - Streaming enables real-time output
 
 ---
@@ -566,14 +612,14 @@ class ToolResult:
 ## APEX Compliance
 
 ### Memory-First Principle
-- Every agent operation stores an episode
-- Episodes include success/failure outcomes
-- Reflexion patterns extracted automatically
+- All agent interactions stored as episodes
+- Semantic indexing enables learning
+- H-MEM ensures performance at scale
 
 ### Governance
-- Cost tracking for audit
-- Provider usage logged
-- Sensitive data sanitization
+- Cost tracking per agent/task
+- Token limits enforced
+- Usage reports for audit
 
 ---
 
@@ -581,20 +627,20 @@ class ToolResult:
 
 | Directory | File Count | Description |
 |-----------|------------|-------------|
-| `memory/core/` | 3 | Memory coordination |
-| `memory/episodic/` | 5 | Episodic storage |
-| `memory/semantic/` | 4 | Semantic/vector storage |
-| `memory/hmem/` | 5 | H-MEM tiers |
-| `memory/context/` | 4 | Context management |
-| `memory/types/` | 3 | Memory types |
-| `llm/core/` | 5 | LLM coordination |
+| `memory/core/` | 4 | Core memory |
+| `memory/episodic/` | 6 | Episode storage |
+| `memory/semantic/` | 5 | Semantic memory |
+| `memory/hmem/` | 6 | Tiered memory |
+| `memory/context/` | 5 | Context building |
+| `memory/types/` | 4 | Memory types |
+| `llm/core/` | 6 | LLM core |
 | `llm/providers/` | 8 | LLM providers |
-| `llm/embeddings/` | 6 | Embedding providers |
-| `llm/prompts/` | 4 | Prompt management |
-| `llm/streaming/` | 3 | Streaming support |
-| `llm/tools/` | 4 | Tool calling |
-| `llm/types/` | 4 | LLM types |
-| **Total** | **58** | Phase 2 files |
+| `llm/embeddings/` | 6 | Embedders |
+| `llm/prompts/` | 5 | Prompt system |
+| `llm/streaming/` | 4 | Streaming |
+| `llm/tools/` | 5 | Tool calling |
+| `llm/types/` | 5 | LLM types |
+| **Total** | **69** | Phase 2 files |
 
 ---
 
