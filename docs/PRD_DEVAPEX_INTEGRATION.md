@@ -2,9 +2,9 @@
 
 > **Auto-Claude_APEXDEV Enhancement Plan**
 >
-> Enterprise-Grade, Production-Ready, World-Class Autonomous Coding Platform
+> Enterprise-Grade, Production-Ready, World-Class **LLM-Agnostic** Autonomous Coding Platform
 >
-> Version: 3.0.0 | Last Updated: January 5, 2026
+> Version: 3.1.0 | Last Updated: January 5, 2026
 
 ---
 
@@ -12,7 +12,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 3.0.0 |
+| **Version** | 3.1.0 |
 | **Created** | 2026-01-05 |
 | **Updated** | 2026-01-05 |
 | **Status** | Draft - Pending Approval |
@@ -30,6 +30,7 @@
 3. **APEX COMPLIANCE**: All features MUST comply with APEX Constitution Articles I-V
 4. **ENTERPRISE-GRADE**: All implementations MUST be production-ready and world-class
 5. **BACKWARD COMPATIBILITY**: Existing CLI workflows and APIs MUST remain functional
+6. **LLM-AGNOSTIC**: System MUST NOT be dependent on any single LLM provider
 
 ---
 
@@ -38,7 +39,7 @@
 1. [Executive Summary](#1-executive-summary)
 2. [Agent System Enhancement](#2-agent-system-enhancement)
 3. [Memory System Enhancement](#3-memory-system-enhancement)
-4. [LLM Integration Enhancement](#4-llm-integration-enhancement)
+4. [LLM Integration - Agnostic Architecture](#4-llm-integration---agnostic-architecture)
 5. [Skills Framework](#5-skills-framework)
 6. [Tools System](#6-tools-system)
 7. [Orchestration System](#7-orchestration-system)
@@ -59,15 +60,28 @@
 
 ### 1.1 Vision
 
-Transform Auto-Claude_APEXDEV into a **world-class, enterprise-grade autonomous coding platform** by integrating DEVAPEX's advanced features while preserving the proven Claude Agent SDK foundation.
+Transform Auto-Claude_APEXDEV into a **world-class, enterprise-grade, LLM-agnostic autonomous coding platform** that empowers users with complete control over their AI providers, authentication methods, and model assignments.
 
-### 1.2 Core Enhancements
+### 1.2 Key Architectural Principles
+
+> ⚠️ **CRITICAL**: The system is designed to be **PROVIDER-AGNOSTIC**
+
+| Principle | Description |
+|-----------|-------------|
+| **LLM Agnostic** | No hard dependency on Anthropic/Claude - users choose their providers |
+| **Multi-Auth** | Support for GitHub, Google, Microsoft, and manual account login |
+| **Multi-Router** | Support for Copilot, OpenRouter, Ollama, LLMStudio, Gemini routers |
+| **Per-Agent LLM** | Each agent can be assigned different LLM models/providers |
+| **User Control** | Users have full control over provider selection and configuration |
+
+### 1.3 Core Enhancements
 
 | Category | Current State | Enhanced State | Reference |
 |----------|--------------|----------------|-----------|
-| Agents | 4 core agents | 4 core + 16 enterprise agents | [Section 2](#2-agent-system-enhancement) |
+| Agents | 4 core agents | 4 core + 16 enterprise agents (each configurable LLM) | [Section 2](#2-agent-system-enhancement) |
 | Memory | Graphiti only | Graphiti + H-MEM tiers + Episodic | [Section 3](#3-memory-system-enhancement) |
-| LLM | Claude only | 7 providers with intelligent routing | [Section 4](#4-llm-integration-enhancement) |
+| LLM | Anthropic-dependent | **LLM-Agnostic** with 7+ routers | [Section 4](#4-llm-integration---agnostic-architecture) |
+| Auth | None | Multi-provider (GitHub, Google, Microsoft, Manual) | [Section 9](#9-security--authentication) |
 | Skills | Implicit | 25+ categorized skills with registry | [Section 5](#5-skills-framework) |
 | Tools | Basic tools_pkg | Enhanced ToolRegistry + MCP | [Section 6](#6-tools-system) |
 | Governance | Basic | 5 councils + HITL gates | [Section 8](#8-governance--compliance) |
@@ -75,13 +89,16 @@ Transform Auto-Claude_APEXDEV into a **world-class, enterprise-grade autonomous 
 | Integrations | Linear + Graphiti | Extensible framework | [Section 11](#11-integrations-framework) |
 | Analytics | None | Full metrics suite | [Section 12](#12-analytics-system) |
 
-### 1.3 Success Criteria
+### 1.4 Success Criteria
 
 - ✅ Zero breaking changes to existing functionality
 - ✅ 80%+ test coverage on new code
 - ✅ &lt;5% performance overhead
 - ✅ APEX Constitution compliance verified
 - ✅ User sign-off on each milestone
+- ✅ **Full LLM provider independence achieved**
+- ✅ **Per-agent LLM assignment functional**
+- ✅ **Multi-auth login operational**
 
 ---
 
@@ -98,52 +115,81 @@ Transform Auto-Claude_APEXDEV into a **world-class, enterprise-grade autonomous 
 | QA Reviewer | Existing | ✅ PRESERVE - Add severity categorization |
 | QA Fixer | Existing | ✅ PRESERVE - Add reflexion pattern |
 
-### 2.2 Enterprise Agents (16 New)
+### 2.2 Per-Agent LLM Configuration (NEW - CRITICAL)
+
+> ⚠️ **CORE REQUIREMENT**: Each agent MUST be able to use a different LLM provider/model
+
+| Feature | Description | Priority |
+|---------|-------------|----------|
+| AgentLLMConfig | Per-agent LLM provider and model assignment | **CRITICAL** |
+| ProviderOverride | Agent-level override of default provider | **CRITICAL** |
+| ModelSelection | Agent-specific model selection from available models | **CRITICAL** |
+| FallbackChain | Per-agent fallback provider chain | HIGH |
+| CostBudget | Per-agent token/cost budget limits | MEDIUM |
+
+#### Agent LLM Configuration Schema
+
+```python
+class AgentLLMConfig:
+    """Per-agent LLM configuration"""
+    agent_id: str                    # Agent identifier
+    provider: str                    # e.g., "openrouter", "ollama", "copilot"
+    model: str                       # e.g., "gpt-4", "claude-3-opus", "llama-3"
+    fallback_providers: List[str]    # Ordered fallback list
+    max_tokens: int                  # Token limit for this agent
+    temperature: float               # Model temperature
+    cost_budget_daily: float         # Daily cost limit (optional)
+    enabled: bool                    # Whether agent is active
+```
+
+### 2.3 Enterprise Agents (16 New)
 
 > **Reference**: DEVAPEX Features § 1 Agent System
+> 
+> **Note**: Each enterprise agent can be configured with its own LLM provider
 
 #### Architecture Agents (4)
 
-| Agent | Purpose | Priority | ADR Ref |
-|-------|---------|----------|---------|
-| SystemArchitectAgent | Architecture design, pattern recommendations | HIGH | ADR-002 |
-| SecurityArchitectAgent | Security analysis, vulnerability assessment | HIGH | ADR-010 |
-| RefactorArchitectAgent | Code refactoring, technical debt reduction | MEDIUM | ADR-002 |
-| PerformanceArchitectAgent | Performance optimization, profiling | MEDIUM | ADR-002 |
+| Agent | Purpose | Default LLM | Configurable | Priority |
+|-------|---------|-------------|--------------|----------|
+| SystemArchitectAgent | Architecture design, pattern recommendations | User Choice | ✅ Yes | HIGH |
+| SecurityArchitectAgent | Security analysis, vulnerability assessment | User Choice | ✅ Yes | HIGH |
+| RefactorArchitectAgent | Code refactoring, technical debt reduction | User Choice | ✅ Yes | MEDIUM |
+| PerformanceArchitectAgent | Performance optimization, profiling | User Choice | ✅ Yes | MEDIUM |
 
 #### Security Agents (2)
 
-| Agent | Purpose | Priority | ADR Ref |
-|-------|---------|----------|---------|
-| RedTeamAgent | Adversarial testing, penetration simulation | HIGH | ADR-010 |
-| BlueTeamAgent | Defensive security, incident response | HIGH | ADR-010 |
+| Agent | Purpose | Default LLM | Configurable | Priority |
+|-------|---------|-------------|--------------|----------|
+| RedTeamAgent | Adversarial testing, penetration simulation | User Choice | ✅ Yes | HIGH |
+| BlueTeamAgent | Defensive security, incident response | User Choice | ✅ Yes | HIGH |
 
 #### Quality Agents (3)
 
-| Agent | Purpose | Priority | ADR Ref |
-|-------|---------|----------|---------|
-| DocumentationLeadAgent | Documentation generation, API docs | MEDIUM | ADR-002 |
-| QAVerificationAgent | Test planning, coverage analysis | MEDIUM | ADR-002 |
-| ComplianceAuditorAgent | Regulatory compliance, audit trails | MEDIUM | ADR-008 |
+| Agent | Purpose | Default LLM | Configurable | Priority |
+|-------|---------|-------------|--------------|----------|
+| DocumentationLeadAgent | Documentation generation, API docs | User Choice | ✅ Yes | MEDIUM |
+| QAVerificationAgent | Test planning, coverage analysis | User Choice | ✅ Yes | MEDIUM |
+| ComplianceAuditorAgent | Regulatory compliance, audit trails | User Choice | ✅ Yes | MEDIUM |
 
 #### Infrastructure Agents (4)
 
-| Agent | Purpose | Priority | ADR Ref |
-|-------|---------|----------|---------|
-| IntegrationArchitectAgent | API design, service integration | MEDIUM | ADR-002 |
-| DataArchitectAgent | Data modeling, schema design | MEDIUM | ADR-002 |
-| DevOpsArchitectAgent | CI/CD, infrastructure automation | LOW | ADR-002 |
-| CloudArchitectAgent | Cloud design, multi-cloud strategy | LOW | ADR-002 |
+| Agent | Purpose | Default LLM | Configurable | Priority |
+|-------|---------|-------------|--------------|----------|
+| IntegrationArchitectAgent | API design, service integration | User Choice | ✅ Yes | MEDIUM |
+| DataArchitectAgent | Data modeling, schema design | User Choice | ✅ Yes | MEDIUM |
+| DevOpsArchitectAgent | CI/CD, infrastructure automation | User Choice | ✅ Yes | LOW |
+| CloudArchitectAgent | Cloud design, multi-cloud strategy | User Choice | ✅ Yes | LOW |
 
 #### Orchestration Agents (3)
 
-| Agent | Purpose | Priority | ADR Ref |
-|-------|---------|----------|---------|
-| MDAOrchestratorAgent | Multi-agent coordination | HIGH | ADR-004 |
-| APIDesignAgent | RESTful/GraphQL API design | MEDIUM | ADR-002 |
-| BaseEnterpriseAgent | Base class for enterprise agents | HIGH | ADR-001 |
+| Agent | Purpose | Default LLM | Configurable | Priority |
+|-------|---------|-------------|--------------|----------|
+| MDAOrchestratorAgent | Multi-agent coordination | User Choice | ✅ Yes | HIGH |
+| APIDesignAgent | RESTful/GraphQL API design | User Choice | ✅ Yes | MEDIUM |
+| BaseEnterpriseAgent | Base class for enterprise agents | User Choice | ✅ Yes | HIGH |
 
-### 2.3 File Structure
+### 2.4 File Structure
 
 ```
 apps/backend/agents/
@@ -154,13 +200,14 @@ apps/backend/agents/
 │   └── tools/                    # EXISTING - PRESERVE
 ├── enterprise/                   # NEW
 │   ├── __init__.py
-│   ├── base_enterprise.py
+│   ├── base_enterprise.py        # LLM-agnostic base class
+│   ├── llm_config.py             # Per-agent LLM configuration
 │   ├── architects/
 │   ├── security/
 │   ├── quality/
 │   ├── infrastructure/
 │   └── orchestration/
-└── registry.py                   # NEW - Agent discovery
+└── registry.py                   # NEW - Agent discovery with LLM config
 ```
 
 ---
@@ -223,40 +270,132 @@ apps/backend/memory/
 
 ---
 
-## 4. LLM Integration Enhancement
+## 4. LLM Integration - Agnostic Architecture
 
-### 4.1 Existing LLM (PRESERVE)
+> ⚠️ **CRITICAL SECTION**: This section defines the LLM-agnostic architecture
 
-> **Reference**: Claude Agent SDK is the core foundation
+### 4.1 Design Philosophy
 
-| Component | Status | Action |
-|-----------|--------|--------|
-| Claude Agent SDK | ✅ PRESERVE | Primary provider |
-| Anthropic Client | ✅ PRESERVE | Default LLM |
+> **The system MUST NOT be dependent on any single LLM provider**
 
-### 4.2 Multi-LLM Support (Optional Enhancement)
+| Principle | Implementation |
+|-----------|----------------|
+| **No Default Provider** | Users explicitly choose their preferred provider(s) |
+| **Provider Abstraction** | All LLM calls go through a unified abstraction layer |
+| **Per-Agent Config** | Each agent can use a different provider/model |
+| **Hot-Swappable** | Providers can be changed at runtime without restart |
+| **Graceful Fallback** | Automatic failover to backup providers |
+
+### 4.2 Supported LLM Routers
 
 > **Reference**: DEVAPEX Features § 3 LLM Integration
 
-| Provider | Models | Priority | ADR Ref |
-|----------|--------|----------|---------|
-| Claude (Anthropic) | Opus, Sonnet, Haiku | PRIMARY | ADR-005 |
-| OpenAI | GPT-4, GPT-4o, GPT-4o-mini | MEDIUM | ADR-005 |
-| Azure | Azure OpenAI Service | MEDIUM | ADR-005 |
-| Ollama | Llama, Mistral, local models | LOW | ADR-005 |
-| OpenRouter | Multi-model routing | LOW | ADR-005 |
-| Gemini | Gemini Pro/Ultra | LOW | ADR-005 |
-| Copilot | VS Code LM API bridge | LOW | ADR-005 |
+| Router/Provider | Models | Configuration | Priority |
+|-----------------|--------|---------------|----------|
+| **GitHub Copilot** | Copilot models via VS Code LM API | API key via GitHub login | **EQUAL** |
+| **OpenRouter** | 100+ models (OpenAI, Claude, Llama, Mistral, etc.) | API key | **EQUAL** |
+| **Ollama** | Llama, Mistral, CodeLlama, local models | Local endpoint | **EQUAL** |
+| **LM Studio** | Local models via OpenAI-compatible API | Local endpoint | **EQUAL** |
+| **Google Gemini** | Gemini Pro, Gemini Ultra, Gemini Flash | API key | **EQUAL** |
+| **OpenAI Direct** | GPT-4, GPT-4o, GPT-4o-mini, o1 | API key | **EQUAL** |
+| **Anthropic Direct** | Claude 3 Opus, Sonnet, Haiku | API key | **EQUAL** |
+| **Azure OpenAI** | Azure-hosted OpenAI models | API key + endpoint | **EQUAL** |
 
-### 4.3 LLM Router Features
+### 4.3 LLM Abstraction Layer
+
+```python
+class LLMProvider(ABC):
+    """Abstract base class for all LLM providers"""
+    
+    @abstractmethod
+    async def complete(self, messages: List[Message], **kwargs) -> Response:
+        """Generate completion - provider agnostic"""
+        pass
+    
+    @abstractmethod
+    async def list_models(self) -> List[ModelInfo]:
+        """List available models for this provider"""
+        pass
+    
+    @abstractmethod
+    async def health_check(self) -> ProviderHealth:
+        """Check provider availability"""
+        pass
+```
+
+### 4.4 LLM Router Features
 
 | Feature | Description | Value |
 |---------|-------------|-------|
-| IntelligentRouting | Cost/capability/latency based | Optimized model selection |
-| ProviderHealth | Health monitoring + failover | Reliability |
-| ModelDiscovery | Dynamic model listing | Up-to-date model access |
-| CostTracking | Token usage + estimation | Budget management |
-| AgentLLMConfig | Per-agent configuration | Fine-grained control |
+| **ProviderRegistry** | Central registry of all configured providers | Discovery |
+| **IntelligentRouting** | Route based on cost, capability, latency, availability | Optimization |
+| **ProviderHealth** | Real-time health monitoring + automatic failover | Reliability |
+| **ModelDiscovery** | Dynamic model listing from each provider | Up-to-date access |
+| **CostTracking** | Per-provider token usage and cost estimation | Budget management |
+| **RateLimiting** | Per-provider rate limit handling | Stability |
+| **LoadBalancing** | Distribute requests across multiple providers | Scalability |
+
+### 4.5 Per-Agent LLM Assignment
+
+> **Each agent can be configured to use any available LLM provider/model**
+
+| Configuration Level | Scope | Example |
+|---------------------|-------|---------|
+| **Global Default** | Fallback for all agents | `openrouter/claude-3-opus` |
+| **Agent Type Default** | Default for agent category | Security agents → `openai/gpt-4` |
+| **Individual Agent** | Specific agent override | `RedTeamAgent` → `ollama/llama-3` |
+| **Task Override** | Per-task temporary override | Current task → `gemini/pro` |
+
+### 4.6 User LLM Configuration UI
+
+| Feature | Description |
+|---------|-------------|
+| Provider Setup | Add/configure providers with credentials |
+| Model Browser | Browse available models per provider |
+| Agent Assignment | Drag-drop model assignment to agents |
+| Cost Calculator | Estimate costs based on configuration |
+| Test Connection | Verify provider connectivity |
+
+### 4.7 File Structure
+
+```
+apps/backend/llm/
+├── __init__.py
+├── abstraction/                  # Provider abstraction layer
+│   ├── __init__.py
+│   ├── base_provider.py          # Abstract LLMProvider
+│   ├── message.py                # Provider-agnostic message format
+│   └── response.py               # Provider-agnostic response format
+├── providers/                    # Concrete provider implementations
+│   ├── __init__.py
+│   ├── copilot_provider.py       # GitHub Copilot via VS Code LM API
+│   ├── openrouter_provider.py    # OpenRouter multi-model
+│   ├── ollama_provider.py        # Ollama local models
+│   ├── lmstudio_provider.py      # LM Studio local models
+│   ├── gemini_provider.py        # Google Gemini
+│   ├── openai_provider.py        # OpenAI direct
+│   ├── anthropic_provider.py     # Anthropic direct
+│   └── azure_provider.py         # Azure OpenAI
+├── router/                       # Intelligent routing
+│   ├── __init__.py
+│   ├── router.py                 # Main router logic
+│   ├── strategies.py             # Routing strategies
+│   ├── health.py                 # Provider health monitoring
+│   └── failover.py               # Automatic failover
+├── registry/                     # Provider registration
+│   ├── __init__.py
+│   ├── provider_registry.py
+│   └── model_catalog.py
+├── config/                       # Configuration
+│   ├── __init__.py
+│   ├── agent_llm_config.py       # Per-agent LLM config
+│   ├── provider_config.py        # Provider credentials
+│   └── defaults.py               # System defaults
+└── metrics/                      # Usage tracking
+    ├── __init__.py
+    ├── cost_tracker.py
+    └── usage_analytics.py
+```
 
 ---
 
@@ -265,12 +404,14 @@ apps/backend/memory/
 ### 5.1 Skills System (NEW)
 
 > **Reference**: DEVAPEX Features § 4 Skills Framework
+>
+> **Note**: Skills are LLM-agnostic and work with any configured provider
 
 | Component | Description | Value |
 |-----------|-------------|-------|
 | SkillRegistry | Central registry for all skills | Skill discovery |
 | SkillMetadata | Rich metadata (category, complexity, priority) | Skill classification |
-| SkillExecutor | LLM-agnostic skill execution engine | Universal execution |
+| SkillExecutor | **LLM-agnostic** skill execution engine | Universal execution |
 | SkillValidator | Pre/post execution validation | Quality assurance |
 | SkillLoader | Dynamic skill loading from multiple sources | Extensibility |
 | ContextCompression | Token-efficient context management | Cost optimization |
@@ -294,7 +435,7 @@ apps/backend/memory/
 apps/backend/skills/
 ├── __init__.py
 ├── registry.py
-├── executor.py
+├── executor.py                   # LLM-agnostic executor
 ├── validator.py
 ├── loader.py
 ├── rubric.py
@@ -450,11 +591,51 @@ apps/backend/orchestrator/
 
 | Component | Location | Status |
 |-----------|----------|--------|
-| .env Configuration | Various | ✅ PRESERVE |
+| .env Configuration | Various | ✅ PRESERVE as fallback |
 | API Key Storage | .env files | ✅ PRESERVE as fallback |
 | Security Scanner | `security/` | ✅ PRESERVE |
 
-### 9.2 Secrets Manager (NEW)
+### 9.2 Multi-Provider Authentication (NEW - CRITICAL)
+
+> ⚠️ **CORE REQUIREMENT**: Users can login via multiple OAuth providers or manually
+
+| Auth Provider | Implementation | Priority |
+|---------------|----------------|----------|
+| **GitHub OAuth** | OAuth 2.0 flow with GitHub | **CRITICAL** |
+| **Google OAuth** | OAuth 2.0 flow with Google | **CRITICAL** |
+| **Microsoft OAuth** | OAuth 2.0 flow with Microsoft/Azure AD | **CRITICAL** |
+| **Manual Signup** | Email/password with verification | **CRITICAL** |
+
+### 9.3 Authentication Architecture
+
+```python
+class AuthProvider(ABC):
+    """Abstract base for authentication providers"""
+    
+    @abstractmethod
+    async def authenticate(self, credentials: Credentials) -> AuthResult:
+        pass
+    
+    @abstractmethod
+    async def get_user_info(self, token: str) -> UserInfo:
+        pass
+    
+    @abstractmethod
+    async def refresh_token(self, refresh_token: str) -> TokenPair:
+        pass
+```
+
+### 9.4 User Account Features
+
+| Feature | Description | Priority |
+|---------|-------------|----------|
+| AccountCreation | Create accounts via OAuth or manual signup | **CRITICAL** |
+| ProfileManagement | User profile with preferences | HIGH |
+| LLMCredentials | Per-user LLM provider credentials storage | **CRITICAL** |
+| TeamMembership | Optional team/organization support | MEDIUM |
+| SessionManagement | Multi-device session handling | HIGH |
+
+### 9.5 Secrets Manager (NEW)
 
 > **Reference**: DEVAPEX Features § 8 Security &amp; Authentication
 
@@ -468,15 +649,32 @@ apps/backend/orchestrator/
 | AuditTrail | Complete access logging | ADR-010 |
 | SecretRotation | Expiry tracking and rotation reminders | ADR-010 |
 
-### 9.3 Authentication (Optional - Phase 3)
+### 9.6 File Structure
 
-| Feature | Description | Priority |
-|---------|-------------|----------|
-| SSOManager | Single Sign-On support | LOW |
-| OAuthProviders | GitHub, Google, Microsoft, Okta | LOW |
-| SessionManagement | Secure session handling | LOW |
-| MFASupport | Optional multi-factor | LOW |
-| RBAC | Role-based access control | LOW |
+```
+apps/backend/auth/
+├── __init__.py
+├── providers/                    # OAuth providers
+│   ├── __init__.py
+│   ├── base_auth.py              # Abstract AuthProvider
+│   ├── github_auth.py            # GitHub OAuth
+│   ├── google_auth.py            # Google OAuth
+│   ├── microsoft_auth.py         # Microsoft OAuth
+│   └── manual_auth.py            # Email/password
+├── session/                      # Session management
+│   ├── __init__.py
+│   ├── session_manager.py
+│   └── token_manager.py
+├── user/                         # User management
+│   ├── __init__.py
+│   ├── user_service.py
+│   ├── profile.py
+│   └── credentials.py            # User LLM credentials
+└── rbac/                         # Role-based access control
+    ├── __init__.py
+    ├── roles.py
+    └── permissions.py
+```
 
 ---
 
@@ -493,6 +691,7 @@ apps/backend/orchestrator/
 | SemanticVersioning | Auto major/minor/patch bumping | MEDIUM | ADR-009 |
 | RepositoryIntegration | Git repo association | HIGH | ADR-009 |
 | ProjectMetadata | Rich settings storage | MEDIUM | ADR-009 |
+| **ProjectLLMConfig** | Per-project LLM provider settings | HIGH | ADR-009 |
 
 ### 10.2 Teams Module (Optional)
 
@@ -503,6 +702,7 @@ apps/backend/orchestrator/
 | ProjectSharing | Cross-team project access | LOW |
 | TeamChannels | Team communication | LOW |
 | PresenceTracking | Real-time member presence | LOW |
+| **TeamLLMConfig** | Team-level LLM provider settings | LOW |
 
 ### 10.3 Engines Module
 
@@ -611,8 +811,9 @@ See existing Linear integration for reference.
 | TaskMetrics | Completion rates, durations, throughput | HIGH |
 | AgentMetrics | Utilization, success rates, error rates | HIGH |
 | MemoryMetrics | Usage, query performance, cache hit ratio | MEDIUM |
-| CostMetrics | LLM token usage, cost estimation | HIGH |
+| CostMetrics | LLM token usage, cost estimation **per provider** | HIGH |
 | QualityMetrics | Code quality scores, issue rates, test coverage | MEDIUM |
+| **ProviderMetrics** | Per-provider latency, reliability, cost | HIGH |
 
 ### 12.3 Implementation Specifications
 
@@ -623,6 +824,8 @@ See existing Linear integration for reference.
 | avg_task_duration | sum(duration) / count | Hourly aggregate |
 | token_usage | sum(prompt_tokens + completion_tokens) | Per-request |
 | cost_estimate | token_usage * model_rate | Daily aggregate |
+| **provider_latency** | avg(response_time) per provider | Hourly |
+| **provider_reliability** | success_rate per provider | Daily |
 
 ### 12.4 File Structure
 
@@ -638,7 +841,8 @@ apps/backend/analytics/
 │   ├── agent_metrics.py
 │   ├── memory_metrics.py
 │   ├── cost_metrics.py
-│   └── quality_metrics.py
+│   ├── quality_metrics.py
+│   └── provider_metrics.py       # NEW - Per-provider metrics
 └── exporters/
     ├── __init__.py
     ├── json_exporter.py
@@ -667,6 +871,8 @@ apps/backend/analytics/
 | EnvironmentConfig | Development, staging, production modes | Environment support |
 | ConfigValidation | Schema-based validation | Error prevention |
 | ConfigHotReload | Runtime configuration updates | Flexibility |
+| **LLMProviderConfig** | Per-provider credential management | LLM agnosticism |
+| **UserPreferences** | Per-user configuration storage | Personalization |
 
 ### 13.3 Configuration Schema
 
@@ -676,13 +882,19 @@ apps/backend/analytics/
 Configuration Schema (Enterprise-Grade)
 
 Sections:
-1. LLMConfig - Model, provider, parameter settings
-2. MemoryConfig - Retention, embedding, search settings
-3. OrchestratorConfig - Pool size, queue limits, timeouts
-4. SecurityConfig - Auth, encryption, access settings
-5. GovernanceConfig - HITL, compliance, approval settings
-6. AnalyticsConfig - Metrics collection, retention, export
-7. IntegrationConfig - Per-integration settings
+1. LLMConfig - Provider configurations (multiple providers)
+   - Per-provider credentials
+   - Default provider selection
+   - Per-agent overrides
+2. AuthConfig - Authentication provider settings
+   - OAuth provider configs (GitHub, Google, Microsoft)
+   - Manual auth settings
+3. MemoryConfig - Retention, embedding, search settings
+4. OrchestratorConfig - Pool size, queue limits, timeouts
+5. SecurityConfig - Encryption, access settings
+6. GovernanceConfig - HITL, compliance, approval settings
+7. AnalyticsConfig - Metrics collection, retention, export
+8. IntegrationConfig - Per-integration settings
 """
 ```
 
@@ -699,6 +911,9 @@ apps/backend/config/
 │   ├── env_loader.py             # Load from .env
 │   ├── file_loader.py            # Load from JSON/YAML
 │   └── secrets_loader.py         # Load from secrets manager
+├── providers/                    # NEW - LLM provider configs
+│   ├── __init__.py
+│   └── llm_provider_config.py
 └── environments/
     ├── development.py
     ├── staging.py
@@ -721,6 +936,8 @@ apps/backend/config/
 | Performance Tests | Baseline + regression | MEDIUM |
 | Compliance Tests | APEX Constitution | MEDIUM |
 | Security Tests | OWASP Top 10 | HIGH |
+| **LLM Provider Tests** | All supported providers | HIGH |
+| **Auth Provider Tests** | All OAuth flows | HIGH |
 
 ### 14.2 Test Specifications
 
@@ -731,6 +948,8 @@ apps/backend/config/
 | Secrets | encryption, scoping | IPC handlers | UI → Store → Retrieve |
 | Analytics | collectors, metrics | store + API | Dashboard display |
 | Agents | each enterprise agent | multi-agent coordination | Spec → Code |
+| **LLM Providers** | each provider client | routing, failover | Multi-provider task |
+| **Auth** | each OAuth provider | login flow | Full signup/login |
 
 ### 14.3 Validation Requirements
 
@@ -741,6 +960,7 @@ apps/backend/config/
 | Security | Security scan | No critical vulnerabilities |
 | APEX Compliance | Compliance tests | All articles satisfied |
 | User Acceptance | Manual verification | Sign-off received |
+| **LLM Agnosticism** | Provider swap tests | Works with all providers |
 
 ### 14.4 File Structure
 
@@ -753,15 +973,20 @@ tests/
 │   ├── test_memory/
 │   ├── test_secrets/
 │   ├── test_analytics/
-│   └── test_enterprise_agents/
+│   ├── test_enterprise_agents/
+│   ├── test_llm_providers/       # NEW - Provider tests
+│   └── test_auth_providers/      # NEW - Auth tests
 ├── integration/                  # NEW - Integration tests
 │   ├── test_memory_integration.py
 │   ├── test_orchestrator_integration.py
-│   └── test_ipc_integration.py
+│   ├── test_ipc_integration.py
+│   ├── test_llm_routing.py       # NEW - LLM routing tests
+│   └── test_auth_flow.py         # NEW - Auth flow tests
 ├── e2e/                          # NEW - End-to-end tests
 │   ├── test_kanban_workflow.py
 │   ├── test_secrets_workflow.py
-│   └── test_spec_execution.py
+│   ├── test_spec_execution.py
+│   └── test_multi_provider.py    # NEW - Multi-provider tests
 ├── performance/                  # NEW - Performance tests
 │   ├── test_memory_perf.py
 │   └── test_orchestrator_perf.py
@@ -784,6 +1009,8 @@ tests/
 | USER_GUIDE.md | End-user documentation | MEDIUM | NEW |
 | DEVELOPMENT.md | Developer setup and contribution guide | MEDIUM | ENHANCE |
 | CONFIGURATION.md | Configuration reference | MEDIUM | NEW |
+| **LLM_PROVIDERS.md** | LLM provider setup guide | HIGH | NEW |
+| **AUTH_SETUP.md** | Authentication configuration guide | HIGH | NEW |
 | decisions.md | Architecture Decision Records | HIGH | ✅ EXISTS |
 | CHANGELOG.md | Version history and changes | HIGH | ✅ EXISTS |
 | FEATURES.md | Feature catalog | MEDIUM | NEW |
@@ -809,6 +1036,8 @@ docs/
 ├── API.md                        # NEW
 ├── USER_GUIDE.md                 # NEW
 ├── CONFIGURATION.md              # NEW
+├── LLM_PROVIDERS.md              # NEW - Provider setup
+├── AUTH_SETUP.md                 # NEW - Auth configuration
 ├── FEATURES.md                   # NEW
 └── api/                          # NEW - API specs
     ├── openapi.yaml
@@ -840,6 +1069,9 @@ docs/
 | Status Events | Real-time status updates | Low | MEDIUM |
 | Memory Panel | Episode history viewer (optional) | Low | LOW |
 | Analytics View | Metrics dashboard (optional) | Low | LOW |
+| **LLM Provider Panel** | Provider configuration UI | LOW | HIGH |
+| **Login Screen** | OAuth provider selection | LOW | **CRITICAL** |
+| **Agent LLM Config** | Per-agent model assignment UI | LOW | HIGH |
 
 ---
 
@@ -849,69 +1081,90 @@ docs/
 
 | Milestone | Tasks | Priority | ADR Ref |
 |-----------|-------|----------|---------|
-| 1A | Base Enterprise Agent class | HIGH | ADR-001 |
-| 1B | Agent Registry | HIGH | ADR-001 |
+| 1A | Base Enterprise Agent class (LLM-agnostic) | HIGH | ADR-001 |
+| 1B | Agent Registry with LLM config | HIGH | ADR-001 |
 | 1C | Episode Store | HIGH | ADR-003 |
 
-### Phase 2: Orchestration (Week 3-4)
+### Phase 2: LLM Agnostic Layer (Week 3-4) - **NEW PRIORITY**
 
 | Milestone | Tasks | Priority | ADR Ref |
 |-----------|-------|----------|---------|
-| 2A | Task Queue | HIGH | ADR-004 |
-| 2B | Agent Pool | HIGH | ADR-007 |
-| 2C | Event Bus | HIGH | ADR-004 |
+| 2A | LLM Abstraction Layer | **CRITICAL** | ADR-005 |
+| 2B | Provider Implementations (7+) | **CRITICAL** | ADR-005 |
+| 2C | Intelligent Router | HIGH | ADR-005 |
+| 2D | Per-Agent LLM Config | **CRITICAL** | ADR-005 |
 
-### Phase 3: Memory (Week 5-6)
-
-| Milestone | Tasks | Priority | ADR Ref |
-|-----------|-------|----------|---------|
-| 3A | H-MEM L1/L2/L3 tiers | MEDIUM | ADR-003 |
-| 3B | Memory Bridge | MEDIUM | ADR-003 |
-| 3C | Unified Query | MEDIUM | ADR-003 |
-
-### Phase 4: Security (Week 7-8)
+### Phase 3: Authentication (Week 5-6) - **NEW PRIORITY**
 
 | Milestone | Tasks | Priority | ADR Ref |
 |-----------|-------|----------|---------|
-| 4A | Secrets Manager | HIGH | ADR-010 |
-| 4B | Audit Trail | MEDIUM | ADR-010 |
-| 4C | RBAC (if needed) | LOW | ADR-010 |
+| 3A | GitHub OAuth | **CRITICAL** | ADR-010 |
+| 3B | Google OAuth | **CRITICAL** | ADR-010 |
+| 3C | Microsoft OAuth | **CRITICAL** | ADR-010 |
+| 3D | Manual Signup | **CRITICAL** | ADR-010 |
+| 3E | User Credential Storage | HIGH | ADR-010 |
 
-### Phase 5: Enterprise Agents (Week 9-12)
-
-| Milestone | Tasks | Priority | ADR Ref |
-|-----------|-------|----------|---------|
-| 5A | Architecture Agents (4) | MEDIUM | ADR-002 |
-| 5B | Security Agents (2) | HIGH | ADR-010 |
-| 5C | Quality Agents (3) | MEDIUM | ADR-002 |
-| 5D | Infrastructure Agents (4) | LOW | ADR-002 |
-| 5E | Orchestration Agents (3) | MEDIUM | ADR-004 |
-
-### Phase 6: Analytics &amp; Tools (Week 13-14)
+### Phase 4: Orchestration (Week 7-8)
 
 | Milestone | Tasks | Priority | ADR Ref |
 |-----------|-------|----------|---------|
-| 6A | Metrics Collector | HIGH | ADR-009 |
-| 6B | Tool Registry Enhancement | MEDIUM | ADR-002 |
-| 6C | Integration Framework | MEDIUM | ADR-009 |
+| 4A | Task Queue | HIGH | ADR-004 |
+| 4B | Agent Pool | HIGH | ADR-007 |
+| 4C | Event Bus | HIGH | ADR-004 |
 
-### Phase 7: Governance (Week 15-16)
-
-| Milestone | Tasks | Priority | ADR Ref |
-|-----------|-------|----------|---------|
-| 7A | APEX Validators | MEDIUM | ADR-008 |
-| 7B | Governance Councils | LOW | ADR-008 |
-| 7C | HITL Gates | LOW | ADR-008 |
-
-### Phase 8: Testing &amp; Documentation (Week 17-18)
+### Phase 5: Memory (Week 9-10)
 
 | Milestone | Tasks | Priority | ADR Ref |
 |-----------|-------|----------|---------|
-| 8A | Unit Tests (80%+) | HIGH | ADR-011 |
-| 8B | Integration Tests | HIGH | ADR-011 |
-| 8C | E2E Tests | MEDIUM | ADR-011 |
-| 8D | Documentation | HIGH | ADR-011 |
-| 8E | User Sign-off | HIGH | ADR-011 |
+| 5A | H-MEM L1/L2/L3 tiers | MEDIUM | ADR-003 |
+| 5B | Memory Bridge | MEDIUM | ADR-003 |
+| 5C | Unified Query | MEDIUM | ADR-003 |
+
+### Phase 6: Security (Week 11-12)
+
+| Milestone | Tasks | Priority | ADR Ref |
+|-----------|-------|----------|---------|
+| 6A | Secrets Manager | HIGH | ADR-010 |
+| 6B | Audit Trail | MEDIUM | ADR-010 |
+| 6C | RBAC | LOW | ADR-010 |
+
+### Phase 7: Enterprise Agents (Week 13-16)
+
+| Milestone | Tasks | Priority | ADR Ref |
+|-----------|-------|----------|---------|
+| 7A | Architecture Agents (4) | MEDIUM | ADR-002 |
+| 7B | Security Agents (2) | HIGH | ADR-010 |
+| 7C | Quality Agents (3) | MEDIUM | ADR-002 |
+| 7D | Infrastructure Agents (4) | LOW | ADR-002 |
+| 7E | Orchestration Agents (3) | MEDIUM | ADR-004 |
+
+### Phase 8: Analytics &amp; Tools (Week 17-18)
+
+| Milestone | Tasks | Priority | ADR Ref |
+|-----------|-------|----------|---------|
+| 8A | Metrics Collector (with provider metrics) | HIGH | ADR-009 |
+| 8B | Tool Registry Enhancement | MEDIUM | ADR-002 |
+| 8C | Integration Framework | MEDIUM | ADR-009 |
+
+### Phase 9: Governance (Week 19-20)
+
+| Milestone | Tasks | Priority | ADR Ref |
+|-----------|-------|----------|---------|
+| 9A | APEX Validators | MEDIUM | ADR-008 |
+| 9B | Governance Councils | LOW | ADR-008 |
+| 9C | HITL Gates | LOW | ADR-008 |
+
+### Phase 10: Testing &amp; Documentation (Week 21-22)
+
+| Milestone | Tasks | Priority | ADR Ref |
+|-----------|-------|----------|---------|
+| 10A | Unit Tests (80%+) | HIGH | ADR-011 |
+| 10B | Integration Tests | HIGH | ADR-011 |
+| 10C | E2E Tests | MEDIUM | ADR-011 |
+| 10D | LLM Provider Tests | HIGH | ADR-011 |
+| 10E | Auth Provider Tests | HIGH | ADR-011 |
+| 10F | Documentation | HIGH | ADR-011 |
+| 10G | User Sign-off | HIGH | ADR-011 |
 
 ---
 
@@ -938,6 +1191,7 @@ docs/
 
 ---
 
-*Document Version: 3.0.0*
+*Document Version: 3.1.0*
 *Last Updated: January 5, 2026*
 *Based on: DEVAPEX Features and Functions Overview v2.0.0*
+*Key Update: LLM-Agnostic Architecture with Multi-Provider Authentication*
