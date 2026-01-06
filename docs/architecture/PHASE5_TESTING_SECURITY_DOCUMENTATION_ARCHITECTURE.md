@@ -1,14 +1,17 @@
-# Phase 5: Testing, Security & Documentation Architecture
+# Phase 5: Testing & Documentation Architecture
 
 > **Auto-Claude_APEXDEV Enhancement Project**
 > Phase 5 of 10 | File/Folder Architecture Specification
 > Created: January 6, 2026
+> Last Updated: January 2025
 
 ---
 
 ## Overview
 
-Phase 5 establishes comprehensive testing infrastructure, security framework, and documentation system. This includes unit/integration/e2e tests, security scanning, audit logging, and automated documentation generation.
+Phase 5 establishes comprehensive **testing infrastructure** and **documentation system**. This includes unit/integration/e2e tests, test fixtures, and automated documentation generation.
+
+> **Note**: Security implementation is defined in **[Phase 6: Security Architecture](./PHASE6_SECURITY_ARCHITECTURE.md)**. This phase covers testing for security components and security documentation structure.
 
 ---
 
@@ -64,13 +67,22 @@ tests/
 │   │   ├── test_filesystem_tools.py   # FS tool tests
 │   │   └── test_git_tools.py          # Git tool tests
 │   │
-│   └── orchestrator/
+│   ├── orchestrator/
+│   │   ├── __init__.py
+│   │   ├── test_task_queue.py         # Queue tests
+│   │   ├── test_agent_pool.py         # Pool tests
+│   │   ├── test_workflow_engine.py    # Workflow tests
+│   │   ├── test_dispatcher.py         # Dispatcher tests
+│   │   └── test_result_collector.py   # Result tests
+│   │
+│   └── security/                      # Tests for Phase 6 security module
 │       ├── __init__.py
-│       ├── test_task_queue.py         # Queue tests
-│       ├── test_agent_pool.py         # Pool tests
-│       ├── test_workflow_engine.py    # Workflow tests
-│       ├── test_dispatcher.py         # Dispatcher tests
-│       └── test_result_collector.py   # Result tests
+│       ├── test_secrets_scanner.py    # Secret detection tests
+│       ├── test_prompt_injection.py   # Injection guard tests
+│       ├── test_credential_vault.py   # Vault tests
+│       ├── test_audit_logger.py       # Audit tests
+│       ├── test_rbac.py               # RBAC tests
+│       └── test_input_validation.py   # Validation tests
 │
 ├── integration/
 │   ├── __init__.py
@@ -81,7 +93,8 @@ tests/
 │   ├── test_workflow_execution.py     # Full workflow execution
 │   ├── test_skill_tool_chain.py       # Skill + Tool chain
 │   ├── test_memory_persistence.py     # Memory persistence
-│   └── test_ipc_communication.py      # IPC integration
+│   ├── test_ipc_communication.py      # IPC integration
+│   └── test_security_integration.py   # Security module integration
 │
 ├── e2e/
 │   ├── __init__.py
@@ -98,6 +111,7 @@ tests/
 │   ├── task_fixtures.py               # Task test fixtures
 │   ├── memory_fixtures.py             # Memory test fixtures
 │   ├── llm_fixtures.py                # LLM mock fixtures
+│   ├── security_fixtures.py           # Security test fixtures
 │   └── sample_code_fixtures.py        # Sample code for tests
 │
 └── mocks/
@@ -109,56 +123,6 @@ tests/
 
 apps/
 └── backend/
-    ├── security/
-    │   ├── __init__.py                    # Security exports
-    │   │
-    │   ├── core/
-    │   │   ├── __init__.py                # Core security exports
-    │   │   ├── security_manager.py        # Central security coordinator
-    │   │   ├── security_config.py         # Security configuration
-    │   │   └── security_context.py        # Security context
-    │   │
-    │   ├── scanning/
-    │   │   ├── __init__.py                # Scanning exports
-    │   │   ├── secret_scanner.py          # Secret detection
-    │   │   ├── vulnerability_scanner.py   # CVE/SAST scanning
-    │   │   ├── dependency_scanner.py      # Dependency vulnerabilities
-    │   │   ├── code_scanner.py            # Static analysis
-    │   │   └── scan_report.py             # Scan report generation
-    │   │
-    │   ├── audit/
-    │   │   ├── __init__.py                # Audit exports
-    │   │   ├── audit_logger.py            # Audit event logging
-    │   │   ├── audit_store.py             # Audit log storage
-    │   │   ├── audit_query.py             # Audit log querying
-    │   │   └── compliance_reporter.py     # Compliance reports
-    │   │
-    │   ├── auth/
-    │   │   ├── __init__.py                # Auth exports
-    │   │   ├── auth_manager.py            # Authentication manager
-    │   │   ├── token_manager.py           # API token management
-    │   │   ├── oauth_handler.py           # OAuth flows
-    │   │   └── credential_store.py        # Secure credential storage
-    │   │
-    │   ├── encryption/
-    │   │   ├── __init__.py                # Encryption exports
-    │   │   ├── crypto_manager.py          # Encryption/decryption
-    │   │   ├── key_manager.py             # Key management
-    │   │   └── secure_storage.py          # Encrypted storage
-    │   │
-    │   ├── validation/
-    │   │   ├── __init__.py                # Validation exports
-    │   │   ├── input_validator.py         # Input sanitization
-    │   │   ├── output_validator.py        # Output validation
-    │   │   ├── prompt_injection_guard.py  # Prompt injection defense
-    │   │   └── content_filter.py          # Content filtering
-    │   │
-    │   └── types/
-    │       ├── __init__.py                # Type exports
-    │       ├── security_types.py          # Security enums/types
-    │       ├── audit_types.py             # Audit event types
-    │       └── permission_types.py        # Permission types
-    │
     └── documentation/
         ├── __init__.py                    # Doc exports
         │
@@ -212,13 +176,10 @@ docs/
 │
 ├── architecture/
 │   ├── README.md                      # Architecture overview
-│   ├── PHASE1_*.md                    # (already created)
-│   ├── PHASE2_*.md                    # (already created)
-│   ├── PHASE3_*.md                    # (already created)
-│   ├── PHASE4_*.md                    # (already created)
-│   └── PHASE5_*.md                    # (this file)
+│   ├── PHASE1_*.md through PHASE10_*.md
+│   └── (this file)
 │
-├── security/
+├── security/                          # Security documentation
 │   ├── README.md                      # Security overview
 │   ├── security-model.md              # Security model
 │   ├── authentication.md              # Auth documentation
@@ -234,6 +195,23 @@ docs/
     ├── release-process.md             # Release process
     └── architecture-decisions.md      # ADR guide
 ```
+
+---
+
+## Security Implementation Reference
+
+> **⚠️ IMPORTANT**: The security module implementation (`apps/backend/security/`) is fully specified in **[Phase 6: Security Architecture](./PHASE6_SECURITY_ARCHITECTURE.md)**.
+
+Phase 6 defines:
+- **Scanner Module**: Secrets detection, prompt injection defense, code scanning
+- **Encryption Module**: Credential vault, key management, AES-256-GCM
+- **Audit Module**: Immutable logging, integrity verification
+- **RBAC Module**: Role management, permission enforcement
+- **Validation Module**: Input/output validation, threat detection
+
+This phase (Phase 5) covers:
+- **Security Tests**: Unit and integration tests for Phase 6 components
+- **Security Documentation**: User-facing security guides in `docs/security/`
 
 ---
 
@@ -257,6 +235,9 @@ def agent_factory() -> AgentFactory
 
 @pytest.fixture
 def task_queue() -> TaskQueue
+
+@pytest.fixture
+def security_context() -> SecurityContext  # From Phase 6
 ```
 
 #### Unit Tests Structure
@@ -269,6 +250,7 @@ def task_queue() -> TaskQueue
 | Skills | 4 | Registry, Executor, Coding, Review |
 | Tools | 5 | Registry, Permissions, Sandbox, FS, Git |
 | Orchestrator | 5 | Queue, Pool, Workflow, Dispatch, Results |
+| Security | 6 | Scanner, Injection, Vault, Audit, RBAC, Validation |
 
 #### Integration Tests
 
@@ -281,6 +263,7 @@ def task_queue() -> TaskQueue
 | `test_skill_tool_chain.py` | Skills + Tools | Skill using tools |
 | `test_memory_persistence.py` | Memory + SQLite | Data persistence |
 | `test_ipc_communication.py` | Electron + Backend | IPC message flow |
+| `test_security_integration.py` | Security + All | Security across components |
 
 #### E2E Tests
 
@@ -294,102 +277,7 @@ def task_queue() -> TaskQueue
 
 ---
 
-### 2. Security Module (`security/`)
-
-#### Core Security (`security/core/`)
-
-| File | Purpose | Key Methods |
-|------|---------|-------------|
-| `security_manager.py` | Central coordinator | `check_permission()`, `validate_input()`, `audit_log()` |
-| `security_config.py` | Security settings | `get_setting()`, `set_policy()` |
-| `security_context.py` | Request context | `get_user()`, `get_permissions()` |
-
-#### Security Scanning (`security/scanning/`)
-
-| File | Scanner Type | Detection |
-|------|--------------|----------|
-| `secret_scanner.py` | Secrets | API keys, passwords, tokens |
-| `vulnerability_scanner.py` | CVEs | Known vulnerabilities |
-| `dependency_scanner.py` | Dependencies | Vulnerable packages |
-| `code_scanner.py` | SAST | Code issues, patterns |
-| `scan_report.py` | Reporting | Aggregate scan results |
-
-**Secret Scanner Patterns**:
-```python
-PATTERNS = [
-    r'AKIA[0-9A-Z]{16}',           # AWS Access Key
-    r'ghp_[a-zA-Z0-9]{36}',         # GitHub Token
-    r'sk-[a-zA-Z0-9]{48}',          # OpenAI Key
-    r'xox[baprs]-[0-9a-zA-Z-]+',    # Slack Token
-    # ... more patterns
-]
-```
-
-#### Audit System (`security/audit/`)
-
-| File | Purpose | Key Methods |
-|------|---------|-------------|
-| `audit_logger.py` | Event logging | `log_event()`, `log_action()` |
-| `audit_store.py` | Log storage | `store()`, `query()`, `rotate()` |
-| `audit_query.py` | Log querying | `find_by_user()`, `find_by_action()` |
-| `compliance_reporter.py` | Reports | `generate_report()`, `export()` |
-
-**Audit Event Schema**:
-```python
-@dataclass
-class AuditEvent:
-    id: str
-    timestamp: datetime
-    user: str
-    action: str
-    resource: str
-    details: Dict[str, Any]
-    outcome: str  # success, failure, error
-    ip_address: Optional[str]
-```
-
-#### Authentication (`security/auth/`)
-
-| File | Purpose | Key Methods |
-|------|---------|-------------|
-| `auth_manager.py` | Auth coordinator | `authenticate()`, `authorize()` |
-| `token_manager.py` | API tokens | `generate()`, `validate()`, `revoke()` |
-| `oauth_handler.py` | OAuth flows | `start_flow()`, `handle_callback()` |
-| `credential_store.py` | Credential storage | `store()`, `retrieve()`, `delete()` |
-
-#### Encryption (`security/encryption/`)
-
-| File | Purpose | Algorithms |
-|------|---------|------------|
-| `crypto_manager.py` | Encryption ops | AES-256-GCM, ChaCha20 |
-| `key_manager.py` | Key management | Key derivation, rotation |
-| `secure_storage.py` | Encrypted storage | File and DB encryption |
-
-#### Input/Output Validation (`security/validation/`)
-
-| File | Purpose | Key Features |
-|------|---------|-------------|
-| `input_validator.py` | Input sanitization | XSS prevention, size limits |
-| `output_validator.py` | Output validation | PII redaction, format check |
-| `prompt_injection_guard.py` | Prompt security | Injection detection, blocking |
-| `content_filter.py` | Content filtering | Harmful content detection |
-
-**Prompt Injection Guard**:
-```python
-class PromptInjectionGuard:
-    def check(self, input_text: str) -> ValidationResult:
-        """Detect and block prompt injection attempts"""
-        
-    def sanitize(self, input_text: str) -> str:
-        """Sanitize input to remove injection patterns"""
-        
-    def wrap_user_input(self, input_text: str) -> str:
-        """Wrap user input with delimiters for safety"""
-```
-
----
-
-### 3. Documentation Module (`documentation/`)
+### 2. Documentation Module (`documentation/`)
 
 #### Documentation Generators (`documentation/generators/`)
 
@@ -429,7 +317,7 @@ class APIDocGenerator:
 
 ---
 
-### 4. Documentation Files (`docs/`)
+### 3. Documentation Files (`docs/`)
 
 #### API Documentation (`docs/api/`)
 
@@ -458,11 +346,13 @@ class APIDocGenerator:
 
 #### Security Documentation (`docs/security/`)
 
+> See [Phase 6](./PHASE6_SECURITY_ARCHITECTURE.md) for implementation details.
+
 | File | Content |
 |------|--------|
-| `security-model.md` | Security architecture |
+| `security-model.md` | Security architecture overview |
 | `authentication.md` | Auth methods, tokens |
-| `authorization.md` | Permissions, roles |
+| `authorization.md` | Permissions, roles (RBAC) |
 | `audit-logging.md` | Audit trail, compliance |
 | `prompt-injection-defense.md` | Injection prevention |
 
@@ -488,7 +378,7 @@ class APIDocGenerator:
 | Skills | 80% | 90% |
 | Tools | 85% | 95% |
 | Orchestrator | 80% | 90% |
-| Security | 90% | 98% |
+| Security (Phase 6) | 90% | 98% |
 | **Overall** | **80%** | **90%** |
 
 ---
@@ -498,36 +388,68 @@ class APIDocGenerator:
 ### Test Pipeline
 ```yaml
 # .github/workflows/test.yml
+name: Test Suite
+
+on: [push, pull_request]
+
 jobs:
   unit-tests:
-    - pytest tests/unit/ --cov
-  
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+      - name: Run unit tests
+        run: pytest tests/unit --cov=apps/backend --cov-report=xml
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+
   integration-tests:
-    - pytest tests/integration/
-  
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    steps:
+      - name: Run integration tests
+        run: pytest tests/integration -v
+
   e2e-tests:
-    - pytest tests/e2e/ --slow
-  
-  security-scan:
-    - python -m security.scanning.runner
-  
-  docs-build:
-    - python -m documentation.build
+    runs-on: ubuntu-latest
+    needs: integration-tests
+    steps:
+      - name: Run e2e tests
+        run: pytest tests/e2e -v --timeout=300
+
+  security-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run security tests
+        run: pytest tests/unit/security -v --strict-markers
 ```
 
----
+### Documentation Pipeline
+```yaml
+# .github/workflows/docs.yml
+name: Documentation
 
-## Integration Points
+on:
+  push:
+    branches: [main]
+    paths: ['docs/**', 'apps/backend/**']
 
-### With All Previous Phases
-- Tests cover all Phase 1-4 components
-- Security wraps all sensitive operations
-- Documentation generated from source
-
-### APEX Compliance
-- Audit logging mandatory
-- Security scanning on all code
-- Documentation auto-generated
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate API docs
+        run: python -m documentation.generators.api_doc_generator
+      - name: Build site
+        run: mkdocs build
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+```
 
 ---
 
@@ -535,49 +457,28 @@ jobs:
 
 | Directory | File Count | Description |
 |-----------|------------|-------------|
-| `tests/` | 3 | Config files |
-| `tests/unit/agents/` | 8 | Agent unit tests |
-| `tests/unit/memory/` | 6 | Memory unit tests |
-| `tests/unit/llm/` | 6 | LLM unit tests |
-| `tests/unit/skills/` | 5 | Skill unit tests |
-| `tests/unit/tools/` | 6 | Tool unit tests |
-| `tests/unit/orchestrator/` | 6 | Orchestrator tests |
-| `tests/integration/` | 8 | Integration tests |
-| `tests/e2e/` | 6 | E2E tests |
-| `tests/fixtures/` | 6 | Test fixtures |
-| `tests/mocks/` | 5 | Mock objects |
-| `security/core/` | 4 | Security core |
-| `security/scanning/` | 6 | Scanners |
-| `security/audit/` | 5 | Audit system |
-| `security/auth/` | 5 | Authentication |
-| `security/encryption/` | 4 | Encryption |
-| `security/validation/` | 5 | Validation |
-| `security/types/` | 4 | Security types |
-| `documentation/generators/` | 6 | Doc generators |
-| `documentation/templates/` | 4 | Templates |
-| `documentation/builders/` | 5 | Builders |
-| `documentation/types/` | 3 | Doc types |
-| `docs/api/` | 8 | API docs |
-| `docs/guides/` | 9 | User guides |
-| `docs/security/` | 6 | Security docs |
-| `docs/development/` | 6 | Dev docs |
-| **Total** | **145** | Phase 5 files |
+| `tests/` (all) | 45+ | Unit, integration, e2e tests |
+| `apps/backend/documentation/` | 15 | Doc generators |
+| `docs/` (markdown) | 25+ | User documentation |
+| **Total** | **85+** | Phase 5 files |
 
 ---
 
-## Project Completion Summary
+## Cross-Reference
 
-### All Phases Complete
-
-| Phase | Files | Focus |
-|-------|-------|-------|
-| Phase 1 | 37 | Agent System |
-| Phase 2 | 58 | Memory & LLM |
-| Phase 3 | 79 | Skills, Tools, Orchestration |
-| Phase 4 | 132 | UI, Integrations, Analytics |
-| Phase 5 | 145 | Testing, Security, Documentation |
-| **TOTAL** | **451** | Complete System |
+| Phase | Relationship |
+|-------|-------------|
+| **Phase 1** | Tests for agent system |
+| **Phase 2** | Tests for memory/LLM |
+| **Phase 3** | Tests for skills/tools |
+| **Phase 4** | Tests for UI/integrations |
+| **Phase 6** | Security implementation (referenced) |
+| **Phase 7** | Tests for enterprise agents |
+| **Phase 9** | Tests for governance |
+| **Phase 10** | Additional testing patterns |
 
 ---
 
-*Architecture specification complete. Ready for implementation.*
+## Next Steps
+
+→ Phase 6: Security Architecture (implementation details)
