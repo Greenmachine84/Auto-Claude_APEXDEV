@@ -37,194 +37,233 @@
 | ADR-025 | React Component Architecture | ✅ Accepted | 4 | 2026-01-06 |
 | ADR-026 | Zustand State Management | ✅ Accepted | 4 | 2026-01-06 |
 | ADR-027 | Multi-Platform Integration Strategy | ✅ Accepted | 4 | 2026-01-06 |
+| ADR-028 | Comprehensive Testing Strategy | ✅ Accepted | 5 | 2026-01-06 |
+| ADR-029 | Security Module Architecture | ✅ Accepted | 5 | 2026-01-06 |
+| ADR-030 | Automated Documentation Generation | ✅ Accepted | 5 | 2026-01-06 |
+| ADR-031 | Prompt Injection Defense System | ✅ Accepted | 5 | 2026-01-06 |
 
 ---
 
-## Phase 4 Decisions
+## Phase 5 Decisions
 
-### ADR-024: Electron IPC Architecture
+### ADR-028: Comprehensive Testing Strategy
 
 **Status**: ✅ Accepted  
 **Date**: 2026-01-06  
-**Phase**: 4 - UI, Integrations & Analytics
+**Phase**: 5 - Testing, Security & Documentation
 
 #### Context
-Desktop app needs secure communication between Electron main process and renderer. DEVAPEX uses IPC bridge pattern.
+Enterprise-grade application requires thorough testing at multiple levels.
 
 #### Decision
-Implement structured IPC with domain-specific handlers:
+Implement 3-tier testing strategy:
 
-**IPC Channels**:
-| Domain | Channel Prefix | Handlers |
-|--------|----------------|----------|
-| Tasks | `task:` | create, update, delete, list |
-| Agents | `agent:` | start, stop, status, logs |
-| Memory | `memory:` | search, get, store |
-| Settings | `settings:` | get, set, reset |
+| Level | Test Count | Coverage Target | Run Time |
+|-------|------------|-----------------|----------|
+| Unit | 37 files | 90% | < 2 min |
+| Integration | 7 files | 80% | < 5 min |
+| E2E | 5 files | 70% | < 10 min |
 
-**Architecture**:
+**Testing Stack**:
+- pytest for Python tests
+- pytest-asyncio for async tests
+- pytest-cov for coverage
+- Mock fixtures for LLM/external APIs
+
+**Coverage Requirements**:
+- Security module: 90% minimum
+- Core agents: 85% minimum
+- Overall: 80% minimum
+
+#### Rationale
+- Unit tests catch component issues early
+- Integration tests verify component interaction
+- E2E tests validate user workflows
+- High security coverage is critical
+
+#### Consequences
+- Significant test code to maintain
+- CI pipeline time increases
+- Mock complexity for LLM tests
+
+---
+
+### ADR-029: Security Module Architecture
+
+**Status**: ✅ Accepted  
+**Date**: 2026-01-06  
+**Phase**: 5 - Testing, Security & Documentation
+
+#### Context
+AI agents executing code and accessing files require robust security controls.
+
+#### Decision
+Implement comprehensive security module with 6 sub-domains:
+
+| Domain | Files | Purpose |
+|--------|-------|---------|
+| Core | 3 | Security coordination |
+| Scanning | 5 | Secret/vulnerability detection |
+| Audit | 4 | Event logging and compliance |
+| Auth | 4 | Authentication/authorization |
+| Encryption | 3 | Data encryption |
+| Validation | 4 | Input/output validation |
+
+**Security Layers**:
+1. **Input Validation**: Sanitize all inputs
+2. **Permission Checks**: Verify capabilities before action
+3. **Audit Logging**: Log all sensitive operations
+4. **Output Validation**: Redact PII, validate format
+
+#### Rationale
+- Defense in depth approach
+- Audit trail for compliance
+- Encryption for sensitive data
+- Validation prevents injection
+
+#### Consequences
+- Performance overhead for checks
+- Storage for audit logs
+- Key management complexity
+
+---
+
+### ADR-030: Automated Documentation Generation
+
+**Status**: ✅ Accepted  
+**Date**: 2026-01-06  
+**Phase**: 5 - Testing, Security & Documentation
+
+#### Context
+Manual documentation becomes stale. Need automated generation from source.
+
+#### Decision
+Implement documentation generation system:
+
+**Generators**:
+| Generator | Input | Output |
+|-----------|-------|--------|
+| API Doc | Python modules | Markdown/HTML |
+| Schema Doc | Pydantic models | Markdown |
+| Agent Doc | Agent classes | Markdown |
+| Tool Doc | Tool definitions | Markdown |
+| OpenAPI | FastAPI routes | openapi.json |
+
+**Documentation Structure**:
 ```
-Renderer (React)
-    ↓
-  Preload API (contextBridge)
-    ↓
-  IPC Handlers (main process)
-    ↓
-  Backend Service (Python)
+docs/
+├── api/           # API reference (generated)
+├── guides/        # User guides (manual)
+├── architecture/  # Architecture specs (manual)
+├── security/      # Security docs (semi-auto)
+└── development/   # Dev docs (manual)
 ```
 
 #### Rationale
-- Security: contextBridge prevents direct node access
-- Type safety: TypeScript interfaces both sides
-- Domain separation: Clear handler responsibilities
+- Auto-generation keeps docs current
+- Consistent format across APIs
+- Reduces documentation burden
+- Single source of truth
 
 #### Consequences
-- Must maintain sync between preload and main
-- Serialization overhead for complex objects
-- Testing requires mocking IPC
+- Docstrings must be high quality
+- Build step for doc generation
+- Some manual content still needed
 
 ---
 
-### ADR-025: React Component Architecture
+### ADR-031: Prompt Injection Defense System
 
 **Status**: ✅ Accepted  
 **Date**: 2026-01-06  
-**Phase**: 4 - UI, Integrations & Analytics
+**Phase**: 5 - Testing, Security & Documentation
 
 #### Context
-Need modular, reusable UI components. DEVAPEX uses domain-organized components.
+LLM-based agents are vulnerable to prompt injection attacks via user input.
 
 #### Decision
-Organize components by feature domain:
+Implement multi-layer prompt injection defense:
 
-```
-components/
-├── common/      # Shared primitives (Button, Card, Modal)
-├── kanban/      # Task board components
-├── terminal/    # Terminal grid components
-├── agents/      # Agent monitoring
-├── memory/      # Memory viewer
-├── workflow/    # Workflow visualization
-├── settings/    # Settings pages
-└── analytics/   # Analytics dashboard
-```
+**Defense Layers**:
+1. **Detection**: Pattern matching for known injection attempts
+2. **Sanitization**: Remove/escape dangerous patterns
+3. **Delimiting**: Wrap user input with clear boundaries
+4. **Validation**: Verify output doesn't contain injected instructions
 
-**Component Patterns**:
-- Hooks for data fetching
-- Store slices for state
-- TypeScript for props
-- CSS modules for styling
-
-#### Rationale
-- Feature folders enable team ownership
-- Shared common prevents duplication
-- Clear import paths
-
-#### Consequences
-- Index files needed for exports
-- May have cross-domain dependencies
-- Component naming must be unique
-
----
-
-### ADR-026: Zustand State Management
-
-**Status**: ✅ Accepted  
-**Date**: 2026-01-06  
-**Phase**: 4 - UI, Integrations & Analytics
-
-#### Context
-Need state management that's simpler than Redux but robust enough for complex app.
-
-#### Decision
-Use Zustand with domain slices:
-
-**Store Slices**:
-| Slice | State | Persistence |
-|-------|-------|-----------|
-| `taskSlice` | Tasks, filters | No |
-| `agentSlice` | Agents, pool | No |
-| `memorySlice` | Episodes, search | No |
-| `uiSlice` | Modals, sidebar | No |
-| `settingsSlice` | All settings | Yes (persist middleware) |
-
-**Features**:
-- Devtools integration for debugging
-- Persist middleware for settings
-- Subscriptions for real-time updates
-
-#### Rationale
-- Simpler than Redux (no boilerplate)
-- TypeScript-first design
-- Persist for settings only
-- Good React integration
-
-#### Consequences
-- Team must learn Zustand patterns
-- Less ecosystem than Redux
-- Careful with large state updates
-
----
-
-### ADR-027: Multi-Platform Integration Strategy
-
-**Status**: ✅ Accepted  
-**Date**: 2026-01-06  
-**Phase**: 4 - UI, Integrations & Analytics
-
-#### Context
-Need to integrate with multiple external platforms for task sync and notifications.
-
-#### Decision
-Support 5 integration platforms with consistent patterns:
-
-| Platform | Purpose | Auth Method |
-|----------|---------|-------------|
-| GitHub | PR/Issue sync | OAuth, PAT |
-| GitLab | MR/Issue sync | OAuth, PAT |
-| Linear | Issue sync | OAuth |
-| Slack | Notifications | OAuth (workspace) |
-| JIRA | Issue sync | API Token, OAuth |
-
-**Integration Pattern**:
+**Implementation**:
 ```python
-class IntegrationClient(ABC):
-    async def authenticate() -> Token
-    async def sync_tasks() -> List[Task]
-    async def handle_webhook(event: dict) -> None
+class PromptInjectionGuard:
+    def check(self, input_text: str) -> ValidationResult
+    def sanitize(self, input_text: str) -> str
+    def wrap_user_input(self, input_text: str) -> str
+    def validate_output(self, output: str) -> ValidationResult
 ```
 
-**Webhook Support**:
-- Each integration has webhook handler
-- Bidirectional sync supported
-- Rate limiting implemented
+**Detection Patterns**:
+- "Ignore previous instructions"
+- "You are now..."
+- System prompt extraction attempts
+- Delimiter escape attempts
 
 #### Rationale
-- Covers major dev tools
-- Consistent interface across platforms
-- Webhook enables real-time sync
+- LLM security is critical
+- Multiple layers provide defense in depth
+- Pattern evolution requires updates
 
 #### Consequences
-- Multiple OAuth flows to implement
-- Webhook server needed
-- Rate limits per platform
+- False positives possible
+- Pattern maintenance needed
+- Performance overhead for checking
 
 ---
 
-## Previous Phases (Reference)
+## Decision Summary by Phase
 
-### Phase 3 (ADR-020 to ADR-023)
-- Skills Framework, Tool Sandbox, TaskQueue, Workflow Engine
+### Phase 1: Agent System (ADR-012 to ADR-015)
+- 20-agent architecture (4 core + 16 enterprise)
+- Hierarchical module structure
+- Registry and factory patterns
+- Lifecycle management
 
-### Phase 2 (ADR-016 to ADR-019)
-- H-MEM Memory, Multi-Provider LLM, Semantic Search, Tool Calling
+### Phase 2: Memory & LLM (ADR-016 to ADR-019)
+- H-MEM tiered memory (L1/L2/L3)
+- Multi-provider LLM strategy (7 providers)
+- Semantic search with embeddings
+- Tool calling framework
 
-### Phase 1 (ADR-012 to ADR-015)
-- 20-Agent Architecture, Module Structure, Registry, Lifecycle
+### Phase 3: Skills, Tools, Orchestration (ADR-020 to ADR-023)
+- Skills framework (5 categories, 16 skills)
+- Tool permission and sandbox system
+- Priority TaskQueue (4 levels)
+- Workflow engine with DSL
 
-### Initial (ADR-001 to ADR-011)
-- Core principles and foundational decisions
+### Phase 4: UI, Integrations, Analytics (ADR-024 to ADR-027)
+- Electron IPC architecture
+- React component architecture (8 domains)
+- Zustand state management
+- Multi-platform integrations (5 platforms)
+
+### Phase 5: Testing, Security, Documentation (ADR-028 to ADR-031)
+- Comprehensive testing strategy
+- Security module architecture
+- Automated documentation generation
+- Prompt injection defense
 
 ---
+
+## Total Decisions: 31
+
+| Category | Count |
+|----------|-------|
+| Foundational (ADR-001 to ADR-011) | 11 |
+| Phase 1 - Agents | 4 |
+| Phase 2 - Memory/LLM | 4 |
+| Phase 3 - Skills/Tools/Orchestration | 4 |
+| Phase 4 - UI/Integrations | 4 |
+| Phase 5 - Testing/Security/Docs | 4 |
+
+---
+
+*Architecture Decision Records complete. All 31 decisions documented.*
 
 *Document maintained as part of APEX governance requirements*
