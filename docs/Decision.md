@@ -55,6 +55,7 @@
 | ADR-043 | Extended Testing Patterns | ✅ Accepted | 10 | 2026-01-06 |
 | ADR-044 | LLM-Agnostic Provider Equality | ✅ Accepted | All | 2026-01-06 |
 | ADR-045 | Architecture Header Standardization | ✅ Accepted | QA | 2026-01-06 |
+| ADR-046 | Naming Alignment Verification | ✅ Accepted | QA | 2026-01-06 |
 
 ---
 
@@ -427,6 +428,84 @@ Phases 1-5 architecture files had headers saying "Phase X of 5" instead of "Phas
 
 ---
 
+### ADR-046: Naming Alignment Verification
+
+**Status**: ✅ Accepted  
+**Date**: 2026-01-06  
+**Phase**: Quality Review - Priority 3
+
+#### Context
+NAMING_ALIGNMENT_STANDARDS.md established canonical naming conventions. All architecture files needed verification against these standards.
+
+#### Decision
+Systematic verification of all 10 phase architecture files:
+
+**8 Canonical LLM Providers**:
+```
+copilot | openrouter | ollama | lmstudio | gemini | openai | anthropic | azure
+```
+
+**Key Naming Rule**: Use `gemini` for Google's LLM product, `google` only for OAuth authentication.
+
+#### Verification Results
+
+| Phase | File | Status | Issues Found |
+|-------|------|--------|--------------|
+| 1 | PHASE1_AGENT_SYSTEM_ARCHITECTURE.md | ✅ Compliant | None |
+| 2 | PHASE2_MEMORY_LLM_ARCHITECTURE.md | ✅ Fixed | `google_provider.py` → `gemini_provider.py`, `google_embedder.py` → `gemini_embedder.py`, LLMProvider enum corrected |
+| 3 | PHASE3_SKILLS_TOOLS_ORCHESTRATION_ARCHITECTURE.md | ✅ Compliant | None |
+| 4 | PHASE4_UI_INTEGRATIONS_ANALYTICS_ARCHITECTURE.md | ✅ Compliant | None |
+| 5 | PHASE5_TESTING_SECURITY_DOCUMENTATION_ARCHITECTURE.md | ✅ Compliant | None |
+| 6 | PHASE6_SECURITY_ARCHITECTURE.md | ✅ Compliant | None |
+| 7 | PHASE7_ENTERPRISE_AGENTS_ARCHITECTURE.md | ✅ Compliant | None |
+| 8 | PHASE8_ANALYTICS_TOOLS_ARCHITECTURE.md | ✅ Compliant | None |
+| 9 | PHASE9_GOVERNANCE_ARCHITECTURE.md | ✅ Compliant | None |
+| 10 | PHASE10_TESTING_DOCUMENTATION_ARCHITECTURE.md | ✅ Compliant | None |
+
+#### Phase 2 Fixes Applied (Commit: `c6dcfea`)
+1. **File Naming**:
+   - `google_provider.py` → `gemini_provider.py`
+   - `google_embedder.py` → `gemini_embedder.py`
+   - Added `copilot_provider.py`, `lmstudio_provider.py`
+   - Added `openrouter_embedder.py`
+
+2. **LLMProvider Enum Corrected**:
+```python
+# Before (incorrect)
+class LLMProvider(Enum):
+    GOOGLE = "google"  # Wrong
+    GROQ = "groq"      # Not in canonical 8
+
+# After (correct)
+class LLMProvider(Enum):
+    COPILOT = "copilot"
+    OPENROUTER = "openrouter"
+    OLLAMA = "ollama"
+    LMSTUDIO = "lmstudio"
+    GEMINI = "gemini"      # Correct
+    OPENAI = "openai"
+    ANTHROPIC = "anthropic"
+    AZURE = "azure"
+```
+
+3. **Cross-Reference Added**: Link to NAMING_ALIGNMENT_STANDARDS.md
+
+#### Implementation Specs Status
+- `docs/specs/` folder: Empty (specs inline in architecture files)
+- All specs content embedded in respective architecture documents
+
+#### Rationale
+- Ensures consistency with NAMING_ALIGNMENT_STANDARDS.md
+- Prevents confusion between `google` (OAuth) and `gemini` (LLM)
+- All 8 providers represented equally
+
+#### Consequences
+- Phase 2 architecture file updated with correct naming
+- Clear separation: `gemini` = LLM, `google` = OAuth only
+- All phases verified naming-compliant
+
+---
+
 ## Decision Summary by Phase
 
 ### Foundational (ADR-001 to ADR-011)
@@ -494,13 +573,14 @@ Phases 1-5 architecture files had headers saying "Phase X of 5" instead of "Phas
 - 10-phase architecture strategy
 - Extended testing patterns
 
-### Quality Review (ADR-044 to ADR-045)
+### Quality Review (ADR-044 to ADR-046)
 - LLM-agnostic provider equality
 - Architecture header standardization
+- Naming alignment verification
 
 ---
 
-## Total Decisions: 45
+## Total Decisions: 46
 
 | Category | Count |
 |----------|-------|
@@ -515,11 +595,11 @@ Phases 1-5 architecture files had headers saying "Phase X of 5" instead of "Phas
 | Phase 8 - Analytics/Tools | 2 |
 | Phase 9 - Governance | 2 |
 | Phase 10 - Extended Testing | 2 |
-| Quality Review | 2 |
-| **TOTAL** | **45** |
+| Quality Review | 3 |
+| **TOTAL** | **46** |
 
 ---
 
-*Architecture Decision Records complete. All 45 decisions documented.*
+*Architecture Decision Records complete. All 46 decisions documented.*
 
 *Document maintained as part of APEX governance requirements*
