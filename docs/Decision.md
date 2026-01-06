@@ -33,200 +33,197 @@
 | ADR-021 | Tool Permission and Sandbox System | ✅ Accepted | 3 | 2026-01-06 |
 | ADR-022 | Priority TaskQueue Implementation | ✅ Accepted | 3 | 2026-01-06 |
 | ADR-023 | Workflow Engine with DSL | ✅ Accepted | 3 | 2026-01-06 |
+| ADR-024 | Electron IPC Architecture | ✅ Accepted | 4 | 2026-01-06 |
+| ADR-025 | React Component Architecture | ✅ Accepted | 4 | 2026-01-06 |
+| ADR-026 | Zustand State Management | ✅ Accepted | 4 | 2026-01-06 |
+| ADR-027 | Multi-Platform Integration Strategy | ✅ Accepted | 4 | 2026-01-06 |
 
 ---
 
-## Phase 3 Decisions
+## Phase 4 Decisions
 
-### ADR-020: Skills Framework Architecture
+### ADR-024: Electron IPC Architecture
 
 **Status**: ✅ Accepted  
 **Date**: 2026-01-06  
-**Phase**: 3 - Skills, Tools & Orchestration
+**Phase**: 4 - UI, Integrations & Analytics
 
 #### Context
-DEVAPEX provides a comprehensive skills framework with 10+ skill types. Skills represent high-level capabilities that compose tools.
+Desktop app needs secure communication between Electron main process and renderer. DEVAPEX uses IPC bridge pattern.
 
 #### Decision
-Implement 5-category skills framework:
+Implement structured IPC with domain-specific handlers:
 
-| Category | Skills | Description |
-|----------|--------|-------------|
-| Coding | 4 | Code generation, refactoring, explanation, translation |
-| Testing | 3 | Test generation, execution, coverage analysis |
-| Review | 3 | Code review, security review, architecture review |
-| Documentation | 3 | Docstrings, README, API docs |
-| Analysis | 3 | Dependency, complexity, impact analysis |
+**IPC Channels**:
+| Domain | Channel Prefix | Handlers |
+|--------|----------------|----------|
+| Tasks | `task:` | create, update, delete, list |
+| Agents | `agent:` | start, stop, status, logs |
+| Memory | `memory:` | search, get, store |
+| Settings | `settings:` | get, set, reset |
 
-**Skill Architecture**:
+**Architecture**:
 ```
-BaseSkill (abstract)
-  ├── execute(context) -> SkillResult
-  ├── validate_input(data) -> bool
-  └── get_dependencies() -> List[str]
+Renderer (React)
+    ↓
+  Preload API (contextBridge)
+    ↓
+  IPC Handlers (main process)
+    ↓
+  Backend Service (Python)
 ```
 
 #### Rationale
-- Skills abstract complex multi-tool operations
-- Category organization aids discovery
-- Dependency tracking enables chaining
-- Validation ensures quality inputs
+- Security: contextBridge prevents direct node access
+- Type safety: TypeScript interfaces both sides
+- Domain separation: Clear handler responsibilities
 
 #### Consequences
-- 16 skill implementations needed
-- Skills depend on tool availability
-- Must handle tool failures gracefully
+- Must maintain sync between preload and main
+- Serialization overhead for complex objects
+- Testing requires mocking IPC
 
 ---
 
-### ADR-021: Tool Permission and Sandbox System
+### ADR-025: React Component Architecture
 
 **Status**: ✅ Accepted  
 **Date**: 2026-01-06  
-**Phase**: 3 - Skills, Tools & Orchestration
+**Phase**: 4 - UI, Integrations & Analytics
 
 #### Context
-Tools can execute dangerous operations (file writes, commands). Need safety mechanisms.
+Need modular, reusable UI components. DEVAPEX uses domain-organized components.
 
 #### Decision
-Implement permission-based sandboxed execution:
+Organize components by feature domain:
 
-**Permission Levels**:
-```python
-class Permission(Enum):
-    READ_FILES = "read_files"
-    WRITE_FILES = "write_files"
-    EXECUTE_COMMANDS = "execute_commands"
-    NETWORK_ACCESS = "network_access"
-    GIT_OPERATIONS = "git_operations"
-    SPAWN_PROCESSES = "spawn_processes"
+```
+components/
+├── common/      # Shared primitives (Button, Card, Modal)
+├── kanban/      # Task board components
+├── terminal/    # Terminal grid components
+├── agents/      # Agent monitoring
+├── memory/      # Memory viewer
+├── workflow/    # Workflow visualization
+├── settings/    # Settings pages
+└── analytics/   # Analytics dashboard
 ```
 
-**Sandbox Features**:
-- Resource limits (CPU, memory, time)
-- Filesystem isolation (allow-list paths)
-- Network restrictions
-- Complete audit logging
+**Component Patterns**:
+- Hooks for data fetching
+- Store slices for state
+- TypeScript for props
+- CSS modules for styling
 
 #### Rationale
-- Defense in depth for security
-- Audit trail for compliance
-- Resource limits prevent runaway
-- Isolation limits blast radius
+- Feature folders enable team ownership
+- Shared common prevents duplication
+- Clear import paths
 
 #### Consequences
-- Performance overhead for sandboxing
-- Agent capabilities limited by permissions
-- Admin must configure permissions
+- Index files needed for exports
+- May have cross-domain dependencies
+- Component naming must be unique
 
 ---
 
-### ADR-022: Priority TaskQueue Implementation
+### ADR-026: Zustand State Management
 
 **Status**: ✅ Accepted  
 **Date**: 2026-01-06  
-**Phase**: 3 - Skills, Tools & Orchestration
+**Phase**: 4 - UI, Integrations & Analytics
 
 #### Context
-Tasks have varying urgency. Need priority-based scheduling with persistence.
+Need state management that's simpler than Redux but robust enough for complex app.
 
 #### Decision
-Implement priority queue with 4 levels:
+Use Zustand with domain slices:
 
-| Priority | Value | Behavior |
-|----------|-------|----------|
-| CRITICAL | 0 | Immediate execution, preempt if needed |
-| HIGH | 1 | Next in queue after critical |
-| MEDIUM | 2 | Standard priority |
-| LOW | 3 | Background, when resources available |
+**Store Slices**:
+| Slice | State | Persistence |
+|-------|-------|-----------|
+| `taskSlice` | Tasks, filters | No |
+| `agentSlice` | Agents, pool | No |
+| `memorySlice` | Episodes, search | No |
+| `uiSlice` | Modals, sidebar | No |
+| `settingsSlice` | All settings | Yes (persist middleware) |
 
 **Features**:
-- Persistent queue (survives restarts)
-- Starvation prevention (age-based boost)
-- Queue metrics and monitoring
-- Deadline-aware scheduling
+- Devtools integration for debugging
+- Persist middleware for settings
+- Subscriptions for real-time updates
 
 #### Rationale
-- Critical tasks need immediate attention
-- Persistence prevents task loss
-- Starvation prevention ensures fairness
-- Metrics enable optimization
+- Simpler than Redux (no boilerplate)
+- TypeScript-first design
+- Persist for settings only
+- Good React integration
 
 #### Consequences
-- Queue ordering overhead
-- Persistence adds I/O
-- Priority inversion possible
+- Team must learn Zustand patterns
+- Less ecosystem than Redux
+- Careful with large state updates
 
 ---
 
-### ADR-023: Workflow Engine with DSL
+### ADR-027: Multi-Platform Integration Strategy
 
 **Status**: ✅ Accepted  
 **Date**: 2026-01-06  
-**Phase**: 3 - Skills, Tools & Orchestration
+**Phase**: 4 - UI, Integrations & Analytics
 
 #### Context
-Complex tasks require multi-step workflows with conditionals, loops, and parallelism.
+Need to integrate with multiple external platforms for task sync and notifications.
 
 #### Decision
-Implement workflow engine with builder DSL:
+Support 5 integration platforms with consistent patterns:
 
+| Platform | Purpose | Auth Method |
+|----------|---------|-------------|
+| GitHub | PR/Issue sync | OAuth, PAT |
+| GitLab | MR/Issue sync | OAuth, PAT |
+| Linear | Issue sync | OAuth |
+| Slack | Notifications | OAuth (workspace) |
+| JIRA | Issue sync | API Token, OAuth |
+
+**Integration Pattern**:
 ```python
-WorkflowBuilder()
-    .step("generate", AgentType.CODER)
-    .step("review", AgentType.REVIEWER)
-    .conditional(
-        lambda r: r.issues_count > 0,
-        if_true=Step("fix", AgentType.FIXER),
-        if_false=Step("complete", None)
-    )
-    .build()
+class IntegrationClient(ABC):
+    async def authenticate() -> Token
+    async def sync_tasks() -> List[Task]
+    async def handle_webhook(event: dict) -> None
 ```
 
-**Control Flow**:
-- Sequential steps
-- Parallel execution
-- Conditional branching
-- Loop with condition
-
-**Pre-built Templates**:
-- CodeReviewWorkflow
-- FeatureWorkflow
-- RefactorWorkflow
-- SecurityAuditWorkflow
+**Webhook Support**:
+- Each integration has webhook handler
+- Bidirectional sync supported
+- Rate limiting implemented
 
 #### Rationale
-- DSL is readable and maintainable
-- Templates accelerate common patterns
-- Parallelism improves throughput
-- State tracking enables pause/resume
+- Covers major dev tools
+- Consistent interface across platforms
+- Webhook enables real-time sync
 
 #### Consequences
-- DSL learning curve
-- Complex error handling
-- State persistence required
+- Multiple OAuth flows to implement
+- Webhook server needed
+- Rate limits per platform
 
 ---
 
 ## Previous Phases (Reference)
 
-### Phase 2 Decisions (ADR-016 to ADR-019)
-- H-MEM Tiered Memory Architecture
-- Multi-Provider LLM Strategy
-- Semantic Search with Vector Embeddings
-- Tool Calling Framework
+### Phase 3 (ADR-020 to ADR-023)
+- Skills Framework, Tool Sandbox, TaskQueue, Workflow Engine
 
-### Phase 1 Decisions (ADR-012 to ADR-015)
-- 20-Agent Architecture
-- Hierarchical Agent Module Structure
-- Agent Registry and Factory Pattern
-- Agent Lifecycle Management System
+### Phase 2 (ADR-016 to ADR-019)
+- H-MEM Memory, Multi-Provider LLM, Semantic Search, Tool Calling
 
-### Initial Decisions (ADR-001 to ADR-011)
-- Extension Over Modification
-- Memory-First Architecture
-- APEX Constitution Governance
-- And more...
+### Phase 1 (ADR-012 to ADR-015)
+- 20-Agent Architecture, Module Structure, Registry, Lifecycle
+
+### Initial (ADR-001 to ADR-011)
+- Core principles and foundational decisions
 
 ---
 
