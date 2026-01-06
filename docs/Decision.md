@@ -10,9 +10,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 2.0.0 |
+| **Version** | 3.0.0 |
 | **Created** | 2026-01-05 |
-| **Last Updated** | 2026-01-05 |
+| **Last Updated** | 2026-01-06 |
 | **Status** | Active |
 | **Source Repositories** | [DEVAPEX (dev/v2.0-multi-llm)](https://github.com/Greenmachine84/DEVAPEX/tree/dev/v2.0-multi-llm), [Auto-Claude_APEXDEV](https://github.com/Greenmachine84/Auto-Claude_APEXDEV/tree/APEXDEV_MERGE) |
 
@@ -24,15 +24,16 @@
 2. [ADR-002: Integration Strategy](#adr-002-integration-strategy)
 3. [ADR-003: Memory System Architecture](#adr-003-memory-system-architecture)
 4. [ADR-004: Task Orchestration Model](#adr-004-task-orchestration-model)
-5. [ADR-005: LLM-Agnostic Architecture](#adr-005-llm-agnostic-architecture) ⚠️ UPDATED
+5. [ADR-005: LLM-Agnostic Architecture](#adr-005-llm-agnostic-architecture) ⚠️ CRITICAL
 6. [ADR-006: Kanban UI Integration](#adr-006-kanban-ui-integration)
 7. [ADR-007: Agent Pool Management](#adr-007-agent-pool-management)
 8. [ADR-008: APEX Governance Compliance](#adr-008-apex-governance-compliance)
 9. [ADR-009: Enterprise Features Selection](#adr-009-enterprise-features-selection)
 10. [ADR-010: Security Model Harmonization](#adr-010-security-model-harmonization)
 11. [ADR-011: Merge Strategy and Testing](#adr-011-merge-strategy-and-testing)
-12. [ADR-012: Multi-Provider Authentication](#adr-012-multi-provider-authentication) ⚠️ NEW
-13. [ADR-013: Per-Agent LLM Configuration](#adr-013-per-agent-llm-configuration) ⚠️ NEW
+12. [ADR-012: Multi-Provider Authentication](#adr-012-multi-provider-authentication) ⚠️ CRITICAL
+13. [ADR-013: Per-Agent LLM Configuration](#adr-013-per-agent-llm-configuration) ⚠️ CRITICAL
+14. [ADR-014: World-Class Quality Standards](#adr-014-world-class-quality-standards) ⚠️ NEW
 
 ---
 
@@ -73,20 +74,35 @@ Determining how to merge DEVAPEX's 27+ backend modules into Auto-Claude's existi
 
 ### Decision
 
-**Phased additive integration with feature toggles:**
+**Phased additive integration with feature toggles over 10 phases (20 weeks):**
 
 ```
-Phase 1: Foundation (BaseEnterpriseAgent, AgentRegistry, EpisodeStore)
-Phase 2: LLM Agnostic Layer (Providers, Router, Per-Agent Config) ← CRITICAL
-Phase 3: Authentication (GitHub, Google, Microsoft, Manual) ← CRITICAL
-Phase 4: Orchestration (TaskQueue, AgentPool, EventBus)
-Phase 5: Memory Enhancement (H-MEM, Episodic, Bridge)
-Phase 6: Security (Secrets Manager, Audit, RBAC)
-Phase 7: Enterprise Agents (16 new agents)
-Phase 8: Analytics &amp; Tools (Metrics, ToolRegistry)
-Phase 9: Governance (Validators, Councils, HITL)
-Phase 10: Testing &amp; Documentation
+Phase 1: Foundation (Weeks 1-2)
+Phase 2: LLM-Agnostic Layer (Weeks 3-4) ← CRITICAL
+Phase 3: Authentication (Weeks 5-6) ← CRITICAL
+Phase 4: Orchestration (Weeks 7-8)
+Phase 5: Memory Enhancement (Weeks 9-10)
+Phase 6: Security (Weeks 11-12)
+Phase 7: Enterprise Agents (Weeks 13-14)
+Phase 8: Analytics &amp; Tools (Weeks 15-16)
+Phase 9: Governance (Weeks 17-18)
+Phase 10: Testing &amp; Documentation (Weeks 19-20)
 ```
+
+### Phase Specification Files
+
+| Phase | Specification File |
+|-------|-------------------|
+| 1 | `docs/specs/phase-01-foundation.md` |
+| 2 | `docs/specs/phase-02-llm-agnostic.md` |
+| 3 | `docs/specs/phase-03-authentication.md` |
+| 4 | `docs/specs/phase-04-orchestration.md` |
+| 5 | `docs/specs/phase-05-memory.md` |
+| 6 | `docs/specs/phase-06-security.md` |
+| 7 | `docs/specs/phase-07-enterprise-agents.md` |
+| 8 | `docs/specs/phase-08-analytics-tools.md` |
+| 9 | `docs/specs/phase-09-governance.md` |
+| 10 | `docs/specs/phase-10-testing-docs.md` |
 
 ### Rationale
 
@@ -110,7 +126,7 @@ DEVAPEX_FEATURES = {
 }
 ```
 
-### Status: APPROVED (Updated for LLM-Agnostic priority)
+### Status: APPROVED
 
 ---
 
@@ -135,44 +151,11 @@ Auto-Claude has Graphiti Memory with LadybugDB. DEVAPEX has SQLite-based episodi
 1. **Preserve Graphiti** for semantic search and knowledge graphs
 2. **Add EpisodeRecord layer** for agent interaction tracking
 3. **Unified search API** that queries both stores
+4. **Multi-provider embeddings** for all 8 LLM providers
 
-### Implementation
+### Reference
 
-```python
-# apps/backend/memory/unified.py
-class UnifiedMemory:
-    def __init__(self, graphiti: GraphitiMemory, episodes: EpisodeStore):
-        self.graphiti = graphiti
-        self.episodes = episodes
-    
-    async def search(self, query: str, limit: int = 10):
-        """Search both stores, merge and rank results."""
-        graphiti_results = await self.graphiti.search(query)
-        episode_results = await self.episodes.search(query)
-        return self._merge_ranked(graphiti_results, episode_results, limit)
-    
-    async def store_episode(self, agent_id: str, input_text: str, 
-                           output: str, tools_used: list):
-        """Store agent interaction as episode."""
-        episode = EpisodeRecord(
-            agent_id=agent_id,
-            input_text=input_text,
-            output=output,
-            tools_used=tools_used,
-            timestamp=datetime.now()
-        )
-        await self.episodes.store(episode)
-        # Also extract and store patterns in Graphiti
-        patterns = extract_patterns(output)
-        for pattern in patterns:
-            await self.graphiti.add_pattern(pattern)
-```
-
-### References
-
-- DEVAPEX: `apps/backend/devapex/memory/`
-- Auto-Claude: `apps/backend/integrations/graphiti/`
-- APEX Part 1: Episodic Memory Architecture
+See `docs/specs/phase-05-memory.md` for complete specification.
 
 ### Status: APPROVED
 
@@ -186,7 +169,7 @@ DEVAPEX has a sophisticated TaskQueue + AgentPool + Orchestrator pattern. Auto-C
 
 ### Decision
 
-**Adopt DEVAPEX orchestration as an optional layer:**
+**Adopt DEVAPEX orchestration as an optional layer with per-task LLM override:**
 
 ```
 Existing Flow (preserve):
@@ -196,33 +179,9 @@ New Enhanced Flow (additive):
   User → Kanban UI → TaskQueue → Orchestrator → AgentPool → agent.py → LLM Router
 ```
 
-### Priority System
+### Reference
 
-From DEVAPEX `orchestrator/manager.py`:
-
-```python
-class TaskPriority(IntEnum):
-    CRITICAL = 0   # Security fixes, blocking issues
-    HIGH = 1       # User-facing features
-    MEDIUM = 2     # Technical debt, refactoring
-    LOW = 3        # Nice-to-have improvements
-```
-
-### Agent Pool Design
-
-```python
-class AgentPoolConfig:
-    max_agents: int = 12           # Match terminal grid
-    max_concurrent_tasks: int = 6  # Prevent resource exhaustion
-    idle_timeout_seconds: int = 300
-    agent_types: list[str] = ["coder", "reviewer", "fixer"]
-```
-
-### Rationale
-
-1. **Parallel Execution**: Enables multi-build scenarios from Kanban
-2. **Resource Management**: Prevents overloading the system
-3. **Backward Compatibility**: CLI still works without orchestrator
+See `docs/specs/phase-04-orchestration.md` for complete specification.
 
 ### Status: APPROVED
 
@@ -245,7 +204,7 @@ The current system relies heavily on Anthropic/Claude. Users need complete contr
 
 ### Decision
 
-**Implement a fully LLM-agnostic architecture with no default provider.**
+**Implement a fully LLM-agnostic architecture with NO default provider.**
 
 ### Design Principles
 
@@ -254,27 +213,33 @@ The current system relies heavily on Anthropic/Claude. Users need complete contr
 | **No Default Provider** | Users explicitly configure their preferred provider(s) |
 | **Provider Abstraction** | All LLM calls through unified `LLMProvider` interface |
 | **Per-Agent Config** | Each agent can use a different provider/model |
-| **Equal Priority** | All providers are equal - no "primary" or "fallback" |
+| **Equal Priority** | All 8 providers are equal - no "primary" or "fallback" |
 | **Hot-Swappable** | Providers can be changed at runtime |
 | **Graceful Failover** | Automatic failover based on user-defined chain |
 
-### Supported LLM Routers (All Equal Priority)
+### Supported LLM Providers (8 Equal Providers)
 
-| Router/Provider | Models | Configuration |
-|-----------------|--------|---------------|
-| GitHub Copilot | Copilot models via VS Code LM API | GitHub login |
-| OpenRouter | 100+ models (OpenAI, Claude, Llama, Mistral, etc.) | API key |
-| Ollama | Llama, Mistral, CodeLlama, local models | Local endpoint |
-| LM Studio | Local models via OpenAI-compatible API | Local endpoint |
-| Google Gemini | Gemini Pro, Ultra, Flash | API key |
-| OpenAI Direct | GPT-4, GPT-4o, GPT-4o-mini, o1 | API key |
-| Anthropic Direct | Claude 3 Opus, Sonnet, Haiku | API key |
-| Azure OpenAI | Azure-hosted OpenAI models | API key + endpoint |
+| Provider | Models | Configuration |
+|----------|--------|---------------|
+| **Copilot** | Copilot models via VS Code LM API | GitHub login |
+| **OpenRouter** | 100+ models (OpenAI, Claude, Llama, Mistral, etc.) | API key |
+| **Ollama** | Llama, Mistral, CodeLlama, local models | Local endpoint |
+| **LMStudio** | Local models via OpenAI-compatible API | Local endpoint |
+| **Gemini** | Gemini Pro, Ultra, Flash | API key |
+| **OpenAI** | GPT-4, GPT-4o, GPT-4o-mini, o1 | API key |
+| **Anthropic** | Claude 3 Opus, Sonnet, Haiku | API key |
+| **Azure** | Azure-hosted OpenAI models | API key + endpoint |
 
 ### Architecture
 
 ```python
 from abc import ABC, abstractmethod
+from typing import List, Dict
+
+SUPPORTED_PROVIDERS = [
+    "copilot", "openrouter", "ollama", "lmstudio",
+    "gemini", "openai", "anthropic", "azure"
+]
 
 class LLMProvider(ABC):
     """Abstract base class for ALL LLM providers - no favorites."""
@@ -288,48 +253,31 @@ class LLMProvider(ABC):
     async def list_models(self) -> List[ModelInfo]:
         """List available models for this provider."""
         pass
-    
-    @abstractmethod
-    async def health_check(self) -> ProviderHealth:
-        """Check provider availability."""
-        pass
 
 
 class LLMRouter:
-    """Route requests to user-configured providers."""
+    """Route requests to user-configured providers. NO DEFAULT."""
     
     def __init__(self, providers: Dict[str, LLMProvider]):
         self.providers = providers  # User-configured only
+        # NO default_provider attribute
     
     async def route(self, task: Task, agent_config: AgentLLMConfig) -> Response:
         """Route to agent's configured provider."""
         provider_id = agent_config.provider
-        provider = self.providers.get(provider_id)
+        if not provider_id:
+            raise ValueError("Provider is required - no default provider")
         
+        provider = self.providers.get(provider_id)
         if not provider:
             raise ProviderNotConfigured(f"Provider '{provider_id}' not configured")
         
-        try:
-            return await provider.complete(task.messages)
-        except ProviderError:
-            # Try fallback chain defined by user
-            for fallback_id in agent_config.fallback_providers:
-                fallback = self.providers.get(fallback_id)
-                if fallback:
-                    return await fallback.complete(task.messages)
-            raise
+        return await provider.complete(task.messages)
 ```
 
-### Consequences
+### Reference
 
-1. **User Responsibility**: Users must configure at least one provider
-2. **Onboarding Change**: First-run wizard guides provider setup
-3. **No Assumptions**: System never assumes a provider is available
-4. **Documentation Required**: Clear guides for each provider setup
-
-### Supersedes
-
-This ADR supersedes the previous ADR-005 which designated Claude as "primary" provider.
+See `docs/specs/phase-02-llm-agnostic.md` for complete specification.
 
 ### Status: APPROVED (Critical Priority)
 
@@ -350,31 +298,7 @@ DEVAPEX includes React Kanban components from Vibe Kanban. Auto-Claude has a bas
 3. Add memory/context viewer panel for selected tasks
 4. Implement drag-drop status updates with API calls
 5. **Add LLM provider configuration UI**
-6. **Add login/authentication screen**
-
-### UI State Flow
-
-```typescript
-// Kanban task tied to orchestrator
-interface KanbanTask {
-  id: string;
-  title: string;
-  description: string;
-  priority: 'critical' | 'high' | 'medium' | 'low';
-  status: 'todo' | 'in_progress' | 'in_review' | 'done';
-  assignedAgent?: AgentInfo;
-  agentLLMConfig?: AgentLLMConfig;  // NEW: Per-agent LLM
-  episodeHistory?: Episode[];
-  specId?: string;
-}
-```
-
-### Rationale
-
-1. **Visual Clarity**: Priority colors improve task scanning
-2. **Agent Visibility**: Users see which agents are active
-3. **Memory Access**: Context/history available without leaving board
-4. **LLM Control**: Users can see/change agent LLM assignments
+6. **Add login/authentication screen for 4 providers**
 
 ### Status: APPROVED (Phase 4)
 
@@ -388,7 +312,7 @@ DEVAPEX manages agent instances in a pool with reuse and spawning logic. Auto-Cl
 
 ### Decision
 
-**Implement AgentPool with configurable limits:**
+**Implement AgentPool with configurable limits and LLM-agnostic routing:**
 
 ```python
 class AgentPool:
@@ -398,40 +322,11 @@ class AgentPool:
         self.config = config
         self.llm_router = llm_router  # LLM-agnostic router
         self.agents: dict[str, AgentInstance] = {}
-        self.active_tasks: dict[str, str] = {}  # task_id → agent_id
     
     async def acquire(self, agent_type: str, llm_config: AgentLLMConfig) -> AgentInstance:
         """Get or create an agent instance with specified LLM config."""
-        # Check for idle agent of this type with matching LLM
-        idle = self._find_idle_agent(agent_type, llm_config)
-        if idle:
-            return idle
-        
-        # Create new if under limit
-        if len(self.agents) < self.config.max_agents:
-            return await self._create_agent(agent_type, llm_config)
-        
-        # Wait for agent to become available
-        return await self._wait_for_available(agent_type)
-    
-    async def release(self, agent_id: str):
-        """Return agent to pool."""
-        agent = self.agents.get(agent_id)
-        if agent:
-            agent.status = AgentStatus.IDLE
-            agent.last_used = datetime.now()
-```
-
-### Configuration Alignment
-
-From Auto-Claude's 12-terminal grid:
-
-```python
-DEFAULT_POOL_CONFIG = AgentPoolConfig(
-    max_agents=12,           # Matches terminal grid
-    max_concurrent_tasks=6,  # Conservative for stability
-    idle_timeout_seconds=300,
-)
+        # Each agent has its own LLM provider configuration
+        pass
 ```
 
 ### Status: APPROVED
@@ -446,7 +341,7 @@ DEVAPEX enforces APEX Constitution rules. Auto-Claude needs compatible governanc
 
 ### Decision
 
-**Adopt APEX governance principles:**
+**Adopt APEX governance principles with LLM-agnostic policies:**
 
 | APEX Part | Implementation |
 |-----------|----------------|
@@ -457,23 +352,9 @@ DEVAPEX enforces APEX Constitution rules. Auto-Claude needs compatible governanc
 | Part 13 - Security Guardrails | Enhanced security hooks |
 | Part 14 - Event Bus | Orchestrator events |
 
-### Governance Rules to Implement
+### Reference
 
-```python
-class ApexGovernance:
-    """APEX compliance validator."""
-    
-    rules = {
-        "M1.1.1": "Architect folder is IMMUTABLE",
-        "M1.2.1": "All enhancements are ADDITIVE",
-        "M2.1": "Memory-First operation",
-    }
-    
-    def validate_change(self, path: str, operation: str) -> bool:
-        if path.startswith("Architect/") and operation != "read":
-            raise ApexViolation("M1.1.1: Cannot modify Architect folder")
-        return True
-```
+See `docs/specs/phase-09-governance.md` for complete specification.
 
 ### Status: APPROVED
 
@@ -490,33 +371,15 @@ DEVAPEX v2.0 includes Projects, Secrets, Teams, OAuth. Determine which to includ
 **Selective adoption with prioritization:**
 
 | Feature | Priority | Include | Rationale |
-|---------|----------|---------|------------|
+|---------|----------|---------|-----------|
 | **Multi-Auth (OAuth)** | Critical | ✅ Yes | Core requirement |
-| **LLM Providers** | Critical | ✅ Yes | Core requirement |
+| **LLM Providers (8)** | Critical | ✅ Yes | Core requirement |
 | Projects Manager | High | ✅ Yes | Improves project lifecycle |
 | Secrets Manager | High | ✅ Yes | Security requirement |
 | Teams Collaboration | Medium | ⏳ Phase 7+ | After auth complete |
 | Auto-Updates | Low | ✅ Enhance | Already implemented |
 
-### Secrets Management Design
-
-From DEVAPEX `secrets/manager.py`:
-
-```python
-class SecretScope(Enum):
-    USER = "user"           # Personal API keys / LLM credentials
-    PROJECT = "project"     # Project-specific secrets
-    GLOBAL = "global"       # Shared across projects
-
-class SecretsManager:
-    async def store(self, name: str, value: str, 
-                   scope: SecretScope, owner_id: str):
-        encrypted = self._encrypt(value, self.master_key)
-        # Store with audit trail
-        ...
-```
-
-### Status: APPROVED (Updated priorities)
+### Status: APPROVED
 
 ---
 
@@ -524,64 +387,23 @@ class SecretsManager:
 
 ### Context
 
-Both systems have security layers. Need unified approach including multi-provider authentication.
-
-### Auto-Claude Security (Current)
-
-1. OS Sandbox - Bash command isolation
-2. Filesystem Permissions - Project directory only
-3. Command Allowlist - Dynamic from project analysis
-
-### DEVAPEX Security (To Add)
-
-1. Secret Encryption - PBKDF2 + Fernet (AES-256)
-2. Scoped Access Control - User/Team/Project/Enterprise
-3. Audit Trails - Complete action logging
-4. **Multi-Provider OAuth** - GitHub, Google, Microsoft
-5. **LLM Credential Storage** - Per-user encrypted storage
+Both systems have security concerns. Need unified approach.
 
 ### Decision
 
-**Layer DEVAPEX security on top of Auto-Claude's:**
+**Unified security with multi-provider credential management:**
 
-```python
-class SecurityLayer:
-    """Unified security with Auto-Claude base + DEVAPEX enhancements."""
-    
-    def __init__(self):
-        # Auto-Claude base
-        self.command_allowlist = DynamicAllowlist()
-        self.filesystem_guard = FilesystemGuard()
-        
-        # DEVAPEX additions
-        self.secrets_manager = SecretsManager()
-        self.audit_logger = AuditLogger()
-        self.auth_manager = AuthManager()  # NEW: Multi-provider auth
-    
-    async def validate_operation(self, operation: Operation) -> bool:
-        # Auto-Claude checks
-        if not self.command_allowlist.is_allowed(operation.command):
-            return False
-        if not self.filesystem_guard.is_allowed(operation.path):
-            return False
-        
-        # Authentication check
-        if not await self.auth_manager.is_authenticated(operation.user_id):
-            return False
-        
-        # DEVAPEX checks
-        if operation.requires_secret:
-            if not await self.secrets_manager.can_access(
-                operation.secret_id, operation.user_id
-            ):
-                return False
-        
-        # Log for audit
-        await self.audit_logger.log(operation)
-        return True
-```
+1. **Multi-Provider Credential Vault** - Encrypted storage for all 8 LLM provider credentials
+2. **Provider-Specific Secret Scanning** - Detect leaked API keys for each provider
+3. **Per-Provider Rate Limiting** - Different limits per provider
+4. **Per-Provider Quota Management** - Cost caps per provider
+5. **Comprehensive Audit Logging** - Track all provider interactions
 
-### Status: APPROVED (Updated for Multi-Auth)
+### Reference
+
+See `docs/specs/phase-06-security.md` for complete specification.
+
+### Status: APPROVED
 
 ---
 
@@ -589,44 +411,20 @@ class SecurityLayer:
 
 ### Context
 
-Need a safe strategy to merge DEVAPEX features without breaking Auto-Claude stability.
+Merging DEVAPEX features requires comprehensive testing.
 
 ### Decision
 
-**Conservative merge with extensive testing:**
+**Test-first integration with 90%+ coverage:**
 
-1. **Feature Branches**: Each major feature in separate branch
-2. **Integration Tests**: Comprehensive tests before merge
-3. **Canary Deployment**: Phase rollout to subset of users first
-4. **Rollback Plan**: Every feature has disable flag
+1. **Unit Tests**: Test each component in isolation
+2. **Integration Tests**: Test all 8 LLM providers, all 4 auth providers
+3. **E2E Tests**: Complete user journeys
+4. **Acceptance Tests**: AT-X.1 through AT-X.10 per phase (100 total)
 
-### Testing Requirements
+### Reference
 
-| Category | Coverage | Priority |
-|----------|----------|----------|
-| Unit Tests | 80%+ | HIGH |
-| Integration Tests | All boundaries | HIGH |
-| E2E Tests | Critical paths | HIGH |
-| **LLM Provider Tests** | All 8 providers | HIGH |
-| **Auth Provider Tests** | All 4 OAuth flows | HIGH |
-| Performance Tests | Baseline comparison | MEDIUM |
-| Security Tests | OWASP Top 10 | HIGH |
-| APEX Compliance | All articles | MEDIUM |
-
-### LLM Provider Testing
-
-```python
-@pytest.mark.parametrize("provider", [
-    "copilot", "openrouter", "ollama", "lmstudio",
-    "gemini", "openai", "anthropic", "azure"
-])
-async def test_provider_completion(provider):
-    """Test each provider can complete a basic task."""
-    router = LLMRouter(providers={provider: create_provider(provider)})
-    response = await router.route(test_task, test_config)
-    assert response.success
-    assert response.content
-```
+See `docs/specs/phase-10-testing-docs.md` for complete specification.
 
 ### Status: APPROVED
 
@@ -634,105 +432,51 @@ async def test_provider_completion(provider):
 
 ## ADR-012: Multi-Provider Authentication
 
-> ⚠️ **NEW ADR** - Critical for user accounts
+> ⚠️ **CRITICAL ADR** - Defines authentication architecture
 
 ### Context
 
-Users need to create accounts and login via multiple authentication providers rather than relying on environment-based configuration.
+Users need to authenticate via multiple providers to access the platform.
 
 ### Decision
 
-**Implement multi-provider OAuth with manual signup fallback:**
+**Support 4 equal authentication providers:**
 
-### Supported Auth Providers
-
-| Provider | OAuth Version | Priority | Implementation |
-|----------|---------------|----------|----------------|
-| **GitHub** | OAuth 2.0 | CRITICAL | github_auth.py |
-| **Google** | OAuth 2.0 + OIDC | CRITICAL | google_auth.py |
-| **Microsoft** | OAuth 2.0 + Azure AD | CRITICAL | microsoft_auth.py |
-| **Manual** | Email/Password | CRITICAL | manual_auth.py |
+| Provider | Method | Configuration |
+|----------|--------|---------------|
+| **GitHub** | OAuth 2.0 | Client ID/Secret |
+| **Google** | OAuth 2.0 | Client ID/Secret |
+| **Microsoft** | OAuth 2.0 (MSAL) | Client ID/Secret |
+| **Manual** | Email + Password | Local database |
 
 ### Architecture
 
 ```python
-from abc import ABC, abstractmethod
-
-class AuthProvider(ABC):
-    """Abstract base for authentication providers."""
-    
-    @abstractmethod
-    async def initiate_auth(self) -> AuthURL:
-        """Start OAuth flow, return redirect URL."""
-        pass
-    
-    @abstractmethod
-    async def handle_callback(self, code: str) -> AuthResult:
-        """Handle OAuth callback, return user info."""
-        pass
-    
-    @abstractmethod
-    async def refresh_token(self, refresh_token: str) -> TokenPair:
-        """Refresh expired access token."""
-        pass
-    
-    @abstractmethod
-    async def get_user_info(self, token: str) -> UserInfo:
-        """Get user profile from provider."""
-        pass
+class AuthProvider(Enum):
+    GITHUB = "github"
+    GOOGLE = "google"
+    MICROSOFT = "microsoft"
+    MANUAL = "manual"
 
 
-class AuthManager:
-    """Manages authentication across all providers."""
+class AuthService:
+    """Multi-provider authentication service."""
     
-    providers = {
-        "github": GitHubAuthProvider(),
-        "google": GoogleAuthProvider(),
-        "microsoft": MicrosoftAuthProvider(),
-        "manual": ManualAuthProvider(),
-    }
+    SUPPORTED_PROVIDERS = [
+        AuthProvider.GITHUB,
+        AuthProvider.GOOGLE,
+        AuthProvider.MICROSOFT,
+        AuthProvider.MANUAL,
+    ]
     
-    async def login(self, provider: str, **kwargs) -> AuthResult:
-        """Authenticate user via specified provider."""
-        auth_provider = self.providers.get(provider)
-        if not auth_provider:
-            raise UnsupportedProvider(provider)
-        
-        return await auth_provider.authenticate(**kwargs)
-    
-    async def create_session(self, user: User) -> Session:
-        """Create authenticated session for user."""
-        session = Session(
-            user_id=user.id,
-            created_at=datetime.now(),
-            expires_at=datetime.now() + timedelta(days=7),
-        )
-        await self.session_store.save(session)
-        return session
+    async def authenticate(self, provider: AuthProvider, credentials: dict) -> Session:
+        """Authenticate via any of 4 supported providers."""
+        pass
 ```
 
-### User Account Features
+### Reference
 
-| Feature | Description | Priority |
-|---------|-------------|----------|
-| Account Creation | Via OAuth or manual signup | CRITICAL |
-| Profile Management | Name, avatar, preferences | HIGH |
-| LLM Credentials | Per-user provider API keys | CRITICAL |
-| Session Management | Multi-device, secure tokens | HIGH |
-| Password Reset | For manual accounts | HIGH |
-
-### Rationale
-
-1. **User Control**: Users own their accounts and credentials
-2. **Provider Flexibility**: Choose login method based on preference
-3. **Enterprise Ready**: Microsoft OAuth for corporate environments
-4. **Privacy Option**: Manual signup for users avoiding OAuth
-
-### Consequences
-
-1. **Database Required**: User data storage (SQLite/PostgreSQL)
-2. **OAuth Setup**: App registration with each provider
-3. **Security Responsibility**: Session management, token handling
+See `docs/specs/phase-03-authentication.md` for complete specification.
 
 ### Status: APPROVED (Critical Priority)
 
@@ -740,155 +484,165 @@ class AuthManager:
 
 ## ADR-013: Per-Agent LLM Configuration
 
-> ⚠️ **NEW ADR** - Enables per-agent model assignment
+> ⚠️ **CRITICAL ADR** - Defines per-agent LLM assignment
 
 ### Context
 
-Users want to assign different LLM models to different agents based on task requirements, cost, or capability.
+Different agents may benefit from different LLM providers and models.
 
 ### Decision
 
-**Implement per-agent LLM configuration with hierarchical defaults:**
-
-### Configuration Hierarchy
-
-```
-Global Default → Agent Type Default → Individual Agent → Task Override
-```
-
-| Level | Scope | Example |
-|-------|-------|---------|
-| **Global Default** | All agents | `openrouter/claude-3-opus` |
-| **Agent Type Default** | Category of agents | Security agents → `openai/gpt-4` |
-| **Individual Agent** | Specific agent | `RedTeamAgent` → `ollama/llama-3` |
-| **Task Override** | Single task | This task → `gemini/pro` |
-
-### Configuration Schema
+**Each agent independently configures its LLM provider and model:**
 
 ```python
 @dataclass
 class AgentLLMConfig:
-    """Per-agent LLM configuration."""
-    
-    agent_id: str                        # Agent identifier
-    provider: str                        # e.g., "openrouter", "ollama"
-    model: str                           # e.g., "gpt-4", "llama-3"
-    fallback_providers: List[str]        # Ordered fallback chain
-    max_tokens: int = 4096               # Token limit
-    temperature: float = 0.7             # Model temperature
-    cost_budget_daily: Optional[float]   # Daily cost limit (USD)
-    enabled: bool = True                 # Whether agent is active
-    
-    @classmethod
-    def from_defaults(cls, agent_id: str, defaults: GlobalConfig):
-        """Create config using global defaults."""
-        return cls(
-            agent_id=agent_id,
-            provider=defaults.default_provider,
-            model=defaults.default_model,
-            fallback_providers=defaults.fallback_chain,
-        )
+    """LLM configuration for a specific agent."""
+    provider: str  # REQUIRED - one of 8 providers
+    model: str  # REQUIRED - model name
+    temperature: float = 0.7
+    max_tokens: int = 4096
+    fallback_providers: List[str] = field(default_factory=list)
 
 
-class AgentConfigManager:
-    """Manages per-agent LLM configurations."""
-    
-    def __init__(self, user_id: str):
-        self.user_id = user_id
-        self.configs: Dict[str, AgentLLMConfig] = {}
-    
-    async def get_config(self, agent_id: str) -> AgentLLMConfig:
-        """Get LLM config for agent, applying hierarchy."""
-        # Check individual config
-        if agent_id in self.configs:
-            return self.configs[agent_id]
-        
-        # Check agent type default
-        agent_type = self._get_agent_type(agent_id)
-        type_config = await self._get_type_default(agent_type)
-        if type_config:
-            return type_config
-        
-        # Use global default
-        return await self._get_global_default()
-    
-    async def set_config(self, agent_id: str, config: AgentLLMConfig):
-        """Set or update agent LLM configuration."""
-        self.configs[agent_id] = config
-        await self._persist_config(agent_id, config)
+@dataclass
+class EnterpriseAgentConfig:
+    """Configuration for an enterprise agent."""
+    agent_id: str
+    agent_type: str
+    name: str
+    llm_config: AgentLLMConfig  # REQUIRED - no default
 ```
 
-### UI Requirements
+### Example Usage
 
-| Feature | Description |
-|---------|-------------|
-| Provider Selector | Dropdown of configured providers |
-| Model Browser | Browse/search available models per provider |
-| Agent Assignment | Drag-drop or select to assign models |
-| Cost Preview | Estimated cost based on configuration |
-| Batch Update | Update multiple agents at once |
-| Import/Export | Save/load configurations |
+```python
+# Each agent can use different providers
+code_review_agent = EnterpriseAgentConfig(
+    agent_id="code-review-1",
+    agent_type="code_review",
+    name="Code Review Agent",
+    llm_config=AgentLLMConfig(
+        provider="anthropic",
+        model="claude-sonnet-4-20250514",
+    ),
+)
 
-### Example Configurations
+security_agent = EnterpriseAgentConfig(
+    agent_id="security-1",
+    agent_type="security",
+    name="Security Agent",
+    llm_config=AgentLLMConfig(
+        provider="ollama",  # Local for privacy
+        model="llama3.2",
+    ),
+)
 
-```yaml
-# User's agent configurations
-agents:
-  # Global default
-  _default:
-    provider: openrouter
-    model: anthropic/claude-3-sonnet
-    fallback_providers: [ollama, openai]
-  
-  # Security agents use GPT-4 for analysis
-  SecurityArchitectAgent:
-    provider: openai
-    model: gpt-4
-    temperature: 0.3
-    
-  RedTeamAgent:
-    provider: openai
-    model: gpt-4
-    temperature: 0.5
-  
-  # Coding agents use local Llama for speed
-  CoderAgent:
-    provider: ollama
-    model: codellama:34b
-    max_tokens: 8192
-  
-  # Documentation uses Gemini for long context
-  DocumentationLeadAgent:
-    provider: gemini
-    model: gemini-pro
-    max_tokens: 32000
+qa_agent = EnterpriseAgentConfig(
+    agent_id="qa-1",
+    agent_type="qa",
+    name="QA Agent",
+    llm_config=AgentLLMConfig(
+        provider="openai",
+        model="gpt-4o",
+    ),
+)
 ```
 
-### Rationale
+### Reference
 
-1. **Cost Optimization**: Use cheaper models for simpler tasks
-2. **Capability Matching**: Match model strengths to task requirements
-3. **Privacy Control**: Use local models for sensitive code
-4. **Experimentation**: Easy A/B testing of different models
-
-### Consequences
-
-1. **Configuration Complexity**: Users need to understand model differences
-2. **UI Required**: Need intuitive configuration interface
-3. **Validation Needed**: Ensure selected models support required features
+See `docs/specs/phase-07-enterprise-agents.md` for complete specification.
 
 ### Status: APPROVED (Critical Priority)
 
 ---
 
-## Change Log
+## ADR-014: World-Class Quality Standards
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | 2026-01-05 | Initial 11 ADRs |
-| 2.0.0 | 2026-01-05 | Updated ADR-005 for LLM-agnostic, added ADR-012 (Multi-Auth), ADR-013 (Per-Agent LLM) |
+> ⚠️ **NEW ADR** - Defines quality standards for all implementations
+
+### Context
+
+All implementations must meet world-class quality standards.
+
+### Decision
+
+**Every phase specification and implementation must meet these standards:**
+
+| Standard | Description | Verification |
+|----------|-------------|--------------|
+| **World-Class** | Industry-leading patterns and practices | Expert review |
+| **Enterprise-Grade** | SOC 2, GDPR compliance ready | Compliance audit |
+| **Fully Production Ready** | Zero technical debt, battle-tested | Load testing |
+| **Clean and Concise Code** | Every file earns its place | Code review |
+| **Beyond PhD Level Expertise** | Advanced patterns, optimal solutions | Expert assessment |
+
+### Quality Gates
+
+Every file must pass:
+
+| Gate | Requirement |
+|------|-------------|
+| **Necessity** | File serves unique, essential purpose |
+| **Cohesion** | All contents relate to single responsibility |
+| **Coupling** | Minimal external dependencies |
+| **Testability** | Can be unit tested in isolation |
+| **Documentation** | Clear docstrings with examples |
+| **Type Safety** | Full type annotations |
+| **Error Handling** | Explicit error paths |
+
+### Phase Specification Requirements
+
+Each phase specification includes:
+
+1. **Quality Standards Table** - World-Class verification
+2. **Business Objectives** - With World-Class Standard column
+3. **Technical Outcomes** - Specific measurable targets
+4. **Acceptance Tests** - AT-X.1 through AT-X.10 (10 per phase)
+5. **Performance Metrics** - With alert thresholds
+6. **Risk Mitigations** - With verification methods
+7. **LLM-Agnostic Integration** - Provider-specific sections
+8. **Validation Checklist** - 14 requirement verification
+
+### Reference
+
+All 10 phase specifications in `docs/specs/` follow these standards.
+
+### Status: APPROVED (New)
 
 ---
 
-*Document Version: 2.0.0*
-*Last Updated: January 5, 2026*
+## Summary: Critical ADRs
+
+| ADR | Decision | Status |
+|-----|----------|--------|
+| ADR-005 | LLM-Agnostic Architecture - 8 equal providers, no default | ✅ APPROVED |
+| ADR-012 | Multi-Provider Authentication - 4 OAuth providers | ✅ APPROVED |
+| ADR-013 | Per-Agent LLM Configuration - explicit provider required | ✅ APPROVED |
+| ADR-014 | World-Class Quality Standards - all implementations | ✅ APPROVED |
+
+---
+
+## 14 User Requirements Verification
+
+| # | Requirement | ADR Reference | Status |
+|---|-------------|---------------|--------|
+| 1 | LLM-Agnostic System | ADR-005 | ✅ |
+| 2 | No Default Provider | ADR-005 | ✅ |
+| 3 | 8 Equal LLM Providers | ADR-005 | ✅ |
+| 4 | Per-Agent LLM Assignment | ADR-013 | ✅ |
+| 5 | GitHub OAuth | ADR-012 | ✅ |
+| 6 | Google OAuth | ADR-012 | ✅ |
+| 7 | Microsoft OAuth | ADR-012 | ✅ |
+| 8 | Manual Signup | ADR-012 | ✅ |
+| 9 | Detailed Outcome Expectations | ADR-014 | ✅ |
+| 10 | Phase-by-Phase Approach | ADR-002 | ✅ |
+| 11 | Small Manageable Steps | ADR-002 | ✅ |
+| 12 | ADDITIVE ONLY | ADR-001 | ✅ |
+| 13 | No Implementation Yet | ADR-002 | ✅ |
+| 14 | Absolute Project Alignment | ADR-001 | ✅ |
+
+---
+
+*Decision Log Version: 3.0.0*
+*Last Updated: January 6, 2026*
