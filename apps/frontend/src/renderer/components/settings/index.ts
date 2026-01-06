@@ -1,13 +1,12 @@
 /**
- * Settings module barrel export
- * Provides clean import paths for settings components
+ * APEX Development Platform - Settings Components Index
+ * Phase 4: UI, Integrations & Analytics
  */
 
-export { AppSettingsDialog, type AppSection } from './AppSettings';
-export { ThemeSettings } from './ThemeSettings';
-export { ThemeSelector } from './ThemeSelector';
-export { GeneralSettings } from './GeneralSettings';
-export { IntegrationSettings } from './IntegrationSettings';
-export { AdvancedSettings } from './AdvancedSettings';
-export { SettingsSection } from './SettingsSection';
-export { useSettings } from './hooks/useSettings';
+export { default as SettingsView } from './SettingsView';
+export { GeneralSettings, type GeneralSettingsProps } from './GeneralSettings';
+export { LLMSettings, type LLMSettingsProps } from './LLMSettings';
+export { LLMProviderCard, type LLMProviderCardProps } from './LLMProviderCard';
+export { AgentSettings, type AgentSettingsProps } from './AgentSettings';
+export { IntegrationSettings, type IntegrationSettingsProps } from './IntegrationSettings';
+export { KeybindSettings, type KeybindSettingsProps } from './KeybindSettings';
