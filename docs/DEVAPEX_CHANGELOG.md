@@ -8,7 +8,53 @@
 
 ## [Unreleased]
 
-### Phase 1: Agent System Architecture - IN PROGRESS
+### Phase 3: Skills, Tools & Orchestration - PENDING
+### Phase 4: UI, Integrations & Analytics - PENDING
+### Phase 5: Testing, Security & Documentation - PENDING
+
+---
+
+## [2026-01-06] - Phase 2 Architecture Specification
+
+### Added
+- **PHASE2_MEMORY_LLM_ARCHITECTURE.md** - Complete file/folder architecture for memory and LLM systems
+  - 58 files specified across 13 modules
+  - Memory system with episodic, semantic, and H-MEM tiers
+  - LLM integration with 7 providers
+  - Embedding support with 5 providers
+  - Prompt management and streaming
+  - Tool calling framework
+
+### Architecture Decisions
+- **ADR-016**: H-MEM Tiered Memory Architecture (L1/L2/L3)
+- **ADR-017**: Multi-Provider LLM Strategy (7 providers)
+- **ADR-018**: Semantic Search with Vector Embeddings
+- **ADR-019**: Tool Calling Framework
+
+### Memory System Modules
+| Module | Files | Purpose |
+|--------|-------|---------|
+| `memory/core/` | 3 | Central memory coordination |
+| `memory/episodic/` | 5 | Episode storage with SQLite/FTS5 |
+| `memory/semantic/` | 4 | Vector-based semantic storage |
+| `memory/hmem/` | 5 | H-MEM tiered architecture |
+| `memory/context/` | 4 | Context building for LLM calls |
+| `memory/types/` | 3 | Memory type definitions |
+
+### LLM System Modules
+| Module | Files | Purpose |
+|--------|-------|---------|
+| `llm/core/` | 5 | LLM client and routing |
+| `llm/providers/` | 8 | Anthropic, OpenAI, Azure, Ollama, Google, Groq, OpenRouter |
+| `llm/embeddings/` | 6 | OpenAI, Ollama, Voyage, Google, Azure embedders |
+| `llm/prompts/` | 4 | Template and prompt management |
+| `llm/streaming/` | 3 | Streaming response handling |
+| `llm/tools/` | 4 | Tool definition and execution |
+| `llm/types/` | 4 | LLM type definitions |
+
+### File Count
+- Phase 2 Total: **58 files**
+- Running Total (Phase 1+2): **95 files**
 
 ---
 
@@ -42,12 +88,6 @@
 
 ### File Count
 - Phase 1 Total: **37 files**
-- Core Agents: 4 files
-- Enterprise Agents: 17 files
-- Base Infrastructure: 6 files
-- Registry: 3 files
-- Lifecycle: 3 files
-- Types: 4 files
 
 ---
 
@@ -66,31 +106,16 @@
 
 ---
 
-## Upcoming Phases
+## Summary Statistics
 
-### Phase 2: Memory System & LLM Integration
-- Episodic memory with SQLite
-- H-MEM tiered architecture
-- Multi-provider LLM support
-- Embedding providers
-
-### Phase 3: Skills, Tools & Orchestration
-- Skills framework (10+ skill types)
-- Tools system (25+ tools)
-- TaskQueue and AgentPool
-- Workflow engine
-
-### Phase 4: UI, Integrations & Analytics
-- React Kanban UI
-- Terminal grid
-- GitHub/GitLab/Linear integrations
-- Analytics dashboard
-
-### Phase 5: Testing, Security & Documentation
-- Comprehensive test suite
-- Security scanning
-- API documentation
-- User guides
+| Phase | Files | Status |
+|-------|-------|--------|
+| Phase 1 | 37 | ✅ Architecture Complete |
+| Phase 2 | 58 | ✅ Architecture Complete |
+| Phase 3 | TBD | ⏳ Pending |
+| Phase 4 | TBD | ⏳ Pending |
+| Phase 5 | TBD | ⏳ Pending |
+| **Total** | **95+** | |
 
 ---
 
