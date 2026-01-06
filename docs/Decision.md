@@ -29,197 +29,204 @@
 | ADR-017 | Multi-Provider LLM Strategy | ✅ Accepted | 2 | 2026-01-06 |
 | ADR-018 | Semantic Search with Vector Embeddings | ✅ Accepted | 2 | 2026-01-06 |
 | ADR-019 | Tool Calling Framework | ✅ Accepted | 2 | 2026-01-06 |
+| ADR-020 | Skills Framework Architecture | ✅ Accepted | 3 | 2026-01-06 |
+| ADR-021 | Tool Permission and Sandbox System | ✅ Accepted | 3 | 2026-01-06 |
+| ADR-022 | Priority TaskQueue Implementation | ✅ Accepted | 3 | 2026-01-06 |
+| ADR-023 | Workflow Engine with DSL | ✅ Accepted | 3 | 2026-01-06 |
 
 ---
 
-## Phase 2 Decisions
+## Phase 3 Decisions
 
-### ADR-016: H-MEM Tiered Memory Architecture
-
-**Status**: ✅ Accepted  
-**Date**: 2026-01-06  
-**Phase**: 2 - Memory System Architecture
-
-#### Context
-DEVAPEX implements hierarchical memory (H-MEM) with L1/L2/L3 tiers for performance optimization. Different memory access patterns require different storage strategies.
-
-#### Decision
-Implement 3-tier memory architecture:
-
-| Tier | Storage | Speed | Capacity | Use Case |
-|------|---------|-------|----------|----------|
-| L1 | In-memory LRU | <1ms | Limited | Hot cache, frequent access |
-| L2 | Session store | ~10ms | Medium | Working memory per task |
-| L3 | SQLite + FTS5 | ~50ms | Unlimited | Long-term persistence |
-
-**Tier Promotion Logic**:
-- Items accessed 3+ times promoted to L1
-- Session-critical data kept in L2
-- All data persisted to L3
-
-#### Rationale
-- Optimizes memory access latency
-- Reduces database load for hot data
-- Maintains full persistence guarantees
-- Follows DEVAPEX proven patterns
-
-#### Consequences
-- Additional complexity in tier management
-- Memory usage needs monitoring
-- Background promotion jobs required
-
----
-
-### ADR-017: Multi-Provider LLM Strategy
+### ADR-020: Skills Framework Architecture
 
 **Status**: ✅ Accepted  
 **Date**: 2026-01-06  
-**Phase**: 2 - LLM Integration Architecture
+**Phase**: 3 - Skills, Tools & Orchestration
 
 #### Context
-Different tasks require different LLM capabilities. Cost, latency, and quality vary by provider.
+DEVAPEX provides a comprehensive skills framework with 10+ skill types. Skills represent high-level capabilities that compose tools.
 
 #### Decision
-Support 7 LLM providers with intelligent routing:
+Implement 5-category skills framework:
 
-| Provider | Models | Best For |
-|----------|--------|----------|
-| Anthropic | Claude Opus, Sonnet, Haiku | Complex reasoning, code |
-| OpenAI | GPT-4o, GPT-4o-mini | General tasks |
-| Azure | Azure OpenAI | Enterprise compliance |
-| Ollama | Llama, Mistral | Local/private, cost |
-| Google | Gemini | Long context |
-| Groq | Llama (fast) | Low latency |
-| OpenRouter | Multi-provider | Flexibility |
+| Category | Skills | Description |
+|----------|--------|-------------|
+| Coding | 4 | Code generation, refactoring, explanation, translation |
+| Testing | 3 | Test generation, execution, coverage analysis |
+| Review | 3 | Code review, security review, architecture review |
+| Documentation | 3 | Docstrings, README, API docs |
+| Analysis | 3 | Dependency, complexity, impact analysis |
 
-**Routing Strategy**:
-- Model selector chooses based on task complexity
-- Fallback chains for resilience
-- Cost tracking per provider
-
-#### Rationale
-- No single provider is best for all tasks
-- Local models enable privacy/cost control
-- Fallbacks prevent service interruptions
-
-#### Consequences
-- Multiple API keys to manage
-- Provider-specific code in adapters
-- Cost tracking across providers
-
----
-
-### ADR-018: Semantic Search with Vector Embeddings
-
-**Status**: ✅ Accepted  
-**Date**: 2026-01-06  
-**Phase**: 2 - Memory System Architecture
-
-#### Context
-Episodic memory needs semantic search for context-aware retrieval beyond keyword matching.
-
-#### Decision
-Implement semantic search layer with:
-
-1. **5 Embedding Providers**:
-   - OpenAI text-embedding-3
-   - Ollama (local)
-   - Voyage AI
-   - Google
-   - Azure
-
-2. **Chunk Processing**:
-   - Text chunking (512 tokens, 50 overlap)
-   - Code-aware chunking by AST
-
-3. **Similarity Search**:
-   - Cosine similarity scoring
-   - Metadata filtering
-   - Relevance ranking
-
-#### Rationale
-- Semantic search finds conceptually similar content
-- Multiple providers prevent lock-in
-- Code chunking preserves function boundaries
-
-#### Consequences
-- Embedding costs add up
-- Vector storage needed (SQLite with extensions or dedicated DB)
-- Reindexing required when switching providers
-
----
-
-### ADR-019: Tool Calling Framework
-
-**Status**: ✅ Accepted  
-**Date**: 2026-01-06  
-**Phase**: 2 - LLM Integration Architecture
-
-#### Context
-LLM function calling is core to agent capabilities. Need standardized tool definition and execution.
-
-#### Decision
-Implement tool calling framework:
-
-1. **Tool Definition**: JSON Schema-based parameter definitions
-2. **Tool Registry**: Central registry of available tools
-3. **Tool Executor**: Safe execution with timeout and error handling
-4. **Tool Validator**: Parameter validation before execution
-
-**Tool Result Format**:
-```python
-@dataclass
-class ToolResult:
-    tool_name: str
-    success: bool
-    result: Any
-    error: Optional[str]
-    duration_ms: int
+**Skill Architecture**:
+```
+BaseSkill (abstract)
+  ├── execute(context) -> SkillResult
+  ├── validate_input(data) -> bool
+  └── get_dependencies() -> List[str]
 ```
 
 #### Rationale
-- Standardized format across all providers
-- Validation prevents malformed calls
-- Duration tracking for performance
-- Error handling for reliability
+- Skills abstract complex multi-tool operations
+- Category organization aids discovery
+- Dependency tracking enables chaining
+- Validation ensures quality inputs
 
 #### Consequences
-- All tools must conform to schema
-- Schema changes need migration
-- Provider-specific adaptations needed
+- 16 skill implementations needed
+- Skills depend on tool availability
+- Must handle tool failures gracefully
 
 ---
 
-## Phase 1 Decisions (Reference)
+### ADR-021: Tool Permission and Sandbox System
 
-### ADR-012: 20-Agent Architecture
-**Decision**: 4 core agents + 16 enterprise agents covering full SDLC
+**Status**: ✅ Accepted  
+**Date**: 2026-01-06  
+**Phase**: 3 - Skills, Tools & Orchestration
 
-### ADR-013: Hierarchical Agent Module Structure
-**Decision**: Enterprise agents organized by domain (architecture, security, quality, etc.)
+#### Context
+Tools can execute dangerous operations (file writes, commands). Need safety mechanisms.
 
-### ADR-014: Agent Registry and Factory Pattern
-**Decision**: Centralized agent discovery and instantiation
+#### Decision
+Implement permission-based sandboxed execution:
 
-### ADR-015: Agent Lifecycle Management System
-**Decision**: Startup, health check, and graceful shutdown management
+**Permission Levels**:
+```python
+class Permission(Enum):
+    READ_FILES = "read_files"
+    WRITE_FILES = "write_files"
+    EXECUTE_COMMANDS = "execute_commands"
+    NETWORK_ACCESS = "network_access"
+    GIT_OPERATIONS = "git_operations"
+    SPAWN_PROCESSES = "spawn_processes"
+```
+
+**Sandbox Features**:
+- Resource limits (CPU, memory, time)
+- Filesystem isolation (allow-list paths)
+- Network restrictions
+- Complete audit logging
+
+#### Rationale
+- Defense in depth for security
+- Audit trail for compliance
+- Resource limits prevent runaway
+- Isolation limits blast radius
+
+#### Consequences
+- Performance overhead for sandboxing
+- Agent capabilities limited by permissions
+- Admin must configure permissions
 
 ---
 
-## Initial Decisions (Reference)
+### ADR-022: Priority TaskQueue Implementation
 
-### ADR-001 through ADR-011
-See initial project setup documentation for foundational decisions including:
-- Extension Over Modification principle
-- Memory-First architecture
-- TaskQueue and AgentPool patterns
-- SQLite for storage
-- Electron IPC bridge
-- React Kanban UI
-- Git worktrees isolation
-- APEX Constitution governance
-- Phased implementation
-- APEXDEV_MERGE branch strategy
+**Status**: ✅ Accepted  
+**Date**: 2026-01-06  
+**Phase**: 3 - Skills, Tools & Orchestration
+
+#### Context
+Tasks have varying urgency. Need priority-based scheduling with persistence.
+
+#### Decision
+Implement priority queue with 4 levels:
+
+| Priority | Value | Behavior |
+|----------|-------|----------|
+| CRITICAL | 0 | Immediate execution, preempt if needed |
+| HIGH | 1 | Next in queue after critical |
+| MEDIUM | 2 | Standard priority |
+| LOW | 3 | Background, when resources available |
+
+**Features**:
+- Persistent queue (survives restarts)
+- Starvation prevention (age-based boost)
+- Queue metrics and monitoring
+- Deadline-aware scheduling
+
+#### Rationale
+- Critical tasks need immediate attention
+- Persistence prevents task loss
+- Starvation prevention ensures fairness
+- Metrics enable optimization
+
+#### Consequences
+- Queue ordering overhead
+- Persistence adds I/O
+- Priority inversion possible
+
+---
+
+### ADR-023: Workflow Engine with DSL
+
+**Status**: ✅ Accepted  
+**Date**: 2026-01-06  
+**Phase**: 3 - Skills, Tools & Orchestration
+
+#### Context
+Complex tasks require multi-step workflows with conditionals, loops, and parallelism.
+
+#### Decision
+Implement workflow engine with builder DSL:
+
+```python
+WorkflowBuilder()
+    .step("generate", AgentType.CODER)
+    .step("review", AgentType.REVIEWER)
+    .conditional(
+        lambda r: r.issues_count > 0,
+        if_true=Step("fix", AgentType.FIXER),
+        if_false=Step("complete", None)
+    )
+    .build()
+```
+
+**Control Flow**:
+- Sequential steps
+- Parallel execution
+- Conditional branching
+- Loop with condition
+
+**Pre-built Templates**:
+- CodeReviewWorkflow
+- FeatureWorkflow
+- RefactorWorkflow
+- SecurityAuditWorkflow
+
+#### Rationale
+- DSL is readable and maintainable
+- Templates accelerate common patterns
+- Parallelism improves throughput
+- State tracking enables pause/resume
+
+#### Consequences
+- DSL learning curve
+- Complex error handling
+- State persistence required
+
+---
+
+## Previous Phases (Reference)
+
+### Phase 2 Decisions (ADR-016 to ADR-019)
+- H-MEM Tiered Memory Architecture
+- Multi-Provider LLM Strategy
+- Semantic Search with Vector Embeddings
+- Tool Calling Framework
+
+### Phase 1 Decisions (ADR-012 to ADR-015)
+- 20-Agent Architecture
+- Hierarchical Agent Module Structure
+- Agent Registry and Factory Pattern
+- Agent Lifecycle Management System
+
+### Initial Decisions (ADR-001 to ADR-011)
+- Extension Over Modification
+- Memory-First Architecture
+- APEX Constitution Governance
+- And more...
 
 ---
 

@@ -8,83 +8,93 @@
 
 ## [Unreleased]
 
-### Phase 3: Skills, Tools & Orchestration - PENDING
 ### Phase 4: UI, Integrations & Analytics - PENDING
 ### Phase 5: Testing, Security & Documentation - PENDING
+
+---
+
+## [2026-01-06] - Phase 3 Architecture Specification
+
+### Added
+- **PHASE3_SKILLS_TOOLS_ORCHESTRATION_ARCHITECTURE.md** - Complete file/folder architecture
+  - 79 files specified across skills, tools, and orchestrator modules
+  - Skills framework with 16 skills across 5 categories
+  - Tools system with 25+ tools across 5 categories
+  - Orchestrator with TaskQueue, AgentPool, and Workflow engine
+
+### Architecture Decisions
+- **ADR-020**: Skills Framework Architecture (5 categories, 16 skills)
+- **ADR-021**: Tool Permission and Sandbox System
+- **ADR-022**: Priority TaskQueue Implementation (4 priority levels)
+- **ADR-023**: Workflow Engine with DSL
+
+### Skills Module Summary
+| Category | Files | Skills |
+|----------|-------|--------|
+| `skills/core/` | 4 | Base framework |
+| `skills/coding/` | 4 | Generation, Refactoring, Explanation, Translation |
+| `skills/testing/` | 3 | Test Generation, Execution, Coverage |
+| `skills/review/` | 3 | Code, Security, Architecture Review |
+| `skills/documentation/` | 3 | Docstrings, README, API Docs |
+| `skills/analysis/` | 3 | Dependency, Complexity, Impact |
+
+### Tools Module Summary
+| Category | Files | Tools |
+|----------|-------|-------|
+| `tools/core/` | 5 | Base, Registry, Executor, Permissions, Sandbox |
+| `tools/filesystem/` | 7 | Read, Write, Edit, Delete, List, Create, Search |
+| `tools/git/` | 6 | Status, Diff, Commit, Branch, Log, Worktree |
+| `tools/terminal/` | 4 | Execute, Spawn, Kill, Capture |
+| `tools/web/` | 3 | HTTP, Scrape, API |
+| `tools/search/` | 3 | Code, Grep, Semantic |
+
+### Orchestrator Module Summary
+| Component | Files | Purpose |
+|-----------|-------|---------|
+| `orchestrator/core/` | 3 | Main orchestrator |
+| `orchestrator/queue/` | 4 | Priority task queue |
+| `orchestrator/pool/` | 4 | Agent instance pool |
+| `orchestrator/workflow/` | 5 | Workflow engine |
+| `orchestrator/dispatch/` | 4 | Task dispatching |
+| `orchestrator/results/` | 3 | Result handling |
+
+### File Count
+- Phase 3 Total: **79 files**
+- Running Total (Phase 1+2+3): **174 files**
 
 ---
 
 ## [2026-01-06] - Phase 2 Architecture Specification
 
 ### Added
-- **PHASE2_MEMORY_LLM_ARCHITECTURE.md** - Complete file/folder architecture for memory and LLM systems
-  - 58 files specified across 13 modules
-  - Memory system with episodic, semantic, and H-MEM tiers
-  - LLM integration with 7 providers
-  - Embedding support with 5 providers
-  - Prompt management and streaming
-  - Tool calling framework
+- **PHASE2_MEMORY_LLM_ARCHITECTURE.md** - Memory and LLM systems
+  - 58 files across memory and LLM modules
+  - H-MEM tiered architecture (L1/L2/L3)
+  - 7 LLM providers, 5 embedding providers
 
 ### Architecture Decisions
-- **ADR-016**: H-MEM Tiered Memory Architecture (L1/L2/L3)
-- **ADR-017**: Multi-Provider LLM Strategy (7 providers)
+- **ADR-016**: H-MEM Tiered Memory Architecture
+- **ADR-017**: Multi-Provider LLM Strategy
 - **ADR-018**: Semantic Search with Vector Embeddings
 - **ADR-019**: Tool Calling Framework
 
-### Memory System Modules
-| Module | Files | Purpose |
-|--------|-------|---------|
-| `memory/core/` | 3 | Central memory coordination |
-| `memory/episodic/` | 5 | Episode storage with SQLite/FTS5 |
-| `memory/semantic/` | 4 | Vector-based semantic storage |
-| `memory/hmem/` | 5 | H-MEM tiered architecture |
-| `memory/context/` | 4 | Context building for LLM calls |
-| `memory/types/` | 3 | Memory type definitions |
-
-### LLM System Modules
-| Module | Files | Purpose |
-|--------|-------|---------|
-| `llm/core/` | 5 | LLM client and routing |
-| `llm/providers/` | 8 | Anthropic, OpenAI, Azure, Ollama, Google, Groq, OpenRouter |
-| `llm/embeddings/` | 6 | OpenAI, Ollama, Voyage, Google, Azure embedders |
-| `llm/prompts/` | 4 | Template and prompt management |
-| `llm/streaming/` | 3 | Streaming response handling |
-| `llm/tools/` | 4 | Tool definition and execution |
-| `llm/types/` | 4 | LLM type definitions |
-
 ### File Count
 - Phase 2 Total: **58 files**
-- Running Total (Phase 1+2): **95 files**
 
 ---
 
 ## [2026-01-06] - Phase 1 Architecture Specification
 
 ### Added
-- **PHASE1_AGENT_SYSTEM_ARCHITECTURE.md** - Complete file/folder architecture for agent system
-  - 37 files specified across 6 modules
-  - 4 core agents: Coder, Reviewer, Fixer, Orchestrator
-  - 16 enterprise agents across 6 specialized domains
-  - Base infrastructure: agent_config, agent_state, agent_context, agent_result, agent_hooks
-  - Registry system: agent_registry, agent_factory, agent_capabilities
-  - Lifecycle management: agent_lifecycle, health_check, graceful_shutdown
-  - Type definitions: agent_types, priority_types, status_types, result_types
+- **PHASE1_AGENT_SYSTEM_ARCHITECTURE.md** - Agent system
+  - 37 files across agent modules
+  - 4 core + 16 enterprise agents
 
 ### Architecture Decisions
-- **ADR-012**: Adopted 20-agent architecture (4 core + 16 enterprise)
-- **ADR-013**: Hierarchical module structure for enterprise agents
-- **ADR-014**: Agent Registry and Factory pattern for agent management
-- **ADR-015**: Agent Lifecycle Management System for reliability
-
-### Enterprise Agent Categories
-| Category | Agents | Purpose |
-|----------|--------|---------|
-| Architecture | 7 | System, Refactor, Performance, Integration, Data, Cloud, DevOps |
-| Security | 3 | Security Architect, Red Team, Blue Team |
-| Quality | 2 | QA Verification, Compliance Auditor |
-| Documentation | 1 | Documentation Lead |
-| API | 1 | API Design |
-| Orchestration | 1 | MDA Orchestrator |
+- **ADR-012**: 20-Agent Architecture
+- **ADR-013**: Hierarchical Agent Module Structure
+- **ADR-014**: Agent Registry and Factory Pattern
+- **ADR-015**: Agent Lifecycle Management System
 
 ### File Count
 - Phase 1 Total: **37 files**
@@ -94,15 +104,8 @@
 ## [2026-01-05] - Project Initialization
 
 ### Added
-- **Decision.md** - Architecture Decision Records (11 initial ADRs)
-- **DEVAPEX_CHANGELOG.md** - Phase planning and feature mapping
-- **PRD_DEVAPEX_INTEGRATION.md** - Technical PRD with 5-phase plan
-- **archive/README.md** - Archive folder structure
-
-### Decisions Made
-- ADR-001 through ADR-011 established
-- 5-phase implementation approach confirmed
-- APEXDEV_MERGE branch strategy adopted
+- Initial documentation and ADRs
+- Project structure and governance
 
 ---
 
@@ -112,10 +115,10 @@
 |-------|-------|--------|
 | Phase 1 | 37 | ✅ Architecture Complete |
 | Phase 2 | 58 | ✅ Architecture Complete |
-| Phase 3 | TBD | ⏳ Pending |
+| Phase 3 | 79 | ✅ Architecture Complete |
 | Phase 4 | TBD | ⏳ Pending |
 | Phase 5 | TBD | ⏳ Pending |
-| **Total** | **95+** | |
+| **Total** | **174+** | |
 
 ---
 
