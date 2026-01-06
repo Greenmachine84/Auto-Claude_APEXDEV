@@ -38,186 +38,409 @@
 | ADR-026 | Zustand State Management | ✅ Accepted | 4 | 2026-01-06 |
 | ADR-027 | Multi-Platform Integration Strategy | ✅ Accepted | 4 | 2026-01-06 |
 | ADR-028 | Comprehensive Testing Strategy | ✅ Accepted | 5 | 2026-01-06 |
-| ADR-029 | Security Module Architecture | ✅ Accepted | 5 | 2026-01-06 |
+| ADR-029 | Security Module Architecture | ⚠️ Superseded | 5 | 2026-01-06 |
 | ADR-030 | Automated Documentation Generation | ✅ Accepted | 5 | 2026-01-06 |
 | ADR-031 | Prompt Injection Defense System | ✅ Accepted | 5 | 2026-01-06 |
+| ADR-032 | Phase 5/6 Security Deduplication | ✅ Accepted | 5/6 | 2026-01-06 |
+| ADR-033 | LLM-Agnostic Security Architecture | ✅ Accepted | 6 | 2026-01-06 |
+| ADR-034 | Multi-Provider Credential Vault | ✅ Accepted | 6 | 2026-01-06 |
+| ADR-035 | RBAC with Provider Permissions | ✅ Accepted | 6 | 2026-01-06 |
+| ADR-036 | Enterprise Agent Specialization | ✅ Accepted | 7 | 2026-01-06 |
+| ADR-037 | Multi-Agent Task Decomposition | ✅ Accepted | 7 | 2026-01-06 |
+| ADR-038 | Advanced Analytics Pipeline | ✅ Accepted | 8 | 2026-01-06 |
+| ADR-039 | Extended Tool Categories | ✅ Accepted | 8 | 2026-01-06 |
+| ADR-040 | Governance Engine Architecture | ✅ Accepted | 9 | 2026-01-06 |
+| ADR-041 | Compliance Framework | ✅ Accepted | 9 | 2026-01-06 |
+| ADR-042 | 10-Phase Architecture Strategy | ✅ Accepted | 10 | 2026-01-06 |
+| ADR-043 | Extended Testing Patterns | ✅ Accepted | 10 | 2026-01-06 |
+| ADR-044 | LLM-Agnostic Provider Equality | ✅ Accepted | All | 2026-01-06 |
+| ADR-045 | Architecture Header Standardization | ✅ Accepted | QA | 2026-01-06 |
 
 ---
 
-## Phase 5 Decisions
+## Phase 6 Decisions
 
-### ADR-028: Comprehensive Testing Strategy
+### ADR-032: Phase 5/6 Security Deduplication
 
 **Status**: ✅ Accepted  
 **Date**: 2026-01-06  
-**Phase**: 5 - Testing, Security & Documentation
+**Phase**: 5/6 - Quality Review
 
 #### Context
-Enterprise-grade application requires thorough testing at multiple levels.
+Original Phase 5 Architecture contained detailed security implementation that duplicated Phase 6's dedicated security content.
 
 #### Decision
-Implement 3-tier testing strategy:
-
-| Level | Test Count | Coverage Target | Run Time |
-|-------|------------|-----------------|----------|
-| Unit | 37 files | 90% | < 2 min |
-| Integration | 7 files | 80% | < 5 min |
-| E2E | 5 files | 70% | < 10 min |
-
-**Testing Stack**:
-- pytest for Python tests
-- pytest-asyncio for async tests
-- pytest-cov for coverage
-- Mock fixtures for LLM/external APIs
-
-**Coverage Requirements**:
-- Security module: 90% minimum
-- Core agents: 85% minimum
-- Overall: 80% minimum
+- **Phase 5** retains: Testing infrastructure, Documentation system
+- **Phase 6** owns: Complete security module implementation (`apps/backend/security/`)
+- Phase 5 references Phase 6 for security details rather than duplicating
 
 #### Rationale
-- Unit tests catch component issues early
-- Integration tests verify component interaction
-- E2E tests validate user workflows
-- High security coverage is critical
+- Single source of truth for security implementation
+- Clear separation of concerns
+- Reduced maintenance burden
 
 #### Consequences
-- Significant test code to maintain
-- CI pipeline time increases
-- Mock complexity for LLM tests
+- Phase 5 now titled "Testing & Documentation Architecture"
+- Cross-reference added to Phase 5 pointing to Phase 6
 
 ---
 
-### ADR-029: Security Module Architecture
+### ADR-033: LLM-Agnostic Security Architecture
 
 **Status**: ✅ Accepted  
 **Date**: 2026-01-06  
-**Phase**: 5 - Testing, Security & Documentation
+**Phase**: 6 - Security Architecture
 
 #### Context
-AI agents executing code and accessing files require robust security controls.
+Security must treat all 8 LLM providers equally without vendor lock-in.
 
 #### Decision
-Implement comprehensive security module with 6 sub-domains:
+Implement security with provider parity:
 
-| Domain | Files | Purpose |
-|--------|-------|---------|
-| Core | 3 | Security coordination |
-| Scanning | 5 | Secret/vulnerability detection |
-| Audit | 4 | Event logging and compliance |
-| Auth | 4 | Authentication/authorization |
-| Encryption | 3 | Data encryption |
-| Validation | 4 | Input/output validation |
-
-**Security Layers**:
-1. **Input Validation**: Sanitize all inputs
-2. **Permission Checks**: Verify capabilities before action
-3. **Audit Logging**: Log all sensitive operations
-4. **Output Validation**: Redact PII, validate format
+| Provider | Credentials Protected | Secrets Patterns |
+|----------|----------------------|------------------|
+| copilot | GITHUB_TOKEN | `gh[pousr]_*` |
+| openrouter | OPENROUTER_API_KEY | `sk-or-*` |
+| ollama | (local) | N/A |
+| lmstudio | (local) | N/A |
+| gemini | GOOGLE_API_KEY | `AIza*` |
+| openai | OPENAI_API_KEY | `sk-*` |
+| anthropic | ANTHROPIC_API_KEY | `sk-ant-*` |
+| azure | AZURE_OPENAI_API_KEY | Context-based |
 
 #### Rationale
-- Defense in depth approach
-- Audit trail for compliance
-- Encryption for sensitive data
-- Validation prevents injection
-
-#### Consequences
-- Performance overhead for checks
-- Storage for audit logs
-- Key management complexity
+- No provider treated as "primary"
+- Equal security coverage across all providers
+- Future provider additions follow same pattern
 
 ---
 
-### ADR-030: Automated Documentation Generation
+### ADR-034: Multi-Provider Credential Vault
 
 **Status**: ✅ Accepted  
 **Date**: 2026-01-06  
-**Phase**: 5 - Testing, Security & Documentation
+**Phase**: 6 - Security Architecture
 
 #### Context
-Manual documentation becomes stale. Need automated generation from source.
+Multiple LLM providers require secure credential storage.
 
 #### Decision
-Implement documentation generation system:
-
-**Generators**:
-| Generator | Input | Output |
-|-----------|-------|--------|
-| API Doc | Python modules | Markdown/HTML |
-| Schema Doc | Pydantic models | Markdown |
-| Agent Doc | Agent classes | Markdown |
-| Tool Doc | Tool definitions | Markdown |
-| OpenAPI | FastAPI routes | openapi.json |
-
-**Documentation Structure**:
-```
-docs/
-├── api/           # API reference (generated)
-├── guides/        # User guides (manual)
-├── architecture/  # Architecture specs (manual)
-├── security/      # Security docs (semi-auto)
-└── development/   # Dev docs (manual)
-```
+Implement `CredentialVault` class:
+- AES-256-GCM encryption for all stored credentials
+- Per-provider credential isolation
+- Key rotation support
+- User-scoped credential access
 
 #### Rationale
-- Auto-generation keeps docs current
-- Consistent format across APIs
-- Reduces documentation burden
-- Single source of truth
-
-#### Consequences
-- Docstrings must be high quality
-- Build step for doc generation
-- Some manual content still needed
+- Enterprise-grade encryption
+- Audit logging of credential access
+- Support for local providers (no keys needed)
 
 ---
 
-### ADR-031: Prompt Injection Defense System
+### ADR-035: RBAC with Provider Permissions
 
 **Status**: ✅ Accepted  
 **Date**: 2026-01-06  
-**Phase**: 5 - Testing, Security & Documentation
+**Phase**: 6 - Security Architecture
 
 #### Context
-LLM-based agents are vulnerable to prompt injection attacks via user input.
+Different users may have access to different LLM providers.
 
 #### Decision
-Implement multi-layer prompt injection defense:
-
-**Defense Layers**:
-1. **Detection**: Pattern matching for known injection attempts
-2. **Sanitization**: Remove/escape dangerous patterns
-3. **Delimiting**: Wrap user input with clear boundaries
-4. **Validation**: Verify output doesn't contain injected instructions
-
-**Implementation**:
+Add provider-specific permissions to RBAC:
 ```python
-class PromptInjectionGuard:
-    def check(self, input_text: str) -> ValidationResult
-    def sanitize(self, input_text: str) -> str
-    def wrap_user_input(self, input_text: str) -> str
-    def validate_output(self, output: str) -> ValidationResult
+PROVIDER_PERMISSIONS = {
+    "use_copilot", "use_openrouter", "use_ollama", "use_lmstudio",
+    "use_gemini", "use_openai", "use_anthropic", "use_azure",
+}
 ```
 
-**Detection Patterns**:
-- "Ignore previous instructions"
-- "You are now..."
-- System prompt extraction attempts
-- Delimiter escape attempts
+#### Rationale
+- Cost control (expensive providers restricted)
+- Compliance (some providers may be prohibited)
+- Organization policy enforcement
+
+---
+
+## Phase 7 Decisions
+
+### ADR-036: Enterprise Agent Specialization
+
+**Status**: ✅ Accepted  
+**Date**: 2026-01-06  
+**Phase**: 7 - Enterprise Agents Architecture
+
+#### Context
+Beyond 4 core agents, enterprise needs specialized agents for complex workflows.
+
+#### Decision
+Add 16 enterprise agents:
+
+| Category | Agents | Count |
+|----------|--------|-------|
+| Testing | TestWriter, TestExecutor, CoverageAnalyzer | 3 |
+| DevOps | PipelineBuilder, DeploymentManager, InfraAgent | 3 |
+| Analysis | SecurityAuditor, PerformanceAnalyzer, DependencyManager | 3 |
+| Documentation | DocWriter, APIDocGenerator, ChangelogBuilder | 3 |
+| Integration | GitHubAgent, GitLabAgent, LinearAgent, SlackAgent | 4 |
 
 #### Rationale
-- LLM security is critical
-- Multiple layers provide defense in depth
-- Pattern evolution requires updates
+- Specialized agents perform better than generalists
+- Enterprise workflows require dedicated capabilities
+- Parallel agent execution improves throughput
 
-#### Consequences
-- False positives possible
-- Pattern maintenance needed
-- Performance overhead for checking
+---
+
+### ADR-037: Multi-Agent Task Decomposition
+
+**Status**: ✅ Accepted  
+**Date**: 2026-01-06  
+**Phase**: 7 - Enterprise Agents Architecture
+
+#### Context
+Complex tasks need to be broken down for parallel agent execution.
+
+#### Decision
+Implement TaskDecomposer:
+- Analyzes complex tasks
+- Creates sub-tasks for specialized agents
+- Manages dependencies between sub-tasks
+- Aggregates results
+
+#### Rationale
+- Parallel execution improves speed
+- Specialized agents improve quality
+- Clear task boundaries
+
+---
+
+## Phase 8 Decisions
+
+### ADR-038: Advanced Analytics Pipeline
+
+**Status**: ✅ Accepted  
+**Date**: 2026-01-06  
+**Phase**: 8 - Analytics & Tools Architecture
+
+#### Context
+Enterprise needs detailed analytics on agent performance and project health.
+
+#### Decision
+Implement analytics system:
+- Real-time metrics collection
+- Agent performance tracking
+- Project health dashboard
+- Cost attribution per provider
+
+#### Rationale
+- Visibility into system performance
+- Cost optimization opportunities
+- Trend analysis for planning
+
+---
+
+### ADR-039: Extended Tool Categories
+
+**Status**: ✅ Accepted  
+**Date**: 2026-01-06  
+**Phase**: 8 - Analytics & Tools Architecture
+
+#### Context
+Enterprise agents need additional specialized tools.
+
+#### Decision
+Add tool categories:
+- Database tools (query, migrate)
+- Cloud tools (deploy, scale)
+- Monitoring tools (metrics, alerts)
+- Communication tools (notify, webhook)
+
+#### Rationale
+- Comprehensive capability coverage
+- Sandboxed execution for safety
+- Extensible tool framework
+
+---
+
+## Phase 9 Decisions
+
+### ADR-040: Governance Engine Architecture
+
+**Status**: ✅ Accepted  
+**Date**: 2026-01-06  
+**Phase**: 9 - Governance Architecture
+
+#### Context
+APEX Constitution requires governance enforcement at runtime.
+
+#### Decision
+Implement Governance Engine:
+- Policy evaluation engine
+- Compliance checker
+- Approval workflows
+- Audit trail
+
+#### Rationale
+- Constitution enforcement is automatic
+- Compliance is verifiable
+- Governance is transparent
+
+---
+
+### ADR-041: Compliance Framework
+
+**Status**: ✅ Accepted  
+**Date**: 2026-01-06  
+**Phase**: 9 - Governance Architecture
+
+#### Context
+Enterprise deployments require compliance certifications.
+
+#### Decision
+Support compliance frameworks:
+- SOC 2 Type II readiness
+- OWASP Top 10 coverage
+- GDPR data handling
+- Audit logging for compliance
+
+#### Rationale
+- Enterprise requirement
+- Security audit readiness
+- Trust establishment
+
+---
+
+## Phase 10 Decisions
+
+### ADR-042: 10-Phase Architecture Strategy
+
+**Status**: ✅ Accepted  
+**Date**: 2026-01-06  
+**Phase**: 10 - Testing & Documentation
+
+#### Context
+Original 5-phase plan was expanded to 10 phases for better separation of concerns.
+
+#### Decision
+Expand from 5 to 10 phases:
+
+| Phase | Focus |
+|-------|-------|
+| 1 | Agent System |
+| 2 | Memory & LLM |
+| 3 | Skills, Tools, Orchestration |
+| 4 | UI, Integrations, Analytics |
+| 5 | Testing & Documentation |
+| 6 | Security |
+| 7 | Enterprise Agents |
+| 8 | Analytics & Tools |
+| 9 | Governance |
+| 10 | Testing & Documentation (Extended) |
+
+#### Rationale
+- Better separation of concerns
+- Clearer ownership per phase
+- More focused implementation
+
+---
+
+### ADR-043: Extended Testing Patterns
+
+**Status**: ✅ Accepted  
+**Date**: 2026-01-06  
+**Phase**: 10 - Testing & Documentation
+
+#### Context
+Enterprise-grade system needs advanced testing patterns.
+
+#### Decision
+Add extended testing:
+- Property-based testing
+- Mutation testing
+- Chaos testing
+- Load testing
+
+#### Rationale
+- Higher confidence in system reliability
+- Edge case discovery
+- Performance validation
+
+---
+
+## Quality Review Decisions
+
+### ADR-044: LLM-Agnostic Provider Equality
+
+**Status**: ✅ Accepted  
+**Date**: 2026-01-06  
+**Phase**: All Phases
+
+#### Context
+Quality review identified inconsistent provider representation across documents.
+
+#### Decision
+Standardize on 8 equal LLM providers:
+```
+copilot, openrouter, ollama, lmstudio, gemini, openai, anthropic, azure
+```
+
+All architecture documents must treat providers equally:
+- No "primary" or "fallback" language
+- Equal mention in lists
+- Same configuration structure
+
+#### Rationale
+- User choice is paramount
+- Vendor neutrality
+- Consistent user experience
+
+---
+
+### ADR-045: Architecture Header Standardization
+
+**Status**: ✅ Accepted  
+**Date**: 2026-01-06  
+**Phase**: Quality Review
+
+#### Context
+Phases 1-5 architecture files had headers saying "Phase X of 5" instead of "Phase X of 10".
+
+#### Decision
+- All architecture files must state "Phase X of 10"
+- Quality review process added to verify headers
+- Commit per file for clear history
+
+#### Files Updated (Commits):
+| File | Commit |
+|------|--------|
+| PHASE1_AGENT_SYSTEM_ARCHITECTURE.md | `3a29403` |
+| PHASE2_MEMORY_LLM_ARCHITECTURE.md | `b4b6d61` |
+| PHASE3_SKILLS_TOOLS_ORCHESTRATION_ARCHITECTURE.md | `2b28f67` |
+| PHASE4_UI_INTEGRATIONS_ANALYTICS_ARCHITECTURE.md | `1b829fe` |
+| PHASE5_TESTING_SECURITY_DOCUMENTATION_ARCHITECTURE.md | `41ae2f5` |
+
+#### Rationale
+- Consistency across documentation
+- Accurate phase count for planning
+- Clear scope communication
 
 ---
 
 ## Decision Summary by Phase
+
+### Foundational (ADR-001 to ADR-011)
+- Extension over modification
+- Memory-first architecture
+- TaskQueue prioritization
+- AgentPool concurrency
+- SQLite episodic memory
+- Electron IPC bridge
+- React Kanban visualization
+- Git worktrees isolation
+- APEX Constitution governance
+- Phased implementation
+- APEXDEV_MERGE branch strategy
 
 ### Phase 1: Agent System (ADR-012 to ADR-015)
 - 20-agent architecture (4 core + 16 enterprise)
@@ -227,7 +450,7 @@ class PromptInjectionGuard:
 
 ### Phase 2: Memory & LLM (ADR-016 to ADR-019)
 - H-MEM tiered memory (L1/L2/L3)
-- Multi-provider LLM strategy (7 providers)
+- Multi-provider LLM strategy (8 providers)
 - Semantic search with embeddings
 - Tool calling framework
 
@@ -243,15 +466,41 @@ class PromptInjectionGuard:
 - Zustand state management
 - Multi-platform integrations (5 platforms)
 
-### Phase 5: Testing, Security, Documentation (ADR-028 to ADR-031)
+### Phase 5: Testing & Documentation (ADR-028, ADR-030, ADR-031)
 - Comprehensive testing strategy
-- Security module architecture
 - Automated documentation generation
 - Prompt injection defense
+- ⚠️ ADR-029 superseded by ADR-032
+
+### Phase 6: Security (ADR-032 to ADR-035)
+- Phase 5/6 deduplication
+- LLM-agnostic security
+- Multi-provider credential vault
+- RBAC with provider permissions
+
+### Phase 7: Enterprise Agents (ADR-036 to ADR-037)
+- Enterprise agent specialization (16 agents)
+- Multi-agent task decomposition
+
+### Phase 8: Analytics & Tools (ADR-038 to ADR-039)
+- Advanced analytics pipeline
+- Extended tool categories
+
+### Phase 9: Governance (ADR-040 to ADR-041)
+- Governance engine architecture
+- Compliance framework
+
+### Phase 10: Testing & Documentation Extended (ADR-042 to ADR-043)
+- 10-phase architecture strategy
+- Extended testing patterns
+
+### Quality Review (ADR-044 to ADR-045)
+- LLM-agnostic provider equality
+- Architecture header standardization
 
 ---
 
-## Total Decisions: 31
+## Total Decisions: 45
 
 | Category | Count |
 |----------|-------|
@@ -260,10 +509,17 @@ class PromptInjectionGuard:
 | Phase 2 - Memory/LLM | 4 |
 | Phase 3 - Skills/Tools/Orchestration | 4 |
 | Phase 4 - UI/Integrations | 4 |
-| Phase 5 - Testing/Security/Docs | 4 |
+| Phase 5 - Testing/Docs | 3 |
+| Phase 6 - Security | 4 |
+| Phase 7 - Enterprise Agents | 2 |
+| Phase 8 - Analytics/Tools | 2 |
+| Phase 9 - Governance | 2 |
+| Phase 10 - Extended Testing | 2 |
+| Quality Review | 2 |
+| **TOTAL** | **45** |
 
 ---
 
-*Architecture Decision Records complete. All 31 decisions documented.*
+*Architecture Decision Records complete. All 45 decisions documented.*
 
 *Document maintained as part of APEX governance requirements*
