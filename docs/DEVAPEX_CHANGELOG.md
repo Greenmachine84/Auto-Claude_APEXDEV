@@ -1,250 +1,281 @@
-# Changelog - DEVAPEX Integration
+# DEVAPEX Integration Changelog
 
-> **Auto-Claude_APEXDEV Enhancement Project**
-> 
-> All notable changes for the DEVAPEX feature integration will be documented in this file.
-
----
-
-## Document Info
-
-| Field | Value |
-|-------|-------|
-| **Format** | [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) |
-| **Versioning** | [Semantic Versioning](https://semver.org/spec/v2.0.0.html) |
-| **Branch** | APEXDEV_MERGE |
-| **Target** | develop → main |
+> **Tracking all changes for DEVAPEX → Auto-Claude_APEXDEV merger**
+>
+> All notable changes will be documented in this file.
+>
+> Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
 ## [Unreleased]
 
-### Phase 0: Foundation (2026-01-05)
+### Phase 0: Planning &amp; Documentation (Current)
 
 #### Added
+- `archive/README.md` - Archive directory structure with APEX governance
+- `docs/Decision.md` - 11 Architecture Decision Records
+- `docs/DEVAPEX_CHANGELOG.md` - This changelog file
+- `docs/PRD_DEVAPEX_INTEGRATION.md` - Comprehensive Technical PRD v2.0.0
 
-- **Archive Directory Structure** (`archive/README.md`)
-  - Created archive folder for deprecated code preservation
-  - Defined subdirectories: deprecated/, legacy-docs/, pre-merge/, reference/
-  - Documented APEX governance compliance (M1.1.1, M1.2.1)
-  - Established naming conventions for archived files
-
-- **Decision Log** (`docs/Decision.md`)
-  - Added 11 Architecture Decision Records (ADRs)
-  - ADR-001: Core Repository Selection (Auto-Claude as base)
-  - ADR-002: Integration Strategy (Phased with feature toggles)
-  - ADR-003: Memory System Architecture (Hybrid Graphiti + Episodes)
-  - ADR-004: Task Orchestration Model (Optional TaskQueue layer)
-  - ADR-005: Multi-LLM Provider Support (Claude primary, others fallback)
-  - ADR-006: Kanban UI Integration (Priority indicators, agent linking)
-  - ADR-007: Agent Pool Management (12-agent limit, lifecycle)
-  - ADR-008: APEX Governance Compliance (Parts 1,5,7,11,13,14)
-  - ADR-009: Enterprise Features Selection (Projects, Secrets prioritized)
-  - ADR-010: Security Model Harmonization (Layered approach)
-  - ADR-011: Merge Strategy and Testing (Branch-based, staged)
-
-- **Integration Changelog** (`docs/DEVAPEX_CHANGELOG.md`)
-  - This file - tracking all merger changes
-
-- **Technical PRD** (`docs/PRD_DEVAPEX_INTEGRATION.md`)
-  - Comprehensive Product Requirements Document
-  - 5-phase implementation plan
-  - Feature mapping from DEVAPEX to Auto-Claude
-  - Success criteria and validation requirements
+#### Documentation Updates
+- Enhanced PRD with full DEVAPEX Features and Functions catalog
+- Added 16 Enterprise Agents specifications
+- Added H-MEM tiered memory system
+- Added 7 LLM providers with intelligent routing
+- Added Skills Framework (25+ categories)
+- Added 5 Governance Councils
+- Added V2.0 Modules specifications
 
 ---
 
-## Planned Changes
+## Implementation Milestones
 
-### Phase 1: Task Orchestration Backend (Planned)
+### Phase 1: Foundation (Week 1-2)
 
-#### To Be Added
+| Milestone | Description | Status |
+|-----------|-------------|--------|
+| 1A | Base Enterprise Agent class | 🔲 Pending |
+| 1B | Agent Registry | 🔲 Pending |
+| 1C | Episode Store | 🔲 Pending |
 
-- **TaskQueue Module** (`apps/backend/orchestrator/task_queue.py`)
-  - Priority-based task queue (Critical/High/Medium/Low)
-  - Async enqueue/dequeue operations
-  - Task status tracking
-  - Source: DEVAPEX `orchestrator/manager.py` lines 70-91
-
-- **AgentPool Module** (`apps/backend/orchestrator/agent_pool.py`)
-  - Agent instance lifecycle management
-  - Max 12 agents (matching terminal grid)
-  - Max 6 concurrent tasks
-  - Idle agent reuse with 300s timeout
-  - Source: DEVAPEX `orchestrator/manager.py` lines 150-178
-
-- **Orchestrator Manager** (`apps/backend/orchestrator/manager.py`)
-  - Task dispatch to agents
-  - Event emission for UI updates
-  - Result collection and storage
-  - Source: DEVAPEX `orchestrator/manager.py`
-
-- **Execution Result Tracking** (`apps/backend/orchestrator/types.py`)
-  - Success/failure status
-  - Output capture
-  - Duration tracking
-  - Source: DEVAPEX `core/types.py`
-
-### Phase 2: Memory Store Integration (Planned)
-
-#### To Be Added
-
-- **Episodic Memory Store** (`apps/backend/memory/episodes.py`)
-  - EpisodeRecord model (agent_id, input, output, tools_used)
-  - SQLite persistence
-  - Source: DEVAPEX `memory/store.py`
-
-- **Semantic Search** (`apps/backend/memory/search.py`)
-  - Vector similarity search
-  - Multi-provider embeddings (OpenAI, Voyage AI, Ollama)
-  - Source: DEVAPEX `memory/search.py`
-
-- **Unified Memory API** (`apps/backend/memory/unified.py`)
-  - Merge Graphiti + Episodes
-  - Single search interface
-  - Pattern extraction and storage
-
-- **Memory IPC Handlers** (`apps/frontend/src/main/ipc-handlers/memory-handlers.ts`)
-  - `memory:search` - Semantic search
-  - `memory:save-pattern` - Pattern persistence
-  - `memory:get-context` - Cross-session retrieval
-
-### Phase 3: Enterprise Features (Planned)
-
-#### To Be Added
-
-- **Projects Manager** (`apps/backend/projects/manager.py`)
-  - Project lifecycle (DRAFT → ACTIVE → ARCHIVED)
-  - Repository integration (GitHub, GitLab, Bitbucket)
-  - Semantic versioning (major.minor.patch)
-  - Source: DEVAPEX `projects/manager.py`
-
-- **Secrets Manager** (`apps/backend/secrets/manager.py`)
-  - PBKDF2 key derivation + Fernet encryption
-  - Scopes: USER, TEAM, PROJECT, ENTERPRISE, GLOBAL
-  - Version history (last 10 versions)
-  - Audit trail
-  - Source: DEVAPEX `secrets/manager.py`
-
-- **Teams Manager** (`apps/backend/teams/manager.py`) (Optional)
-  - Team creation and roles (OWNER, ADMIN, MEMBER, GUEST)
-  - Project sharing
-  - Real-time presence
-  - Source: DEVAPEX `teams/manager.py`
-
-### Phase 4: UI/UX Enhancements (Planned)
-
-#### To Be Added
-
-- **Enhanced Kanban Board** (`apps/frontend/src/renderer/components/kanban/`)
-  - Priority indicators (Critical/High/Medium/Low colors)
-  - Task-to-agent linking
-  - Drag-drop status updates with API calls
-  - Source: DEVAPEX `apps/desktop/src/renderer/components/kanban/`
-
-- **Memory/Context Panel** (`apps/frontend/src/renderer/components/insights/`)
-  - Episode history viewer
-  - Pattern/gotcha display
-  - Search interface
-
-- **Agent Tools Configuration** (`apps/frontend/src/renderer/components/settings/AgentTools.tsx`)
-  - Per-agent tool permissions
-  - Thinking level selection
-  - MCP server assignment
-  - Source: DEVAPEX patterns
-
-### Phase 5: Testing & Validation (Planned)
-
-#### To Be Added
-
-- **Orchestrator Tests** (`tests/test_orchestrator.py`)
-  - TaskQueue unit tests
-  - AgentPool lifecycle tests
-  - Integration tests
-
-- **Memory Tests** (`tests/test_unified_memory.py`)
-  - Episode storage tests
-  - Search accuracy tests
-  - Cross-session context tests
-
-- **E2E Tests** (`tests/e2e/`)
-  - Kanban flow tests
-  - Task execution tests
-  - Memory UI tests
+**Files to Create:**
+- `apps/backend/agents/enterprise/__init__.py`
+- `apps/backend/agents/enterprise/base_enterprise.py`
+- `apps/backend/agents/registry.py`
+- `apps/backend/memory/episodes/__init__.py`
+- `apps/backend/memory/episodes/store.py`
 
 ---
 
-## Feature Mapping: DEVAPEX → Auto-Claude
+### Phase 2: Orchestration (Week 3-4)
 
-| DEVAPEX Feature | DEVAPEX Location | Auto-Claude Target | Priority |
-|-----------------|------------------|--------------------|---------|
-| TaskQueue | `orchestrator/manager.py` | `orchestrator/task_queue.py` | HIGH |
-| AgentPool | `orchestrator/manager.py` | `orchestrator/agent_pool.py` | HIGH |
-| Orchestrator | `orchestrator/manager.py` | `orchestrator/manager.py` | HIGH |
-| Episodic Memory | `memory/store.py` | `memory/episodes.py` | HIGH |
-| Semantic Search | `memory/search.py` | `memory/search.py` | HIGH |
-| Projects Manager | `projects/manager.py` | `projects/manager.py` | MEDIUM |
-| Secrets Manager | `secrets/manager.py` | `secrets/manager.py` | HIGH |
-| Teams Manager | `teams/manager.py` | `teams/manager.py` | LOW |
-| LLM Router | `llm/router.py` | `llm/router.py` | MEDIUM |
-| Bug Predictor | `prediction/` | `prediction/` | LOW |
-| Specialist Reviewers | `agents/specialists/` | `agents/specialists/` | MEDIUM |
-| Session Memory Tools | `tools_pkg/session_memory.py` | `tools_pkg/session_memory.py` | HIGH |
-| Phase Configuration | `agents/phase_config.py` | Already exists | N/A |
-| Kanban Board | `desktop/components/kanban/` | `frontend/components/kanban/` | HIGH |
-| APEX Governance | `integration/` | `integration/` | MEDIUM |
+| Milestone | Description | Status |
+|-----------|-------------|--------|
+| 2A | Task Queue | 🔲 Pending |
+| 2B | Agent Pool | 🔲 Pending |
+| 2C | Event Bus | 🔲 Pending |
+
+**Files to Create:**
+- `apps/backend/orchestrator/__init__.py`
+- `apps/backend/orchestrator/task_queue.py`
+- `apps/backend/orchestrator/agent_pool.py`
+- `apps/backend/orchestrator/manager.py`
+- `apps/backend/orchestrator/events.py`
 
 ---
 
-## Migration Notes
+### Phase 3: Memory Enhancement (Week 5-6)
 
-### Breaking Changes
+| Milestone | Description | Status |
+|-----------|-------------|--------|
+| 3A | H-MEM L1/L2/L3 tiers | 🔲 Pending |
+| 3B | Memory Bridge | 🔲 Pending |
+| 3C | Unified Query | 🔲 Pending |
 
-None planned - all changes are additive per APEX M1.2.1.
-
-### Deprecations
-
-None planned for Phase 0-1. Future deprecations will be announced with migration paths.
-
-### Configuration Changes
-
-```python
-# New environment variables (Phase 1+)
-DEVAPEX_TASK_QUEUE_ENABLED=true
-DEVAPEX_AGENT_POOL_MAX=12
-DEVAPEX_CONCURRENT_TASKS_MAX=6
-DEVAPEX_EPISODIC_MEMORY_ENABLED=true
-DEVAPEX_SECRETS_ENCRYPTION_ENABLED=true
-```
-
-### Backward Compatibility
-
-All existing Auto-Claude functionality preserved:
-- CLI workflow (`spec_runner.py`, `run.py`) unchanged
-- Existing agent prompts maintained
-- Graphiti memory continues to work
-- Frontend UI backward compatible
+**Files to Create:**
+- `apps/backend/memory/hmem/__init__.py`
+- `apps/backend/memory/hmem/l1_cache.py`
+- `apps/backend/memory/hmem/l2_sqlite.py`
+- `apps/backend/memory/hmem/l3_archive.py`
+- `apps/backend/memory/bridge/unified_query.py`
 
 ---
 
-## Version History
+### Phase 4: Security (Week 7-8)
 
-| Version | Date | Description |
-|---------|------|-------------|
-| 0.1.0 | 2026-01-05 | Phase 0: Foundation documents created |
-| - | TBD | Phase 1: Task Orchestration |
-| - | TBD | Phase 2: Memory Integration |
-| - | TBD | Phase 3: Enterprise Features |
-| - | TBD | Phase 4: UI/UX Enhancements |
-| - | TBD | Phase 5: Testing & Validation |
-| 1.0.0 | TBD | Full integration complete |
+| Milestone | Description | Status |
+|-----------|-------------|--------|
+| 4A | Secrets Manager | 🔲 Pending |
+| 4B | Audit Trail | 🔲 Pending |
+| 4C | RBAC (optional) | 🔲 Pending |
+
+**Files to Create:**
+- `apps/backend/secrets/__init__.py`
+- `apps/backend/secrets/manager.py`
+- `apps/backend/secrets/encryption.py`
+- `apps/backend/secrets/audit.py`
 
 ---
 
-## References
+### Phase 5: Enterprise Agents (Week 9-12)
 
-- [Decision Log](docs/Decision.md)
-- [Technical PRD](docs/PRD_DEVAPEX_INTEGRATION.md)
-- [DEVAPEX Architecture](https://github.com/Greenmachine84/DEVAPEX/blob/dev/v2.0-multi-llm/docs/ARCHITECTURE.md)
-- [DEVAPEX API Reference](https://github.com/Greenmachine84/DEVAPEX/blob/dev/v2.0-multi-llm/docs/API.md)
-- [Auto-Claude CLAUDE.md](CLAUDE.md)
+| Milestone | Description | Status |
+|-----------|-------------|--------|
+| 5A | Architecture Agents (4) | 🔲 Pending |
+| 5B | Security Agents (2) | 🔲 Pending |
+| 5C | Quality Agents (3) | 🔲 Pending |
+| 5D | Infrastructure Agents (4) | 🔲 Pending |
+| 5E | Orchestration Agents (3) | 🔲 Pending |
+
+**Files to Create (16 agents):**
+- `apps/backend/agents/enterprise/architects/system_architect.py`
+- `apps/backend/agents/enterprise/architects/security_architect.py`
+- `apps/backend/agents/enterprise/architects/refactor_architect.py`
+- `apps/backend/agents/enterprise/architects/performance_architect.py`
+- `apps/backend/agents/enterprise/security/red_team.py`
+- `apps/backend/agents/enterprise/security/blue_team.py`
+- `apps/backend/agents/enterprise/quality/documentation_lead.py`
+- `apps/backend/agents/enterprise/quality/qa_verification.py`
+- `apps/backend/agents/enterprise/quality/compliance_auditor.py`
+- `apps/backend/agents/enterprise/infrastructure/integration_architect.py`
+- `apps/backend/agents/enterprise/infrastructure/data_architect.py`
+- `apps/backend/agents/enterprise/infrastructure/devops_architect.py`
+- `apps/backend/agents/enterprise/infrastructure/cloud_architect.py`
+- `apps/backend/agents/enterprise/orchestration/mda_orchestrator.py`
+- `apps/backend/agents/enterprise/orchestration/api_design.py`
+- Tests for all agents
+
+---
+
+### Phase 6: Governance (Week 13-14)
+
+| Milestone | Description | Status |
+|-----------|-------------|--------|
+| 6A | APEX Validators | 🔲 Pending |
+| 6B | Governance Councils (5) | 🔲 Pending |
+| 6C | HITL Gates | 🔲 Pending |
+
+**Files to Create:**
+- `apps/backend/governance/__init__.py`
+- `apps/backend/governance/validators/constitution.py`
+- `apps/backend/governance/validators/architect.py`
+- `apps/backend/governance/validators/alignment.py`
+- `apps/backend/governance/councils/architecture.py`
+- `apps/backend/governance/councils/security.py`
+- `apps/backend/governance/councils/quality.py`
+- `apps/backend/governance/councils/ops.py`
+- `apps/backend/governance/councils/product.py`
+- `apps/backend/governance/gates/hitl.py`
+- `apps/backend/governance/gates/evidence_binder.py`
+
+---
+
+### Phase 7: Testing &amp; Validation (Week 15-16)
+
+| Milestone | Description | Status |
+|-----------|-------------|--------|
+| 7A | Unit Tests (80%+) | 🔲 Pending |
+| 7B | Integration Tests | 🔲 Pending |
+| 7C | E2E Tests | 🔲 Pending |
+| 7D | User Sign-off | 🔲 Pending |
+
+**Test Files to Create:**
+- `tests/test_enterprise_agents.py`
+- `tests/test_orchestrator.py`
+- `tests/test_hmem.py`
+- `tests/test_secrets.py`
+- `tests/test_governance.py`
+- `tests/test_integration_e2e.py`
+
+---
+
+## DEVAPEX Feature Mapping
+
+### Agent System (20 Total)
+
+| DEVAPEX Agent | Target Location | Priority | Status |
+|---------------|-----------------|----------|--------|
+| BaseAgent | Keep existing | N/A | ✅ Exists |
+| CoderAgent | Keep existing | N/A | ✅ Exists |
+| ReviewerAgent | Keep existing | N/A | ✅ Exists |
+| FixerAgent | Keep existing | N/A | ✅ Exists |
+| SystemArchitectAgent | `enterprise/architects/` | HIGH | 🔲 |
+| SecurityArchitectAgent | `enterprise/architects/` | HIGH | 🔲 |
+| RefactorArchitectAgent | `enterprise/architects/` | MEDIUM | 🔲 |
+| PerformanceArchitectAgent | `enterprise/architects/` | MEDIUM | 🔲 |
+| RedTeamAgent | `enterprise/security/` | HIGH | 🔲 |
+| BlueTeamAgent | `enterprise/security/` | HIGH | 🔲 |
+| DocumentationLeadAgent | `enterprise/quality/` | MEDIUM | 🔲 |
+| QAVerificationAgent | `enterprise/quality/` | MEDIUM | 🔲 |
+| ComplianceAuditorAgent | `enterprise/quality/` | MEDIUM | 🔲 |
+| IntegrationArchitectAgent | `enterprise/infrastructure/` | MEDIUM | 🔲 |
+| DataArchitectAgent | `enterprise/infrastructure/` | MEDIUM | 🔲 |
+| DevOpsArchitectAgent | `enterprise/infrastructure/` | LOW | 🔲 |
+| CloudArchitectAgent | `enterprise/infrastructure/` | LOW | 🔲 |
+| MDAOrchestratorAgent | `enterprise/orchestration/` | HIGH | 🔲 |
+| APIDesignAgent | `enterprise/orchestration/` | MEDIUM | 🔲 |
+| BaseEnterpriseAgent | `enterprise/` | HIGH | 🔲 |
+
+### Memory System
+
+| DEVAPEX Feature | Target Location | Priority | Status |
+|-----------------|-----------------|----------|--------|
+| EpisodicMemory | `memory/episodes/` | HIGH | 🔲 |
+| ReflexionPattern | `memory/episodes/` | HIGH | 🔲 |
+| SemanticSearch | Keep existing | N/A | ✅ |
+| RetentionPolicy | `memory/episodes/` | MEDIUM | 🔲 |
+| H-MEM Tiers | `memory/hmem/` | MEDIUM | 🔲 |
+| EmbeddingProviders | `memory/embeddings/` | MEDIUM | 🔲 |
+| MemoryBridge | `memory/bridge/` | MEDIUM | 🔲 |
+
+### LLM Integration
+
+| DEVAPEX Feature | Target Location | Priority | Status |
+|-----------------|-----------------|----------|--------|
+| AnthropicClient | Keep existing | N/A | ✅ |
+| OpenAIClient | `llm/providers/` | MEDIUM | 🔲 |
+| AzureClient | `llm/providers/` | MEDIUM | 🔲 |
+| OllamaClient | `llm/providers/` | LOW | 🔲 |
+| OpenRouterProvider | `llm/providers/` | LOW | 🔲 |
+| GeminiProvider | `llm/providers/` | LOW | 🔲 |
+| LLMRouter | `llm/router/` | MEDIUM | 🔲 |
+
+### Orchestration
+
+| DEVAPEX Feature | Target Location | Priority | Status |
+|-----------------|-----------------|----------|--------|
+| TaskQueue | `orchestrator/` | HIGH | 🔲 |
+| AgentPool | `orchestrator/` | HIGH | 🔲 |
+| EventBus | `orchestrator/` | HIGH | 🔲 |
+| SessionManager | `orchestrator/` | MEDIUM | 🔲 |
+| WorkflowEngine | Evaluate need | LOW | 🔲 |
+
+### Security
+
+| DEVAPEX Feature | Target Location | Priority | Status |
+|-----------------|-----------------|----------|--------|
+| SecretsManager | `secrets/` | HIGH | 🔲 |
+| AES-256 Encryption | `secrets/` | HIGH | 🔲 |
+| SecretScopes | `secrets/` | MEDIUM | 🔲 |
+| AuditLogging | `secrets/` | MEDIUM | 🔲 |
+| SSOManager | Optional | LOW | 🔲 |
+| RBAC | Optional | LOW | 🔲 |
+
+### Governance
+
+| DEVAPEX Feature | Target Location | Priority | Status |
+|-----------------|-----------------|----------|--------|
+| ConstitutionValidator | `governance/validators/` | MEDIUM | 🔲 |
+| ArchitectValidator | `governance/validators/` | MEDIUM | 🔲 |
+| HITLGate | `governance/gates/` | LOW | 🔲 |
+| 5 Councils | `governance/councils/` | LOW | 🔲 |
+
+---
+
+## Critical Constraints
+
+### PRESERVED (No Changes)
+
+- ✅ Claude Agent SDK - Primary AI provider
+- ✅ Graphiti Integration - Core memory
+- ✅ spec_runner - Spec execution
+- ✅ QA Loop - Quality assurance
+- ✅ Git Worktree - Safe development
+- ✅ 12-Terminal Grid UI
+- ✅ Original Theme &amp; Styling
+- ✅ Existing CLI Workflows
+- ✅ All Existing API Endpoints
+
+### ADDITIVE ONLY
+
+All enhancements are **purely additive** per APEX M1.2.1:
+- New modules alongside existing
+- Feature toggles for optional features
+- Backward-compatible APIs
+- No breaking changes
+
+---
+
+*Changelog maintained per Keep a Changelog 1.0.0*
+*Last updated: January 5, 2026*
