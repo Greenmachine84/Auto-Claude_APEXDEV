@@ -3,12 +3,15 @@
 > **Auto-Claude_APEXDEV Enhancement Project**
 > Phase 2 of 10 | File/Folder Architecture Specification
 > Created: January 6, 2026
+> Updated: January 6, 2026 - Naming alignment per NAMING_ALIGNMENT_STANDARDS.md
 
 ---
 
 ## Overview
 
 Phase 2 establishes the memory subsystem and LLM integration layer, incorporating DEVAPEX's episodic memory, H-MEM tiered architecture, and multi-provider LLM support.
+
+> ⚠️ **NAMING STANDARD**: See [NAMING_ALIGNMENT_STANDARDS.md](NAMING_ALIGNMENT_STANDARDS.md) for canonical provider names. This phase uses **8 equal LLM providers** with `gemini` (not `google`) for the Google Gemini product.
 
 ---
 
@@ -18,7 +21,7 @@ Phase 2 establishes the memory subsystem and LLM integration layer, incorporatin
 apps/
 └── backend/
     ├── memory/
-    │   ├── __init__.py                    # Memory system exports
+    │   ├── __init__.py                # Memory system exports
     │   │
     │   ├── core/
     │   │   ├── __init__.py                # Core memory exports
@@ -73,25 +76,27 @@ apps/
         │   ├── model_selector.py          # Dynamic model selection
         │   └── cost_tracker.py            # Token usage and cost tracking
         │
-        ├── providers/
+        ├── providers/                     # 8 EQUAL LLM PROVIDERS
         │   ├── __init__.py                # Provider exports
         │   ├── base_provider.py           # Abstract provider base
         │   ├── anthropic_provider.py      # Claude (Opus, Sonnet, Haiku)
         │   ├── openai_provider.py         # GPT-4, GPT-4o, GPT-4o-mini
         │   ├── azure_provider.py          # Azure OpenAI Service
         │   ├── ollama_provider.py         # Local LLMs (Llama, Mistral)
-        │   ├── google_provider.py         # Gemini models
-        │   ├── groq_provider.py           # Groq inference
+        │   ├── gemini_provider.py         # Google Gemini (Pro, Flash, Ultra)
+        │   ├── copilot_provider.py        # GitHub Copilot via VS Code LM API
+        │   ├── lmstudio_provider.py       # LM Studio (local)
         │   └── openrouter_provider.py     # OpenRouter gateway
         │
-        ├── embeddings/
+        ├── embeddings/                    # 6 Embedding Providers
         │   ├── __init__.py                # Embedding exports
         │   ├── base_embedder.py           # Abstract embedder interface
         │   ├── openai_embedder.py         # OpenAI text-embedding-3
         │   ├── ollama_embedder.py         # Local Ollama embeddings
         │   ├── voyage_embedder.py         # Voyage AI embeddings
-        │   ├── google_embedder.py         # Google embeddings
-        │   └── azure_embedder.py          # Azure OpenAI embeddings
+        │   ├── gemini_embedder.py         # Google Gemini embeddings
+        │   ├── azure_embedder.py          # Azure OpenAI embeddings
+        │   └── openrouter_embedder.py     # OpenRouter embeddings
         │
         ├── prompts/
         │   ├── __init__.py                # Prompt exports
@@ -409,14 +414,18 @@ class CostTracker:
 
 ### 7. LLM Providers Module (`llm/providers/`)
 
+> ⚠️ **8 EQUAL PROVIDERS**: All providers have equal status. No default provider.
+> See [NAMING_ALIGNMENT_STANDARDS.md](NAMING_ALIGNMENT_STANDARDS.md) for canonical names.
+
 | File | Provider | Models Supported |
 |------|----------|------------------|
 | `anthropic_provider.py` | Anthropic | Claude Opus, Sonnet, Haiku |
 | `openai_provider.py` | OpenAI | GPT-4, GPT-4o, GPT-4o-mini |
 | `azure_provider.py` | Azure | Azure OpenAI deployments |
 | `ollama_provider.py` | Ollama | Llama, Mistral, Qwen, etc. |
-| `google_provider.py` | Google | Gemini Pro, Gemini Flash |
-| `groq_provider.py` | Groq | Llama, Mixtral (fast inference) |
+| `gemini_provider.py` | Gemini | Gemini Pro, Flash, Ultra |
+| `copilot_provider.py` | Copilot | GitHub Copilot via VS Code |
+| `lmstudio_provider.py` | LM Studio | Local models |
 | `openrouter_provider.py` | OpenRouter | Multi-provider gateway |
 
 ---
@@ -428,8 +437,9 @@ class CostTracker:
 | `openai_embedder.py` | OpenAI | text-embedding-3-small/large |
 | `ollama_embedder.py` | Ollama | nomic-embed-text, all-minilm |
 | `voyage_embedder.py` | Voyage AI | voyage-3, voyage-code-3 |
-| `google_embedder.py` | Google | text-embedding-004 |
+| `gemini_embedder.py` | Gemini | text-embedding-004 |
 | `azure_embedder.py` | Azure | Azure embedding deployments |
+| `openrouter_embedder.py` | OpenRouter | Via OpenRouter API |
 
 ---
 
@@ -543,12 +553,14 @@ class ToolExecutor:
 #### `llm_types.py`
 ```python
 class LLMProvider(Enum):
+    """8 Equal LLM Providers - No Default"""
     ANTHROPIC = "anthropic"
     OPENAI = "openai"
     AZURE = "azure"
     OLLAMA = "ollama"
-    GOOGLE = "google"
-    GROQ = "groq"
+    GEMINI = "gemini"       # Google Gemini product
+    COPILOT = "copilot"     # GitHub Copilot
+    LMSTUDIO = "lmstudio"   # LM Studio
     OPENROUTER = "openrouter"
 ```
 
@@ -581,7 +593,7 @@ class TokenUsage:
     prompt_tokens: int
     completion_tokens: int
     total_tokens: int
-    
+
 @dataclass
 class TokenCost:
     input_cost: float
@@ -634,13 +646,13 @@ class TokenCost:
 | `memory/context/` | 5 | Context building |
 | `memory/types/` | 4 | Memory types |
 | `llm/core/` | 6 | LLM core |
-| `llm/providers/` | 8 | LLM providers |
-| `llm/embeddings/` | 6 | Embedders |
+| `llm/providers/` | 9 | 8 LLM providers + base |
+| `llm/embeddings/` | 8 | 6 embedders + base + init |
 | `llm/prompts/` | 5 | Prompt system |
 | `llm/streaming/` | 4 | Streaming |
 | `llm/tools/` | 5 | Tool calling |
 | `llm/types/` | 5 | LLM types |
-| **Total** | **69** | Phase 2 files |
+| **Total** | **72** | Phase 2 files |
 
 ---
 
