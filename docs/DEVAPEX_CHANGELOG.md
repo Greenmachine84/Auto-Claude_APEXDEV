@@ -36,10 +36,42 @@ All Phase 1-5 architecture files incorrectly stated "Phase X of 5" instead of "P
 | Phase 5 | Testing infrastructure, Documentation system | Phase 6 for security |
 | Phase 6 | Complete security implementation | - |
 
+### Fixed - Priority 3: Naming Alignment Verification ✅ COMPLETE
+All 10 architecture files verified against **NAMING_ALIGNMENT_STANDARDS.md**.
+
+**8 Canonical LLM Providers**:
+```
+copilot | openrouter | ollama | lmstudio | gemini | openai | anthropic | azure
+```
+
+**Key Naming Rule**: Use `gemini` for Google's LLM product, `google` only for OAuth authentication.
+
+| Phase | File | Status | Issues Found |
+|-------|------|--------|--------------|
+| 1 | PHASE1_AGENT_SYSTEM_ARCHITECTURE.md | ✅ Compliant | None |
+| 2 | PHASE2_MEMORY_LLM_ARCHITECTURE.md | ✅ Fixed | google→gemini naming |
+| 3 | PHASE3_SKILLS_TOOLS_ORCHESTRATION_ARCHITECTURE.md | ✅ Compliant | None |
+| 4 | PHASE4_UI_INTEGRATIONS_ANALYTICS_ARCHITECTURE.md | ✅ Compliant | None |
+| 5 | PHASE5_TESTING_SECURITY_DOCUMENTATION_ARCHITECTURE.md | ✅ Compliant | None |
+| 6 | PHASE6_SECURITY_ARCHITECTURE.md | ✅ Compliant | None |
+| 7 | PHASE7_ENTERPRISE_AGENTS_ARCHITECTURE.md | ✅ Compliant | None |
+| 8 | PHASE8_ANALYTICS_TOOLS_ARCHITECTURE.md | ✅ Compliant | None |
+| 9 | PHASE9_GOVERNANCE_ARCHITECTURE.md | ✅ Compliant | None |
+| 10 | PHASE10_TESTING_DOCUMENTATION_ARCHITECTURE.md | ✅ Compliant | None |
+
+**Phase 2 Fixes Applied** (Commit: `c6dcfea`):
+- `google_provider.py` → `gemini_provider.py`
+- `google_embedder.py` → `gemini_embedder.py`
+- LLMProvider enum: GOOGLE → GEMINI, added COPILOT/LMSTUDIO, removed GROQ
+- Cross-reference to NAMING_ALIGNMENT_STANDARDS.md added
+
+**Implementation Specs**: `docs/specs/` folder empty - specs inline in architecture files
+
 ### Added - Architecture Decision Records
 - **ADR-032**: Phase 5/6 Security Deduplication
 - **ADR-044**: LLM-Agnostic Provider Equality
 - **ADR-045**: Architecture Header Standardization
+- **ADR-046**: Naming Alignment Verification
 
 ---
 
@@ -290,9 +322,9 @@ All 8 LLM providers have equal security treatment:
 | **TOTAL** | **~570** | **Complete System** | ✅ **COMPLETE** |
 
 ### Architecture Decision Records
-- **45 Total ADRs** documented (up from 31)
+- **46 Total ADRs** documented
 - All decisions tracked with rationale and consequences
-- Quality review decisions included
+- Quality review decisions included (ADRs 44-46)
 
 ### LLM-Agnostic Design (8 Equal Providers)
 ```
@@ -320,14 +352,17 @@ github | google | microsoft | manual
 | Governance | Policy engine, compliance framework |
 
 ### Quality Review Completed
-- ✅ Header corrections (5 files)
-- ✅ Content deduplication (Phase 5/6)
-- 🔲 Naming alignment (Priority 3)
-- 🔲 Cross-references (Priority 4)
+- ✅ Header corrections (5 files, commits `3a29403` - `41ae2f5`)
+- ✅ Content deduplication (Phase 5/6, commit `0cc8a42`)
+- ✅ Naming alignment (Priority 3, commits `e99861a`, `c6dcfea`)
+- 🔲 Cross-references (Priority 4) ← **Next**
 
 ### Commit History (Recent)
 | Commit | Description |
 |--------|-------------|
+| `4c725f2` | ADR-046: Naming alignment verification complete |
+| `c6dcfea` | Phase 2 naming fix (google→gemini) |
+| `e99861a` | NAMING_ALIGNMENT_STANDARDS.md created |
 | `9f242a0` | Decision.md comprehensive update (ADRs 32-45) |
 | `0cc8a42` | Phase 5 refactored for deduplication |
 | `41ae2f5` | Phase 5 header fix |
@@ -338,6 +373,6 @@ github | google | microsoft | manual
 
 ---
 
-*All architecture specifications complete. Quality review in progress.*
+*All architecture specifications complete. Quality review Priority 1-3 complete. Priority 4 (cross-references) next.*
 
 *Changelog maintained per APEX governance requirements*
