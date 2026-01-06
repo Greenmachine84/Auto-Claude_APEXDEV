@@ -2,7 +2,9 @@
 
 > **Auto-Claude_APEXDEV Enhancement Plan**
 >
-> Comprehensive technical PRD for integrating DEVAPEX features into Auto-Claude
+> Enterprise-Grade, Production-Ready, World-Class Autonomous Coding Platform
+>
+> Version: 2.0.0 | Last Updated: January 5, 2026
 
 ---
 
@@ -10,599 +12,591 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.0 |
+| **Version** | 2.0.0 |
 | **Created** | 2026-01-05 |
 | **Status** | Draft - Pending Approval |
 | **Author** | Auto-Claude Enhancement Team |
-| **Reviewers** | Project Stakeholders |
+| **Source** | DEVAPEX Features and Functions Overview v2.0.0 |
+
+---
+
+## CRITICAL CONSTRAINTS
+
+> ⚠️ **MANDATORY REQUIREMENTS**
+
+1. **ADDITIVE ONLY**: All enhancements MUST be additive - NO removal of existing functionality
+2. **UI/UX PRESERVATION**: Original styling and flow MUST be preserved - enhance only when necessary
+3. **APEX COMPLIANCE**: All features MUST comply with APEX Constitution Articles I-V
+4. **ENTERPRISE-GRADE**: All implementations MUST be production-ready and world-class
+5. **BACKWARD COMPATIBILITY**: Existing CLI workflows and APIs MUST remain functional
 
 ---
 
 ## Table of Contents
 
 1. [Executive Summary](#1-executive-summary)
-2. [Project Overview](#2-project-overview)
-3. [Source Repository Analysis](#3-source-repository-analysis)
-4. [Feature Integration Matrix](#4-feature-integration-matrix)
-5. [Implementation Phases](#5-implementation-phases)
-6. [Technical Specifications](#6-technical-specifications)
-7. [Risk Assessment](#7-risk-assessment)
-8. [Success Criteria](#8-success-criteria)
-9. [Appendices](#9-appendices)
+2. [Agent System Enhancement](#2-agent-system-enhancement)
+3. [Memory System Enhancement](#3-memory-system-enhancement)
+4. [LLM Integration Enhancement](#4-llm-integration-enhancement)
+5. [Skills Framework](#5-skills-framework)
+6. [Orchestration System](#6-orchestration-system)
+7. [Governance & Compliance](#7-governance--compliance)
+8. [Security & Authentication](#8-security--authentication)
+9. [V2.0 Modules](#9-v20-modules)
+10. [Desktop UI Enhancements](#10-desktop-ui-enhancements)
+11. [Implementation Milestones](#11-implementation-milestones)
 
 ---
 
 ## 1. Executive Summary
 
-### 1.1 Purpose
+### 1.1 Vision
 
-This PRD defines the technical requirements for integrating DEVAPEX's enterprise features into Auto-Claude_APEXDEV. The goal is to enhance Auto-Claude's autonomous coding capabilities with:
+Transform Auto-Claude_APEXDEV into a **world-class, enterprise-grade autonomous coding platform** by integrating DEVAPEX's advanced features while preserving the proven Claude Agent SDK foundation.
 
-- **Task Orchestration**: Priority-based task queue with agent pooling
-- **Episodic Memory**: Cross-session context and pattern learning
-- **Enterprise Features**: Project management, secrets handling, team collaboration
-- **Enhanced UI**: Visual Kanban with agent linking and memory views
+### 1.2 Core Enhancements
 
-### 1.2 Scope
+| Category | Current State | Enhanced State |
+|----------|--------------|----------------|
+| Agents | 4 core agents | 4 core + 16 enterprise agents |
+| Memory | Graphiti only | Graphiti + H-MEM tiers + Episodic |
+| LLM | Claude only | 7 providers with intelligent routing |
+| Skills | Implicit | 25+ categorized skills with registry |
+| Governance | Basic | 5 councils + HITL gates |
+| Security | .env based | AES-256 encrypted secrets + RBAC |
 
-| In Scope | Out of Scope |
-|----------|-------------|
-| TaskQueue + AgentPool | Full OAuth implementation |
-| Episodic Memory layer | Real-time collaboration |
-| Secrets Manager | Video/voice channels |
-| Projects Manager | HITL approval gates |
-| Enhanced Kanban UI | Auto-updates system |
-| Multi-LLM routing | Full APEX councils |
+### 1.3 Success Criteria
 
-### 1.3 Success Metrics
-
-| Metric | Target |
-|--------|--------|
-| Unit test coverage | ≥80% new code |
-| Regression rate | 0 breaking changes |
-| Performance impact | <5% overhead |
-| User verification | Sign-off required |
+- ✅ Zero breaking changes to existing functionality
+- ✅ 80%+ test coverage on new code
+- ✅ <5% performance overhead
+- ✅ APEX Constitution compliance verified
+- ✅ User sign-off on each milestone
 
 ---
 
-## 2. Project Overview
+## 2. Agent System Enhancement
 
-### 2.1 Background
+### 2.1 Preserve Existing Core Agents
 
-**Auto-Claude** (v2.7.2) is a production autonomous coding framework using Claude Agent SDK. It features:
-- Multi-agent system (Planner, Coder, QA Reviewer, QA Fixer)
-- Spec creation pipeline with complexity assessment
-- Git worktree isolation for safe development
-- Graphiti memory with semantic search
+| Agent | Status | Action |
+|-------|--------|--------|
+| Planner Agent | ✅ Keep | No changes |
+| Coder Agent | ✅ Keep | Extend with APEX hooks |
+| QA Reviewer | ✅ Keep | Add severity categorization |
+| QA Fixer | ✅ Keep | Add reflexion pattern |
 
-**DEVAPEX** (v2.0.0 dev/v2.0-multi-llm) extends Auto-Claude with:
-- Enterprise-grade orchestration
-- Multi-LLM provider support
-- APEX governance framework
-- Team collaboration features
+### 2.2 Add Enterprise Agents (16 New)
 
-### 2.2 Objectives
+#### Milestone 2A: Architecture Agents (4 agents)
 
-1. **Enhance Task Management**: Add prioritized queue and parallel execution
-2. **Improve Context Retention**: Episodic memory for cross-session learning
-3. **Strengthen Security**: Encrypted secrets with scoped access
-4. **Modernize UI**: Visual task management with agent visibility
+| Agent | Purpose | Priority |
+|-------|---------|----------|
+| SystemArchitectAgent | Architecture design, pattern recommendations | HIGH |
+| SecurityArchitectAgent | Security analysis, vulnerability assessment | HIGH |
+| RefactorArchitectAgent | Code refactoring, technical debt reduction | MEDIUM |
+| PerformanceArchitectAgent | Performance optimization, profiling | MEDIUM |
 
-### 2.3 Constraints
+#### Milestone 2B: Security Agents (2 agents)
 
-- **APEX M1.2.1**: All changes must be ADDITIVE
-- **Claude SDK**: Must remain primary AI provider
-- **Backward Compatibility**: Existing CLI workflow preserved
-- **Testing**: User verification before any merge
+| Agent | Purpose | Priority |
+|-------|---------|----------|
+| RedTeamAgent | Adversarial testing, penetration simulation | HIGH |
+| BlueTeamAgent | Defensive security, incident response | HIGH |
 
----
+#### Milestone 2C: Quality Agents (3 agents)
 
-## 3. Source Repository Analysis
+| Agent | Purpose | Priority |
+|-------|---------|----------|
+| DocumentationLeadAgent | Documentation generation, API docs | MEDIUM |
+| QAVerificationAgent | Test planning, coverage analysis | MEDIUM |
+| ComplianceAuditorAgent | Regulatory compliance, audit trails | MEDIUM |
 
-### 3.1 DEVAPEX Structure (dev/v2.0-multi-llm)
+#### Milestone 2D: Infrastructure Agents (4 agents)
+
+| Agent | Purpose | Priority |
+|-------|---------|----------|
+| IntegrationArchitectAgent | API design, service integration | MEDIUM |
+| DataArchitectAgent | Data modeling, schema design | MEDIUM |
+| DevOpsArchitectAgent | CI/CD, infrastructure automation | LOW |
+| CloudArchitectAgent | Cloud design, multi-cloud strategy | LOW |
+
+#### Milestone 2E: Orchestration Agents (3 agents)
+
+| Agent | Purpose | Priority |
+|-------|---------|----------|
+| MDAOrchestratorAgent | Multi-agent coordination | HIGH |
+| APIDesignAgent | RESTful/GraphQL API design | MEDIUM |
+| BaseEnterpriseAgent | Base class for enterprise agents | HIGH |
+
+### 2.3 Agent File Structure
 
 ```
-DEVAPEX/
-├── apps/backend/devapex/
-│   ├── agents/           # Agent implementations + enterprise agents
-│   ├── analytics/        # Usage analytics
-│   ├── auth/             # OAuth + SSO
-│   ├── core/             # Types, config, utilities
-│   ├── engines/          # Execution engines
-│   ├── integrations/     # External service integrations
-│   ├── llm/              # Multi-LLM router
-│   ├── memory/           # Episodic memory store
-│   ├── notifications/    # Alert system
-│   ├── orchestrator/     # TaskQueue + AgentPool
-│   ├── prediction/       # Bug predictor
-│   ├── projects/         # Project lifecycle
-│   ├── qa/               # QA loop enhancements
-│   ├── secrets/          # Encrypted secrets
-│   ├── security/         # Security hooks
-│   ├── skills/           # Skill framework
-│   ├── spec/             # Spec pipeline
-│   ├── teams/            # Team collaboration
-│   └── tools_pkg/        # Custom MCP tools
-└── apps/desktop/         # Electron + React UI
-```
-
-### 3.2 Auto-Claude Structure (APEXDEV_MERGE)
-
-```
-Auto-Claude_APEXDEV/
-├── apps/backend/
-│   ├── agents/           # Existing agent implementations
-│   ├── core/             # Client, auth, security
-│   ├── integrations/     # Graphiti, Linear, GitHub
-│   ├── memory/           # Basic memory store
-│   ├── merge/            # AI merge conflict resolution
-│   ├── prediction/       # Bug prediction
-│   ├── qa/               # QA loop
-│   ├── spec/             # Spec pipeline
-│   └── prompts/          # Agent prompts
-└── apps/frontend/        # Electron desktop app
-```
-
-### 3.3 Gap Analysis Summary
-
-| Category | Auto-Claude | DEVAPEX | Gap |
-|----------|-------------|---------|-----|
-| Task Queue | Direct invocation | Priority queue | ❗ Add |
-| Agent Pool | Ad-hoc spawning | Managed pool | ❗ Add |
-| Memory | Graphiti only | Graphiti + Episodes | ❗ Enhance |
-| Secrets | .env files | Encrypted store | ❗ Add |
-| Projects | Per-spec | Full lifecycle | ❗ Add |
-| Multi-LLM | Claude only | 4 providers | ⚠️ Optional |
-| Teams | None | Full collab | ⚠️ Phase 3 |
-
----
-
-## 4. Feature Integration Matrix
-
-### 4.1 HIGH Priority Features
-
-| Feature | Source | Target | Complexity | Dependencies |
-|---------|--------|--------|------------|---------------|
-| TaskQueue | `orchestrator/manager.py:70-91` | `orchestrator/task_queue.py` | Medium | None |
-| AgentPool | `orchestrator/manager.py:150-178` | `orchestrator/agent_pool.py` | Medium | TaskQueue |
-| OrchestratorManager | `orchestrator/manager.py` | `orchestrator/manager.py` | High | Both above |
-| EpisodeStore | `memory/store.py` | `memory/episodes.py` | Medium | None |
-| SemanticSearch | `memory/search.py` | `memory/search.py` | Medium | EpisodeStore |
-| SecretsManager | `secrets/manager.py` | `secrets/manager.py` | High | None |
-| SessionMemoryTools | `tools_pkg/session_memory.py` | `tools_pkg/session_memory.py` | Low | EpisodeStore |
-
-### 4.2 MEDIUM Priority Features
-
-| Feature | Source | Target | Complexity | Dependencies |
-|---------|--------|--------|------------|---------------|
-| ProjectsManager | `projects/manager.py` | `projects/manager.py` | Medium | None |
-| LLMRouter | `llm/router.py` | `llm/router.py` | High | Providers |
-| SpecialistReviewers | `agents/specialists/` | `agents/specialists/` | Medium | None |
-| KanbanEnhancements | `desktop/components/kanban/` | `frontend/components/kanban/` | Medium | Orchestrator |
-| APEXGovernance | `integration/` | `integration/` | Low | None |
-
-### 4.3 LOW Priority Features
-
-| Feature | Source | Target | Complexity | Dependencies |
-|---------|--------|--------|------------|---------------|
-| TeamsManager | `teams/manager.py` | `teams/manager.py` | High | OAuth |
-| BugPredictor | `prediction/` | Already exists | N/A | - |
-| Notifications | `notifications/` | Optional | Low | None |
-| Analytics | `analytics/` | Optional | Low | None |
-
----
-
-## 5. Implementation Phases
-
-### Phase 1: Task Orchestration (Week 1-2)
-
-**Goal**: Implement prioritized task queue with agent pooling
-
-#### Deliverables
-
-1. **TaskQueue Module**
-   - File: `apps/backend/orchestrator/task_queue.py`
-   - Priority enum: CRITICAL(0), HIGH(1), MEDIUM(2), LOW(3)
-   - Async queue with priority ordering
-   - Status tracking: PENDING, RUNNING, COMPLETED, FAILED
-
-2. **AgentPool Module**
-   - File: `apps/backend/orchestrator/agent_pool.py`
-   - Max agents: 12 (matches terminal grid)
-   - Max concurrent: 6 (resource protection)
-   - Idle timeout: 300 seconds
-   - Agent lifecycle: acquire, execute, release
-
-3. **Orchestrator Manager**
-   - File: `apps/backend/orchestrator/manager.py`
-   - Task submission API
-   - Event emission for UI updates
-   - Result collection
-
-#### Acceptance Criteria
-
-- [ ] Tasks can be submitted with priority
-- [ ] Tasks execute in priority order
-- [ ] Agent pool respects limits
-- [ ] Events emitted for UI
-- [ ] Unit tests pass (80%+ coverage)
-
----
-
-### Phase 2: Memory Enhancement (Week 3-4)
-
-**Goal**: Add episodic memory with semantic search
-
-#### Deliverables
-
-1. **EpisodeStore**
-   - File: `apps/backend/memory/episodes.py`
-   - SQLite persistence
-   - EpisodeRecord model
-   - CRUD operations
-
-2. **SemanticSearch**
-   - File: `apps/backend/memory/search.py`
-   - Vector embeddings (OpenAI, Voyage AI, Ollama)
-   - Similarity search
-   - Result ranking
-
-3. **UnifiedMemory API**
-   - File: `apps/backend/memory/unified.py`
-   - Merge Graphiti + Episodes
-   - Single search interface
-   - Pattern extraction
-
-4. **Session Memory Tools**
-   - `record_discovery`: API behaviors, quirks
-   - `record_gotcha`: Pitfalls with avoidance
-   - `record_pattern`: Learned codebase patterns
-   - `get_session_context`: Context retrieval
-
-#### Acceptance Criteria
-
-- [ ] Episodes persist across sessions
-- [ ] Search returns relevant results
-- [ ] Graphiti integration preserved
-- [ ] MCP tools functional
-- [ ] Unit tests pass (80%+ coverage)
-
----
-
-### Phase 3: Enterprise Features (Week 5-6)
-
-**Goal**: Add projects and secrets management
-
-#### Deliverables
-
-1. **SecretsManager**
-   - File: `apps/backend/secrets/manager.py`
-   - PBKDF2 + Fernet encryption
-   - Scopes: USER, PROJECT, GLOBAL
-   - Version history (10 versions)
-   - Audit trail
-
-2. **ProjectsManager**
-   - File: `apps/backend/projects/manager.py`
-   - Lifecycle: DRAFT → ACTIVE → ARCHIVED
-   - Semantic versioning
-   - Repository integration
-
-3. **IPC Handlers**
-   - `secrets:store`, `secrets:get`, `secrets:list`
-   - `projects:create`, `projects:update`, `projects:version`
-
-#### Acceptance Criteria
-
-- [ ] Secrets encrypted at rest
-- [ ] Project lifecycle works
-- [ ] Version bumping functional
-- [ ] IPC handlers respond correctly
-- [ ] Unit tests pass (80%+ coverage)
-
----
-
-### Phase 4: UI/UX Enhancements (Week 7-8)
-
-**Goal**: Enhanced Kanban with agent visibility
-
-#### Deliverables
-
-1. **Enhanced Kanban**
-   - Priority color indicators
-   - Task-to-agent linking
-   - Drag-drop status updates
-   - Real-time status via orchestrator events
-
-2. **Memory Panel**
-   - Episode history viewer
-   - Pattern/gotcha display
-   - Search interface
-
-3. **Settings Enhancements**
-   - Agent configuration UI
-   - Memory settings
-   - Secrets management UI
-
-#### Acceptance Criteria
-
-- [ ] Priorities visible on cards
-- [ ] Agent assignment shown
-- [ ] Drag-drop updates backend
-- [ ] Memory searchable in UI
-- [ ] Settings persist correctly
-
----
-
-### Phase 5: Testing & Validation (Week 9-10)
-
-**Goal**: Comprehensive testing and user sign-off
-
-#### Deliverables
-
-1. **Unit Tests**
-   - Orchestrator tests
-   - Memory tests
-   - Secrets tests
-   - Projects tests
-
-2. **Integration Tests**
-   - Task flow tests
-   - Memory integration
-   - UI-backend integration
-
-3. **E2E Tests**
-   - Full Kanban workflow
-   - Secrets encryption/decryption
-   - Memory search accuracy
-
-4. **Documentation**
-   - Updated CLAUDE.md
-   - API documentation
-   - User guide updates
-
-#### Acceptance Criteria
-
-- [ ] All unit tests pass
-- [ ] Integration tests pass
-- [ ] E2E tests pass
-- [ ] No regressions detected
-- [ ] User verification complete
-- [ ] Documentation updated
-
----
-
-## 6. Technical Specifications
-
-### 6.1 TaskQueue Specification
-
-```python
-# apps/backend/orchestrator/task_queue.py
-
-from enum import IntEnum
-from dataclasses import dataclass
-from datetime import datetime
-import asyncio
-import heapq
-
-class TaskPriority(IntEnum):
-    CRITICAL = 0
-    HIGH = 1
-    MEDIUM = 2
-    LOW = 3
-
-class TaskStatus(str, Enum):
-    PENDING = "pending"
-    RUNNING = "running"
-    COMPLETED = "completed"
-    FAILED = "failed"
-    CANCELLED = "cancelled"
-
-@dataclass
-class QueuedTask:
-    id: str
-    title: str
-    description: str
-    priority: TaskPriority
-    status: TaskStatus
-    created_at: datetime
-    spec_id: str | None = None
-    agent_type: str = "coder"
-    
-    def __lt__(self, other):
-        return self.priority < other.priority
-
-class TaskQueue:
-    def __init__(self):
-        self._queue: list[QueuedTask] = []
-        self._lock = asyncio.Lock()
-    
-    async def enqueue(self, task: QueuedTask) -> str:
-        async with self._lock:
-            heapq.heappush(self._queue, task)
-            return task.id
-    
-    async def dequeue(self) -> QueuedTask | None:
-        async with self._lock:
-            if self._queue:
-                return heapq.heappop(self._queue)
-            return None
-    
-    async def get_status(self, task_id: str) -> TaskStatus | None:
-        # Implementation
-        pass
-```
-
-### 6.2 AgentPool Specification
-
-```python
-# apps/backend/orchestrator/agent_pool.py
-
-@dataclass
-class AgentPoolConfig:
-    max_agents: int = 12
-    max_concurrent_tasks: int = 6
-    idle_timeout_seconds: int = 300
-    agent_types: list[str] = field(default_factory=lambda: ["coder", "reviewer", "fixer"])
-
-class AgentPool:
-    def __init__(self, config: AgentPoolConfig):
-        self.config = config
-        self._agents: dict[str, AgentInstance] = {}
-        self._active_tasks: dict[str, str] = {}  # task_id -> agent_id
-    
-    async def acquire(self, agent_type: str) -> AgentInstance:
-        # Find idle or create new
-        pass
-    
-    async def release(self, agent_id: str) -> None:
-        # Return to pool
-        pass
-    
-    async def cleanup_idle(self) -> int:
-        # Remove stale agents
-        pass
-```
-
-### 6.3 EpisodeStore Specification
-
-```python
-# apps/backend/memory/episodes.py
-
-@dataclass
-class EpisodeRecord:
-    id: str
-    agent_id: str
-    input_text: str
-    output: str
-    tools_used: list[str]
-    success: bool
-    timestamp: datetime
-    spec_id: str | None = None
-    duration_ms: float = 0.0
-    metadata: dict = field(default_factory=dict)
-
-class EpisodeStore:
-    def __init__(self, db_path: Path):
-        self.db_path = db_path
-        self._init_db()
-    
-    async def store(self, episode: EpisodeRecord) -> str:
-        # SQLite insert
-        pass
-    
-    async def search(self, query: str, limit: int = 10) -> list[EpisodeRecord]:
-        # Full-text search
-        pass
-    
-    async def get_by_agent(self, agent_id: str, limit: int = 50) -> list[EpisodeRecord]:
-        # Filter by agent
-        pass
+apps/backend/agents/
+├── core/                    # PRESERVE existing
+│   ├── planner.py
+│   ├── coder.py
+│   ├── reviewer.py
+│   └── fixer.py
+├── enterprise/              # NEW - Add enterprise agents
+│   ├── __init__.py
+│   ├── base_enterprise.py
+│   ├── architects/
+│   │   ├── system_architect.py
+│   │   ├── security_architect.py
+│   │   ├── refactor_architect.py
+│   │   └── performance_architect.py
+│   ├── security/
+│   │   ├── red_team.py
+│   │   └── blue_team.py
+│   ├── quality/
+│   │   ├── documentation_lead.py
+│   │   ├── qa_verification.py
+│   │   └── compliance_auditor.py
+│   ├── infrastructure/
+│   │   ├── integration_architect.py
+│   │   ├── data_architect.py
+│   │   ├── devops_architect.py
+│   │   └── cloud_architect.py
+│   └── orchestration/
+│       ├── mda_orchestrator.py
+│       └── api_design.py
+└── registry.py              # NEW - Agent discovery
 ```
 
 ---
 
-## 7. Risk Assessment
+## 3. Memory System Enhancement
 
-| Risk | Impact | Probability | Mitigation |
-|------|--------|-------------|------------|
-| Breaking changes | High | Low | Feature toggles, phased rollout |
-| Performance regression | Medium | Medium | Benchmarking, lazy loading |
-| Integration conflicts | Medium | Medium | Staged merging, thorough testing |
-| Claude SDK incompatibility | High | Low | SDK version pinning |
-| Memory bloat | Medium | Medium | Retention policies, cleanup |
+### 3.1 Preserve Existing Memory
+
+| Component | Status | Action |
+|-----------|--------|--------|
+| Graphiti Integration | ✅ Keep | No changes |
+| Semantic Search | ✅ Keep | Extend with H-MEM |
+| Context Management | ✅ Keep | Add compression |
+
+### 3.2 Add H-MEM Tiered System
+
+#### Milestone 3A: Episodic Memory
+
+| Feature | Description |
+|---------|-------------|
+| EpisodeStore | SQLite-based action/decision storage |
+| ReflexionPattern | Lessons learned from past tasks |
+| RetentionPolicy | Configurable cleanup (30/60/90 days) |
+
+#### Milestone 3B: Hierarchical Memory (H-MEM)
+
+| Tier | Purpose | Storage | Access Speed |
+|------|---------|---------|--------------|
+| L1 | Active context | In-memory | <1ms |
+| L2 | Recent sessions | SQLite | <10ms |
+| L3 | Historical | Compressed | <100ms |
+
+#### Milestone 3C: Memory Bridge
+
+| Feature | Description |
+|---------|-------------|
+| UnifiedQuery | Single interface for all memory tiers |
+| CrossSystemSync | Graphiti ↔ Episodes synchronization |
+| EmbeddingProviders | OpenAI, Ollama, local options |
+
+### 3.3 Memory File Structure
+
+```
+apps/backend/memory/
+├── graphiti/                # PRESERVE existing
+│   └── ...
+├── episodes/                # NEW
+│   ├── __init__.py
+│   ├── store.py
+│   ├── reflexion.py
+│   └── retention.py
+├── hmem/                    # NEW
+│   ├── __init__.py
+│   ├── l1_cache.py
+│   ├── l2_sqlite.py
+│   ├── l3_archive.py
+│   └── tier_manager.py
+├── bridge/                  # NEW
+│   ├── __init__.py
+│   ├── unified_query.py
+│   └── sync.py
+└── embeddings/              # NEW
+    ├── __init__.py
+    ├── openai_embedder.py
+    ├── ollama_embedder.py
+    └── local_embedder.py
+```
 
 ---
 
-## 8. Success Criteria
+## 4. LLM Integration Enhancement
 
-### 8.1 Technical Criteria
+### 4.1 Preserve Claude SDK
 
-- [ ] All 5 phases completed
-- [ ] ≥80% test coverage on new code
-- [ ] Zero regressions in existing features
-- [ ] <5% performance overhead
-- [ ] All ADRs implemented per Decision.md
+| Component | Status | Action |
+|-----------|--------|--------|
+| Claude Agent SDK | ✅ Keep | Primary provider |
+| Anthropic Client | ✅ Keep | Default LLM |
 
-### 8.2 User Verification
+### 4.2 Add Multi-LLM Support (Optional)
 
-- [ ] Task orchestration demo completed
-- [ ] Memory search demo completed
-- [ ] Secrets management demo completed
-- [ ] Kanban UI demo completed
-- [ ] Sign-off received
+#### Milestone 4A: Additional Providers
 
-### 8.3 Documentation
+| Provider | Models | Priority |
+|----------|--------|----------|
+| OpenAI | GPT-4, GPT-4o, GPT-4o-mini | MEDIUM |
+| Azure | Azure OpenAI Service | MEDIUM |
+| Ollama | Llama, Mistral, Qwen | LOW |
+| OpenRouter | Multi-model routing | LOW |
+| Gemini | Gemini Pro/Ultra | LOW |
+| Copilot | VS Code LM API bridge | LOW |
 
-- [ ] CLAUDE.md updated
-- [ ] API docs complete
-- [ ] Decision.md finalized
-- [ ] Changelog maintained
+#### Milestone 4B: LLM Router
+
+| Feature | Description |
+|---------|-------------|
+| IntelligentRouting | Cost/capability/latency based |
+| ProviderHealth | Health monitoring + failover |
+| ModelDiscovery | Dynamic model listing |
+| CostTracking | Token usage + estimation |
+| AgentLLMConfig | Per-agent configuration |
+
+### 4.3 LLM File Structure
+
+```
+apps/backend/llm/
+├── claude/                  # PRESERVE existing
+│   └── ...
+├── providers/               # NEW - Optional
+│   ├── __init__.py
+│   ├── openai_client.py
+│   ├── azure_client.py
+│   ├── ollama_client.py
+│   ├── openrouter_client.py
+│   ├── gemini_client.py
+│   └── copilot_client.py
+├── router/                  # NEW
+│   ├── __init__.py
+│   ├── router.py
+│   ├── health.py
+│   ├── discovery.py
+│   └── cost_tracker.py
+└── config/                  # NEW
+    ├── __init__.py
+    └── agent_llm_config.py
+```
 
 ---
 
-## 9. Appendices
+## 5. Skills Framework
 
-### Appendix A: Related Documents
+### 5.1 New Skills System
 
-- [Decision Log](Decision.md)
-- [Integration Changelog](DEVAPEX_CHANGELOG.md)
-- [Archive Guidelines](../archive/README.md)
-- [DEVAPEX Architecture](https://github.com/Greenmachine84/DEVAPEX/blob/dev/v2.0-multi-llm/docs/ARCHITECTURE.md)
+#### Milestone 5A: Core Skills Infrastructure
 
-### Appendix B: Environment Variables
+| Component | Description |
+|-----------|-------------|
+| SkillRegistry | Central registry for all skills |
+| SkillMetadata | Category, complexity, priority |
+| SkillExecutor | LLM-agnostic execution |
+| SkillValidator | Pre/post validation |
 
-```bash
-# Phase 1: Orchestration
-DEVAPEX_TASK_QUEUE_ENABLED=true
-DEVAPEX_AGENT_POOL_MAX=12
-DEVAPEX_CONCURRENT_TASKS_MAX=6
+#### Milestone 5B: Skill Categories (25+)
 
-# Phase 2: Memory
-DEVAPEX_EPISODIC_MEMORY_ENABLED=true
-DEVAPEX_MEMORY_RETENTION_DAYS=30
+| Category | Examples |
+|----------|----------|
+| Coding | Write, refactor, optimize |
+| Review | Security, performance, style |
+| Testing | Unit, integration, e2e |
+| Documentation | API, user, developer |
+| Architecture | Design, patterns, decisions |
+| Security | Scan, audit, remediate |
+| DevOps | CI/CD, deploy, monitor |
 
-# Phase 3: Enterprise
-DEVAPEX_SECRETS_ENABLED=true
-DEVAPEX_SECRETS_MASTER_KEY=<encrypted>
-DEVAPEX_PROJECTS_ENABLED=true
-```
-
-### Appendix C: File Creation Checklist
+### 5.2 Skills File Structure
 
 ```
-Phase 1:
-[ ] apps/backend/orchestrator/__init__.py
-[ ] apps/backend/orchestrator/task_queue.py
-[ ] apps/backend/orchestrator/agent_pool.py
-[ ] apps/backend/orchestrator/manager.py
-[ ] apps/backend/orchestrator/types.py
-[ ] tests/test_orchestrator.py
-
-Phase 2:
-[ ] apps/backend/memory/episodes.py
-[ ] apps/backend/memory/search.py
-[ ] apps/backend/memory/unified.py
-[ ] apps/backend/tools_pkg/session_memory.py
-[ ] tests/test_unified_memory.py
-
-Phase 3:
-[ ] apps/backend/secrets/__init__.py
-[ ] apps/backend/secrets/manager.py
-[ ] apps/backend/secrets/encryption.py
-[ ] apps/backend/projects/__init__.py
-[ ] apps/backend/projects/manager.py
-[ ] tests/test_secrets.py
-[ ] tests/test_projects.py
-
-Phase 4:
-[ ] apps/frontend/src/renderer/components/kanban/EnhancedKanban.tsx
-[ ] apps/frontend/src/renderer/components/memory/MemoryPanel.tsx
-[ ] apps/frontend/src/renderer/components/settings/SecretsSettings.tsx
-[ ] apps/frontend/src/main/ipc-handlers/orchestrator-handlers.ts
-[ ] apps/frontend/src/main/ipc-handlers/memory-handlers.ts
-[ ] apps/frontend/src/main/ipc-handlers/secrets-handlers.ts
+apps/backend/skills/
+├── __init__.py
+├── registry.py
+├── executor.py
+├── validator.py
+├── loader.py
+├── categories/
+│   ├── coding/
+│   ├── review/
+│   ├── testing/
+│   ├── documentation/
+│   ├── architecture/
+│   ├── security/
+│   └── devops/
+└── templates/
+    └── prompt_template_skill.py
 ```
+
+---
+
+## 6. Orchestration System
+
+### 6.1 Preserve Existing Workflows
+
+| Component | Status | Action |
+|-----------|--------|--------|
+| spec_runner | ✅ Keep | No changes |
+| QA Loop | ✅ Keep | Extend with events |
+| Git Worktree | ✅ Keep | No changes |
+
+### 6.2 Add Orchestration Layer
+
+#### Milestone 6A: Task Queue
+
+| Feature | Description |
+|---------|-------------|
+| Priority Queue | CRITICAL(0) → LOW(3) |
+| Status Tracking | PENDING → RUNNING → DONE |
+| Async Execution | Non-blocking task processing |
+
+#### Milestone 6B: Agent Pool
+
+| Feature | Description |
+|---------|-------------|
+| Pool Management | Max 12 agents, 6 concurrent |
+| Lifecycle | Acquire → Execute → Release |
+| Idle Cleanup | 300s timeout |
+
+#### Milestone 6C: Event System
+
+| Feature | Description |
+|---------|-------------|
+| EventBus | Real-time UI updates |
+| SessionManager | Multi-user isolation |
+| StateTransitions | Atomic state management |
+
+### 6.3 Orchestration File Structure
+
+```
+apps/backend/orchestrator/
+├── __init__.py
+├── task_queue.py
+├── agent_pool.py
+├── manager.py
+├── events.py
+├── session.py
+└── state.py
+```
+
+---
+
+## 7. Governance & Compliance
+
+### 7.1 APEX Constitution Implementation
+
+| Article | Implementation |
+|---------|----------------|
+| Article I | Agent autonomy, traceable decisions |
+| Article II | Primary, Advisory, Quality separation |
+| Article III | TODO → IN_PROGRESS → IN_REVIEW → DONE |
+| Article V | Operation limits, forbidden ops, rollback |
+
+### 7.2 Add Governance Councils
+
+#### Milestone 7A: Validators
+
+| Validator | Purpose |
+|-----------|---------|
+| ConstitutionValidator | APEX compliance checking |
+| ArchitectValidator | Architecture spec validation |
+| AlignmentGate | Pre-execution verification |
+
+#### Milestone 7B: Councils (5)
+
+| Council | Purpose | Quorum |
+|---------|---------|--------|
+| ArchitectureCouncil | Design quality review | 2/3 |
+| SecurityCouncil | Security approval | 2/3 |
+| QualityCouncil | Quality standards | 2/3 |
+| OpsCouncil | Operational readiness | 2/3 |
+| ProductCouncil | Business alignment | 2/3 |
+
+#### Milestone 7C: HITL Gates
+
+| Feature | Description |
+|---------|-------------|
+| HITLGate | Human-in-the-loop approval |
+| EvidenceBinder | Audit trail collection |
+| SpecDrivenGate | Specification validation |
+
+---
+
+## 8. Security & Authentication
+
+### 8.1 Preserve Existing Security
+
+| Component | Status | Action |
+|-----------|--------|--------|
+| .env Configuration | ✅ Keep | Backward compatible |
+| API Key Storage | ✅ Keep | Fallback option |
+
+### 8.2 Add Enterprise Security
+
+#### Milestone 8A: Secrets Manager
+
+| Feature | Description |
+|---------|-------------|
+| AES-256-GCM | Encryption standard |
+| PBKDF2 | Key derivation |
+| SecretScopes | USER, TEAM, PROJECT, ENTERPRISE |
+| SecretTypes | API_KEY, PASSWORD, TOKEN, CERT |
+| VersionHistory | 10 versions retained |
+| AuditTrail | Complete access logging |
+
+#### Milestone 8B: Authentication (Optional)
+
+| Feature | Description |
+|---------|-------------|
+| SSOManager | Single Sign-On support |
+| OAuthProviders | GitHub, Google, Microsoft, Okta |
+| SessionManagement | Secure session handling |
+| MFASupport | Optional multi-factor |
+| RBAC | Role-based access control |
+
+---
+
+## 9. V2.0 Modules
+
+### 9.1 Projects Module
+
+#### Milestone 9A: Project Manager
+
+| Feature | Description |
+|---------|-------------|
+| ProjectLifecycle | DRAFT → ACTIVE → ARCHIVED |
+| ProjectTypes | Application, Library, Service, Monorepo |
+| SemanticVersioning | Auto major/minor/patch bumping |
+| RepositoryIntegration | Git repo association |
+| ProjectMetadata | Rich settings storage |
+
+### 9.2 Teams Module (Optional)
+
+#### Milestone 9B: Team Manager
+
+| Feature | Description |
+|---------|-------------|
+| TeamRoles | OWNER, ADMIN, MEMBER, VIEWER, GUEST |
+| MemberManagement | Add, remove, update members |
+| ProjectSharing | Cross-team project access |
+| TeamChannels | Team communication |
+| PresenceTracking | Real-time presence |
+
+### 9.3 Engines Module
+
+#### Milestone 9C: Selection Engine
+
+| Feature | Description |
+|---------|-------------|
+| EngineBase | Abstract with lifecycle |
+| SelectionEngine | APEX Part 7 scoring |
+| Strategies | BEST_MATCH, TOP_N, THRESHOLD, ENSEMBLE |
+| EngineMetrics | Performance monitoring |
+
+---
+
+## 10. Desktop UI Enhancements
+
+### 10.1 PRESERVE Original UI/UX
+
+> ⚠️ **CRITICAL**: Original styling and flow MUST be preserved
+
+| Component | Status | Action |
+|-----------|--------|--------|
+| 12-Terminal Grid | ✅ Keep | No changes |
+| Existing Theme | ✅ Keep | No changes |
+| Navigation Flow | ✅ Keep | No changes |
+| Settings Panel | ✅ Keep | Extend only |
+
+### 10.2 UI Enhancements (When Necessary)
+
+#### Milestone 10A: Kanban Enhancements
+
+| Enhancement | Description | Impact |
+|-------------|-------------|--------|
+| Priority Colors | Visual priority indicators | Low |
+| Agent Linking | Show assigned agent | Low |
+| Status Events | Real-time updates | Low |
+
+#### Milestone 10B: New Panels (Optional)
+
+| Panel | Description | When to Add |
+|-------|-------------|-------------|
+| MemoryExplorer | Browse agent memory | If user requests |
+| ProjectsView | Project management | If user requests |
+| SecretsView | Secret management | If user requests |
+
+---
+
+## 11. Implementation Milestones
+
+### Phase 1: Foundation (Week 1-2)
+
+| Milestone | Tasks | Priority |
+|-----------|-------|----------|
+| 1A | Base Enterprise Agent class | HIGH |
+| 1B | Agent Registry | HIGH |
+| 1C | Episode Store | HIGH |
+
+### Phase 2: Orchestration (Week 3-4)
+
+| Milestone | Tasks | Priority |
+|-----------|-------|----------|
+| 2A | Task Queue | HIGH |
+| 2B | Agent Pool | HIGH |
+| 2C | Event Bus | HIGH |
+
+### Phase 3: Memory (Week 5-6)
+
+| Milestone | Tasks | Priority |
+|-----------|-------|----------|
+| 3A | H-MEM L1/L2/L3 tiers | MEDIUM |
+| 3B | Memory Bridge | MEDIUM |
+| 3C | Unified Query | MEDIUM |
+
+### Phase 4: Security (Week 7-8)
+
+| Milestone | Tasks | Priority |
+|-----------|-------|----------|
+| 4A | Secrets Manager | HIGH |
+| 4B | Audit Trail | MEDIUM |
+| 4C | RBAC (if needed) | LOW |
+
+### Phase 5: Enterprise Agents (Week 9-12)
+
+| Milestone | Tasks | Priority |
+|-----------|-------|----------|
+| 5A | Architecture Agents (4) | MEDIUM |
+| 5B | Security Agents (2) | HIGH |
+| 5C | Quality Agents (3) | MEDIUM |
+| 5D | Infrastructure Agents (4) | LOW |
+| 5E | Orchestration Agents (3) | MEDIUM |
+
+### Phase 6: Governance (Week 13-14)
+
+| Milestone | Tasks | Priority |
+|-----------|-------|----------|
+| 6A | APEX Validators | MEDIUM |
+| 6B | Governance Councils | LOW |
+| 6C | HITL Gates | LOW |
+
+### Phase 7: Testing & Validation (Week 15-16)
+
+| Milestone | Tasks | Priority |
+|-----------|-------|----------|
+| 7A | Unit Tests (80%+) | HIGH |
+| 7B | Integration Tests | HIGH |
+| 7C | E2E Tests | MEDIUM |
+| 7D | User Sign-off | HIGH |
 
 ---
 
@@ -617,4 +611,5 @@ Phase 4:
 
 ---
 
-*Document generated: 2026-01-05*
+*Document generated: January 5, 2026*
+*Based on: DEVAPEX Features and Functions Overview v2.0.0*
