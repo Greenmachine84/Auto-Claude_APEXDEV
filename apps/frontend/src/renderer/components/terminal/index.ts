@@ -1,17 +1,10 @@
-// Export main component
-export { Terminal } from '../Terminal';
+/**
+ * APEX Development Platform - Terminal Components Index
+ * Phase 4: UI, Integrations & Analytics
+ */
 
-// Export sub-components (in case they need to be used elsewhere)
-export { TerminalHeader } from './TerminalHeader';
-export { TerminalTitle } from './TerminalTitle';
-export { TaskSelector } from './TaskSelector';
-
-// Export hooks
-export { useXterm } from './useXterm';
-export { usePtyProcess } from './usePtyProcess';
-export { useTerminalEvents } from './useTerminalEvents';
-export { useAutoNaming } from './useAutoNaming';
-
-// Export types and constants
-export type { TerminalProps } from './types';
-export { STATUS_COLORS, PHASE_CONFIG } from './types';
+export { default as TerminalView } from './TerminalView';
+export { TerminalGrid, type TerminalGridProps } from './TerminalGrid';
+export { TerminalPane, type TerminalPaneProps } from './TerminalPane';
+export { TerminalTabs, type TerminalTabsProps } from './TerminalTabs';
+export { TerminalToolbar, type TerminalToolbarProps } from './TerminalToolbar';
