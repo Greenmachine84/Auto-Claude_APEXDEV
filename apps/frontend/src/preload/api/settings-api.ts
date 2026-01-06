@@ -1,80 +1,201 @@
+/**
+ * APEX Development Platform - Settings API (Preload)
+ * Phase 4: UI, Integrations & Analytics
+ *
+ * Application settings API exposed to renderer.
+ */
+
 import { ipcRenderer } from 'electron';
-import { IPC_CHANNELS } from '../../shared/constants';
-import type {
-  AppSettings,
-  IPCResult,
-  SourceEnvConfig,
-  SourceEnvCheckResult,
-  ToolDetectionResult
-} from '../../shared/types';
 
-export interface SettingsAPI {
-  // App Settings
-  getSettings: () => Promise<IPCResult<AppSettings>>;
-  saveSettings: (settings: Partial<AppSettings>) => Promise<IPCResult>;
+/** LLM Provider type */
+export type LLMProvider =
+  | 'copilot'
+  | 'openrouter'
+  | 'ollama'
+  | 'lmstudio'
+  | 'gemini'
+  | 'openai'
+  | 'anthropic'
+  | 'azure';
 
-  // CLI Tools Detection
-  getCliToolsInfo: () => Promise<IPCResult<{
-    python: ToolDetectionResult;
-    git: ToolDetectionResult;
-    gh: ToolDetectionResult;
-    claude: ToolDetectionResult;
-  }>>;
-
-  // App Info
-  getAppVersion: () => Promise<string>;
-
-  // Auto-Build Source Environment
-  getSourceEnv: () => Promise<IPCResult<SourceEnvConfig>>;
-  updateSourceEnv: (config: { claudeOAuthToken?: string }) => Promise<IPCResult>;
-  checkSourceToken: () => Promise<IPCResult<SourceEnvCheckResult>>;
-
-  // Sentry error reporting
-  notifySentryStateChanged: (enabled: boolean) => void;
-  getSentryDsn: () => Promise<string>;
-  getSentryConfig: () => Promise<{ dsn: string; tracesSampleRate: number; profilesSampleRate: number }>;
+/** LLM configuration */
+export interface LLMConfig {
+  provider: LLMProvider;
+  apiKey?: string;
+  baseUrl?: string;
+  model: string;
+  temperature?: number;
+  maxTokens?: number;
+  timeout?: number;
 }
 
-export const createSettingsAPI = (): SettingsAPI => ({
-  // App Settings
-  getSettings: (): Promise<IPCResult<AppSettings>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_GET),
+/** Integration settings */
+export interface IntegrationSettings {
+  github?: {
+    enabled: boolean;
+    token?: string;
+    organization?: string;
+  };
+  gitlab?: {
+    enabled: boolean;
+    token?: string;
+    baseUrl?: string;
+  };
+  linear?: {
+    enabled: boolean;
+    apiKey?: string;
+    teamId?: string;
+  };
+  slack?: {
+    enabled: boolean;
+    webhookUrl?: string;
+  };
+  jira?: {
+    enabled: boolean;
+    baseUrl?: string;
+    email?: string;
+    apiToken?: string;
+  };
+}
 
-  saveSettings: (settings: Partial<AppSettings>): Promise<IPCResult> =>
-    ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_SAVE, settings),
+/** UI settings */
+export interface UISettings {
+  theme: 'light' | 'dark' | 'system';
+  fontSize: number;
+  fontFamily: string;
+  sidebarWidth: number;
+  terminalHeight: number;
+  showLineNumbers: boolean;
+  wordWrap: boolean;
+}
 
-  // CLI Tools Detection
-  getCliToolsInfo: (): Promise<IPCResult<{
-    python: ToolDetectionResult;
-    git: ToolDetectionResult;
-    gh: ToolDetectionResult;
-    claude: ToolDetectionResult;
-  }>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_GET_CLI_TOOLS_INFO),
+/** Agent settings */
+export interface AgentSettings {
+  maxConcurrentAgents: number;
+  defaultAgentType: string;
+  autoRetryFailed: boolean;
+  retryAttempts: number;
+  taskTimeout: number;
+}
 
-  // App Info
-  getAppVersion: (): Promise<string> =>
-    ipcRenderer.invoke(IPC_CHANNELS.APP_VERSION),
+/** Analytics settings */
+export interface AnalyticsSettings {
+  enabled: boolean;
+  trackUsage: boolean;
+  trackCosts: boolean;
+  retentionDays: number;
+}
 
-  // Auto-Build Source Environment
-  getSourceEnv: (): Promise<IPCResult<SourceEnvConfig>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.AUTOBUILD_SOURCE_ENV_GET),
+/** All settings */
+export interface AppSettings {
+  llm: LLMConfig;
+  integrations: IntegrationSettings;
+  ui: UISettings;
+  agents: AgentSettings;
+  analytics: AnalyticsSettings;
+}
 
-  updateSourceEnv: (config: { claudeOAuthToken?: string }): Promise<IPCResult> =>
-    ipcRenderer.invoke(IPC_CHANNELS.AUTOBUILD_SOURCE_ENV_UPDATE, config),
+/**
+ * Settings API
+ */
+export const settingsAPI = {
+  /**
+   * Get all settings
+   */
+  getAll: (): Promise<AppSettings> =>
+    ipcRenderer.invoke('settings:getAll'),
 
-  checkSourceToken: (): Promise<IPCResult<SourceEnvCheckResult>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.AUTOBUILD_SOURCE_ENV_CHECK_TOKEN),
+  /**
+   * Get specific setting section
+   */
+  get: <K extends keyof AppSettings>(key: K): Promise<AppSettings[K]> =>
+    ipcRenderer.invoke('settings:get', key),
 
-  // Sentry error reporting - notify main process when setting changes
-  notifySentryStateChanged: (enabled: boolean): void =>
-    ipcRenderer.send(IPC_CHANNELS.SENTRY_STATE_CHANGED, enabled),
+  /**
+   * Set setting section
+   */
+  set: <K extends keyof AppSettings>(key: K, value: AppSettings[K]): Promise<void> =>
+    ipcRenderer.invoke('settings:set', key, value),
 
-  // Get Sentry DSN from main process (loaded from environment variable)
-  getSentryDsn: (): Promise<string> =>
-    ipcRenderer.invoke(IPC_CHANNELS.GET_SENTRY_DSN),
+  /**
+   * Update partial settings
+   */
+  update: (settings: Partial<AppSettings>): Promise<void> =>
+    ipcRenderer.invoke('settings:update', settings),
 
-  // Get full Sentry config from main process (DSN + sample rates)
-  getSentryConfig: (): Promise<{ dsn: string; tracesSampleRate: number; profilesSampleRate: number }> =>
-    ipcRenderer.invoke(IPC_CHANNELS.GET_SENTRY_CONFIG)
-});
+  /**
+   * Reset to defaults
+   */
+  reset: (key?: keyof AppSettings): Promise<void> =>
+    ipcRenderer.invoke('settings:reset', key),
+
+  /**
+   * Export settings to file
+   */
+  export: (path: string): Promise<boolean> =>
+    ipcRenderer.invoke('settings:export', path),
+
+  /**
+   * Import settings from file
+   */
+  import: (path: string): Promise<boolean> =>
+    ipcRenderer.invoke('settings:import', path),
+
+  // LLM Provider specific
+  /**
+   * Get LLM config for provider
+   */
+  getLLMConfig: (provider: LLMProvider): Promise<LLMConfig | null> =>
+    ipcRenderer.invoke('settings:getLLMConfig', provider),
+
+  /**
+   * Set LLM config for provider
+   */
+  setLLMConfig: (provider: LLMProvider, config: Partial<LLMConfig>): Promise<void> =>
+    ipcRenderer.invoke('settings:setLLMConfig', provider, config),
+
+  /**
+   * Test LLM connection
+   */
+  testLLMConnection: (provider: LLMProvider): Promise<{ success: boolean; error?: string }> =>
+    ipcRenderer.invoke('settings:testLLMConnection', provider),
+
+  /**
+   * Get available models for provider
+   */
+  getAvailableModels: (provider: LLMProvider): Promise<string[]> =>
+    ipcRenderer.invoke('settings:getAvailableModels', provider),
+
+  // Integration specific
+  /**
+   * Test integration connection
+   */
+  testIntegration: (
+    type: keyof IntegrationSettings
+  ): Promise<{ success: boolean; error?: string }> =>
+    ipcRenderer.invoke('settings:testIntegration', type),
+
+  /**
+   * Subscribe to settings changes
+   */
+  onSettingsChange: (callback: (settings: AppSettings) => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, settings: AppSettings) =>
+      callback(settings);
+    ipcRenderer.on('settings:changed', listener);
+    return () => ipcRenderer.removeListener('settings:changed', listener);
+  },
+
+  /**
+   * Subscribe to specific setting changes
+   */
+  onSettingChange: <K extends keyof AppSettings>(
+    key: K,
+    callback: (value: AppSettings[K]) => void
+  ) => {
+    const listener = (_event: Electron.IpcRendererEvent, k: K, value: AppSettings[K]) => {
+      if (k === key) callback(value);
+    };
+    ipcRenderer.on('settings:settingChanged', listener);
+    return () => ipcRenderer.removeListener('settings:settingChanged', listener);
+  },
+};

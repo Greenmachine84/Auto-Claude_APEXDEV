@@ -1,284 +1,144 @@
+/**
+ * APEX Development Platform - Task API (Preload)
+ * Phase 4: UI, Integrations & Analytics
+ *
+ * Task management API exposed to renderer.
+ */
+
 import { ipcRenderer } from 'electron';
-import { IPC_CHANNELS } from '../../shared/constants';
-import type {
-  Task,
-  IPCResult,
-  TaskStartOptions,
-  TaskStatus,
-  TaskRecoveryResult,
-  ImplementationPlan,
-  TaskMetadata,
-  TaskLogs,
-  TaskLogStreamChunk,
-  SupportedIDE,
-  SupportedTerminal
-} from '../../shared/types';
 
-export interface TaskAPI {
-  // Task Operations
-  getTasks: (projectId: string) => Promise<IPCResult<Task[]>>;
-  createTask: (
-    projectId: string,
-    title: string,
-    description: string,
-    metadata?: TaskMetadata
-  ) => Promise<IPCResult<Task>>;
-  deleteTask: (taskId: string) => Promise<IPCResult>;
-  updateTask: (
-    taskId: string,
-    updates: { title?: string; description?: string }
-  ) => Promise<IPCResult<Task>>;
-  startTask: (taskId: string, options?: TaskStartOptions) => void;
-  stopTask: (taskId: string) => void;
-  submitReview: (
-    taskId: string,
-    approved: boolean,
-    feedback?: string
-  ) => Promise<IPCResult>;
-  updateTaskStatus: (
-    taskId: string,
-    status: TaskStatus
-  ) => Promise<IPCResult>;
-  recoverStuckTask: (
-    taskId: string,
-    options?: import('../../shared/types').TaskRecoveryOptions
-  ) => Promise<IPCResult<TaskRecoveryResult>>;
-  checkTaskRunning: (taskId: string) => Promise<IPCResult<boolean>>;
+/** Task status */
+export type TaskStatus = 'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
 
-  // Workspace Management (for human review)
-  getWorktreeStatus: (taskId: string) => Promise<IPCResult<import('../../shared/types').WorktreeStatus>>;
-  getWorktreeDiff: (taskId: string) => Promise<IPCResult<import('../../shared/types').WorktreeDiff>>;
-  mergeWorktree: (taskId: string, options?: { noCommit?: boolean }) => Promise<IPCResult<import('../../shared/types').WorktreeMergeResult>>;
-  mergeWorktreePreview: (taskId: string) => Promise<IPCResult<import('../../shared/types').WorktreeMergeResult>>;
-  discardWorktree: (taskId: string) => Promise<IPCResult<import('../../shared/types').WorktreeDiscardResult>>;
-  listWorktrees: (projectId: string) => Promise<IPCResult<import('../../shared/types').WorktreeListResult>>;
-  worktreeOpenInIDE: (worktreePath: string, ide: SupportedIDE, customPath?: string) => Promise<IPCResult<{ opened: boolean }>>;
-  worktreeOpenInTerminal: (worktreePath: string, terminal: SupportedTerminal, customPath?: string) => Promise<IPCResult<{ opened: boolean }>>;
-  worktreeDetectTools: () => Promise<IPCResult<{ ides: Array<{ id: string; name: string; path: string; installed: boolean }>; terminals: Array<{ id: string; name: string; path: string; installed: boolean }> }>>;
-  archiveTasks: (projectId: string, taskIds: string[], version?: string) => Promise<IPCResult<boolean>>;
-  unarchiveTasks: (projectId: string, taskIds: string[]) => Promise<IPCResult<boolean>>;
+/** Task priority */
+export type TaskPriority = 'low' | 'medium' | 'high' | 'critical';
 
-  // Task Event Listeners
-  onTaskProgress: (callback: (taskId: string, plan: ImplementationPlan) => void) => () => void;
-  onTaskError: (callback: (taskId: string, error: string) => void) => () => void;
-  onTaskLog: (callback: (taskId: string, log: string) => void) => () => void;
-  onTaskStatusChange: (callback: (taskId: string, status: TaskStatus) => void) => () => void;
-  onTaskExecutionProgress: (
-    callback: (taskId: string, progress: import('../../shared/types').ExecutionProgress) => void
-  ) => () => void;
-
-  // Task Phase Logs
-  getTaskLogs: (projectId: string, specId: string) => Promise<IPCResult<TaskLogs | null>>;
-  watchTaskLogs: (projectId: string, specId: string) => Promise<IPCResult>;
-  unwatchTaskLogs: (specId: string) => Promise<IPCResult>;
-  onTaskLogsChanged: (callback: (specId: string, logs: TaskLogs) => void) => () => void;
-  onTaskLogsStream: (callback: (specId: string, chunk: TaskLogStreamChunk) => void) => () => void;
+/** Task data */
+export interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  status: TaskStatus;
+  priority: TaskPriority;
+  agentType?: string;
+  createdAt: string;
+  updatedAt: string;
+  completedAt?: string;
+  error?: string;
+  metadata?: Record<string, unknown>;
 }
 
-export const createTaskAPI = (): TaskAPI => ({
-  // Task Operations
-  getTasks: (projectId: string): Promise<IPCResult<Task[]>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.TASK_LIST, projectId),
+/** Create task input */
+export interface CreateTaskInput {
+  title: string;
+  description?: string;
+  priority?: TaskPriority;
+  agentType?: string;
+  metadata?: Record<string, unknown>;
+}
 
-  createTask: (
-    projectId: string,
-    title: string,
-    description: string,
-    metadata?: TaskMetadata
-  ): Promise<IPCResult<Task>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.TASK_CREATE, projectId, title, description, metadata),
+/** Update task input */
+export interface UpdateTaskInput {
+  title?: string;
+  description?: string;
+  status?: TaskStatus;
+  priority?: TaskPriority;
+  metadata?: Record<string, unknown>;
+}
 
-  deleteTask: (taskId: string): Promise<IPCResult> =>
-    ipcRenderer.invoke(IPC_CHANNELS.TASK_DELETE, taskId),
+/** Task filter */
+export interface TaskFilter {
+  status?: TaskStatus | TaskStatus[];
+  priority?: TaskPriority | TaskPriority[];
+  agentType?: string;
+  search?: string;
+  limit?: number;
+  offset?: number;
+}
 
-  updateTask: (
-    taskId: string,
-    updates: { title?: string; description?: string }
-  ): Promise<IPCResult<Task>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.TASK_UPDATE, taskId, updates),
+/**
+ * Task API
+ */
+export const taskAPI = {
+  /**
+   * Create a new task
+   */
+  create: (input: CreateTaskInput): Promise<Task> =>
+    ipcRenderer.invoke('task:create', input),
 
-  startTask: (taskId: string, options?: TaskStartOptions): void =>
-    ipcRenderer.send(IPC_CHANNELS.TASK_START, taskId, options),
+  /**
+   * Get task by ID
+   */
+  get: (id: string): Promise<Task | null> =>
+    ipcRenderer.invoke('task:get', id),
 
-  stopTask: (taskId: string): void =>
-    ipcRenderer.send(IPC_CHANNELS.TASK_STOP, taskId),
+  /**
+   * Update task
+   */
+  update: (id: string, input: UpdateTaskInput): Promise<Task> =>
+    ipcRenderer.invoke('task:update', id, input),
 
-  submitReview: (
-    taskId: string,
-    approved: boolean,
-    feedback?: string
-  ): Promise<IPCResult> =>
-    ipcRenderer.invoke(IPC_CHANNELS.TASK_REVIEW, taskId, approved, feedback),
+  /**
+   * Delete task
+   */
+  delete: (id: string): Promise<boolean> =>
+    ipcRenderer.invoke('task:delete', id),
 
-  updateTaskStatus: (
-    taskId: string,
-    status: TaskStatus
-  ): Promise<IPCResult> =>
-    ipcRenderer.invoke(IPC_CHANNELS.TASK_UPDATE_STATUS, taskId, status),
+  /**
+   * List tasks with filter
+   */
+  list: (filter?: TaskFilter): Promise<Task[]> =>
+    ipcRenderer.invoke('task:list', filter),
 
-  recoverStuckTask: (
-    taskId: string,
-    options?: import('../../shared/types').TaskRecoveryOptions
-  ): Promise<IPCResult<TaskRecoveryResult>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.TASK_RECOVER_STUCK, taskId, options),
+  /**
+   * Search tasks
+   */
+  search: (query: string): Promise<Task[]> =>
+    ipcRenderer.invoke('task:search', query),
 
-  checkTaskRunning: (taskId: string): Promise<IPCResult<boolean>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.TASK_CHECK_RUNNING, taskId),
+  /**
+   * Cancel running task
+   */
+  cancel: (id: string): Promise<boolean> =>
+    ipcRenderer.invoke('task:cancel', id),
 
-  // Workspace Management
-  getWorktreeStatus: (taskId: string): Promise<IPCResult<import('../../shared/types').WorktreeStatus>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.TASK_WORKTREE_STATUS, taskId),
+  /**
+   * Retry failed task
+   */
+  retry: (id: string): Promise<Task> =>
+    ipcRenderer.invoke('task:retry', id),
 
-  getWorktreeDiff: (taskId: string): Promise<IPCResult<import('../../shared/types').WorktreeDiff>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.TASK_WORKTREE_DIFF, taskId),
+  /**
+   * Get task logs
+   */
+  getLogs: (id: string): Promise<string[]> =>
+    ipcRenderer.invoke('task:getLogs', id),
 
-  mergeWorktree: (taskId: string, options?: { noCommit?: boolean }): Promise<IPCResult<import('../../shared/types').WorktreeMergeResult>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.TASK_WORKTREE_MERGE, taskId, options),
-
-  mergeWorktreePreview: (taskId: string): Promise<IPCResult<import('../../shared/types').WorktreeMergeResult>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.TASK_WORKTREE_MERGE_PREVIEW, taskId),
-
-  discardWorktree: (taskId: string): Promise<IPCResult<import('../../shared/types').WorktreeDiscardResult>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.TASK_WORKTREE_DISCARD, taskId),
-
-  listWorktrees: (projectId: string): Promise<IPCResult<import('../../shared/types').WorktreeListResult>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.TASK_LIST_WORKTREES, projectId),
-
-  worktreeOpenInIDE: (worktreePath: string, ide: SupportedIDE, customPath?: string): Promise<IPCResult<{ opened: boolean }>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.TASK_WORKTREE_OPEN_IN_IDE, worktreePath, ide, customPath),
-
-  worktreeOpenInTerminal: (worktreePath: string, terminal: SupportedTerminal, customPath?: string): Promise<IPCResult<{ opened: boolean }>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.TASK_WORKTREE_OPEN_IN_TERMINAL, worktreePath, terminal, customPath),
-
-  worktreeDetectTools: (): Promise<IPCResult<{ ides: Array<{ id: string; name: string; path: string; installed: boolean }>; terminals: Array<{ id: string; name: string; path: string; installed: boolean }> }>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.TASK_WORKTREE_DETECT_TOOLS),
-
-  archiveTasks: (projectId: string, taskIds: string[], version?: string): Promise<IPCResult<boolean>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.TASK_ARCHIVE, projectId, taskIds, version),
-
-  unarchiveTasks: (projectId: string, taskIds: string[]): Promise<IPCResult<boolean>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.TASK_UNARCHIVE, projectId, taskIds),
-
-  // Task Event Listeners
-  onTaskProgress: (
-    callback: (taskId: string, plan: ImplementationPlan) => void
-  ): (() => void) => {
-    const handler = (
-      _event: Electron.IpcRendererEvent,
-      taskId: string,
-      plan: ImplementationPlan
-    ): void => {
-      callback(taskId, plan);
-    };
-    ipcRenderer.on(IPC_CHANNELS.TASK_PROGRESS, handler);
-    return () => {
-      ipcRenderer.removeListener(IPC_CHANNELS.TASK_PROGRESS, handler);
-    };
+  /**
+   * Subscribe to task events
+   */
+  onTaskUpdate: (callback: (task: Task) => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, task: Task) => callback(task);
+    ipcRenderer.on('task:updated', listener);
+    return () => ipcRenderer.removeListener('task:updated', listener);
   },
 
-  onTaskError: (
-    callback: (taskId: string, error: string) => void
-  ): (() => void) => {
-    const handler = (
-      _event: Electron.IpcRendererEvent,
-      taskId: string,
-      error: string
-    ): void => {
-      callback(taskId, error);
-    };
-    ipcRenderer.on(IPC_CHANNELS.TASK_ERROR, handler);
-    return () => {
-      ipcRenderer.removeListener(IPC_CHANNELS.TASK_ERROR, handler);
-    };
+  /**
+   * Subscribe to task completion
+   */
+  onTaskComplete: (callback: (task: Task) => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, task: Task) => callback(task);
+    ipcRenderer.on('task:completed', listener);
+    return () => ipcRenderer.removeListener('task:completed', listener);
   },
 
-  onTaskLog: (
-    callback: (taskId: string, log: string) => void
-  ): (() => void) => {
-    const handler = (
-      _event: Electron.IpcRendererEvent,
-      taskId: string,
-      log: string
-    ): void => {
-      callback(taskId, log);
-    };
-    ipcRenderer.on(IPC_CHANNELS.TASK_LOG, handler);
-    return () => {
-      ipcRenderer.removeListener(IPC_CHANNELS.TASK_LOG, handler);
-    };
+  /**
+   * Subscribe to task errors
+   */
+  onTaskError: (callback: (task: Task, error: string) => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, task: Task, error: string) =>
+      callback(task, error);
+    ipcRenderer.on('task:error', listener);
+    return () => ipcRenderer.removeListener('task:error', listener);
   },
-
-  onTaskStatusChange: (
-    callback: (taskId: string, status: TaskStatus) => void
-  ): (() => void) => {
-    const handler = (
-      _event: Electron.IpcRendererEvent,
-      taskId: string,
-      status: TaskStatus
-    ): void => {
-      callback(taskId, status);
-    };
-    ipcRenderer.on(IPC_CHANNELS.TASK_STATUS_CHANGE, handler);
-    return () => {
-      ipcRenderer.removeListener(IPC_CHANNELS.TASK_STATUS_CHANGE, handler);
-    };
-  },
-
-  onTaskExecutionProgress: (
-    callback: (taskId: string, progress: import('../../shared/types').ExecutionProgress) => void
-  ): (() => void) => {
-    const handler = (
-      _event: Electron.IpcRendererEvent,
-      taskId: string,
-      progress: import('../../shared/types').ExecutionProgress
-    ): void => {
-      callback(taskId, progress);
-    };
-    ipcRenderer.on(IPC_CHANNELS.TASK_EXECUTION_PROGRESS, handler);
-    return () => {
-      ipcRenderer.removeListener(IPC_CHANNELS.TASK_EXECUTION_PROGRESS, handler);
-    };
-  },
-
-  // Task Phase Logs
-  getTaskLogs: (projectId: string, specId: string): Promise<IPCResult<TaskLogs | null>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.TASK_LOGS_GET, projectId, specId),
-
-  watchTaskLogs: (projectId: string, specId: string): Promise<IPCResult> =>
-    ipcRenderer.invoke(IPC_CHANNELS.TASK_LOGS_WATCH, projectId, specId),
-
-  unwatchTaskLogs: (specId: string): Promise<IPCResult> =>
-    ipcRenderer.invoke(IPC_CHANNELS.TASK_LOGS_UNWATCH, specId),
-
-  onTaskLogsChanged: (
-    callback: (specId: string, logs: TaskLogs) => void
-  ): (() => void) => {
-    const handler = (
-      _event: Electron.IpcRendererEvent,
-      specId: string,
-      logs: TaskLogs
-    ): void => {
-      callback(specId, logs);
-    };
-    ipcRenderer.on(IPC_CHANNELS.TASK_LOGS_CHANGED, handler);
-    return () => {
-      ipcRenderer.removeListener(IPC_CHANNELS.TASK_LOGS_CHANGED, handler);
-    };
-  },
-
-  onTaskLogsStream: (
-    callback: (specId: string, chunk: TaskLogStreamChunk) => void
-  ): (() => void) => {
-    const handler = (
-      _event: Electron.IpcRendererEvent,
-      specId: string,
-      chunk: TaskLogStreamChunk
-    ): void => {
-      callback(specId, chunk);
-    };
-    ipcRenderer.on(IPC_CHANNELS.TASK_LOGS_STREAM, handler);
-    return () => {
-      ipcRenderer.removeListener(IPC_CHANNELS.TASK_LOGS_STREAM, handler);
-    };
-  }
-});
+};
