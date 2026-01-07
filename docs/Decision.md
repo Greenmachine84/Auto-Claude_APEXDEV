@@ -1027,3 +1027,53 @@ Implemented the following modules:
 | Limits | 5 | Rate limiting, quotas |
 | Compliance | 5 | Audit, logging, retention |
 | **Total** | **24** | Enterprise governance |
+
+### ADR-054: Phase 10 Testing and Documentation Framework
+**Status**: ✅ Accepted
+**Date**: 2026-01-07
+**Phase**: Phase 10
+
+#### Context
+Phase 10 requires world-class testing infrastructure and documentation:
+- Comprehensive unit test coverage for all modules
+- Per-provider parametrized testing for all 8 LLM providers
+- Documentation generators for automated API/schema/agent docs
+- Test performance targets: Unit <2min, Integration <5min, E2E <10min
+
+#### Decision
+Implemented the following modules:
+
+**Unit Tests (37 files)**:
+- **Agents**: test_base_agent.py, test_registry.py, test_enterprise_agents.py
+- **LLM**: test_providers.py (8 providers), test_router.py, test_per_agent_config.py
+- **Auth**: test_oauth.py (4 providers), test_session.py, test_credentials.py
+- **Memory**: test_hmem.py, test_search.py
+- **Security**: test_scanner.py, test_injection.py, test_rbac.py, test_audit.py
+- **Orchestration**: test_task_queue.py, test_agent_pool.py, test_message_bus.py
+- **Governance**: test_policy.py, test_rate_limiter.py, test_quota.py
+- **Analytics**: test_cost_tracker.py, test_metrics.py
+- **Tools**: test_registry.py, test_executor.py
+
+**Documentation Generators (5 files)**:
+- __init__.py, api_doc_generator.py, schema_doc_generator.py
+- agent_doc_generator.py, provider_doc_generator.py
+
+**Key Features**:
+- **Parametrized Testing**: All tests use @pytest.mark.parametrize for 8 providers
+- **No Default Provider**: All tests explicitly validate no default provider assumption
+- **Type-Safe Fixtures**: Dataclass-based test data with full type hints
+- **Provider Cost/Limit Docs**: Complete configuration for all providers
+
+#### Rationale
+- **Equal Provider Coverage**: All 8 LLM providers receive identical test coverage
+- **Automation First**: Documentation generators reduce manual maintenance
+- **SOC 2 Test Standards**: Audit logging tests verify compliance requirements
+- **Performance Validated**: All tests include performance assertions
+
+#### Implementation Summary
+| Component | Files | Purpose |
+|-----------|-------|---------|
+| Unit Tests | 27 | Module-level tests |
+| Package Inits | 10 | Test organization |
+| Doc Generators | 5 | Automated docs |
+| **Total** | **42** | Testing/Docs framework |
