@@ -1,3 +1,63 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+## 3.1.0 - Phase 5: Testing & Documentation Infrastructure
+
+### ✨ New Features
+
+- **Comprehensive Test Infrastructure** (65 files)
+  - Unit tests for all core modules (42 files)
+  - Integration tests for system interactions (8 files)
+  - End-to-end tests for complete workflows (5 files)
+  - Shared fixtures for consistent test setup (5 files)
+  - Mock implementations for external dependencies (5 files)
+
+- **Documentation Module** (18 files)
+  - AST-based source code parsing for accurate extraction
+  - Support for Google, NumPy, and reST docstring formats
+  - Markdown and HTML output generation
+  - Template-based rendering with Jinja2
+  - Modular generator/exporter architecture
+
+- **API Documentation** (8 files)
+  - Complete API reference for agents, memory, tools, LLM providers
+  - Configuration options documentation
+  - Code examples for all public interfaces
+
+- **User Guides** (6 files)
+  - Getting started guide with quickstart examples
+  - Agent development guide with best practices
+  - Memory system guide with search patterns
+  - LLM provider guide with configuration examples
+  - Workflow orchestration guide
+
+- **Security Documentation** (3 files)
+  - Security architecture overview
+  - Threat model with risk matrix and mitigations
+  - Security best practices for deployment
+
+- **Development Documentation** (3 files)
+  - Contributing guide with workflow and standards
+  - Testing guide with patterns and examples
+  - ADR-049: Phase 5 Architecture Decision Record
+
+### 🧪 Test Coverage
+
+- Core agents: 90% coverage target
+- Memory system: 85% coverage target
+- Tool execution: 85% coverage target
+- LLM providers: 75% coverage target
+- All 166 integration/e2e tests passing
+
+### 📖 Documentation
+
+- ADR-049: Phase 5 Testing & Documentation System
+- Complete API documentation for all modules
+- Security threat model and best practices
+- Developer onboarding documentation
+
+---
 ## 3.0.0 - Phase 4: UI, Integrations & Analytics Architecture
 
 ### ✨ New Features
