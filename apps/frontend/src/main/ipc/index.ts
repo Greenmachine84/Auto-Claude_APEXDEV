@@ -45,8 +45,10 @@ export const IPCChannels = {
   MEMORY_INSIGHTS: 'memory:insights',
 
   // Settings channels
+  SETTINGS_GET_ALL: 'settings:getAll',
   SETTINGS_GET: 'settings:get',
   SETTINGS_SET: 'settings:set',
+  SETTINGS_UPDATE: 'settings:update',
   SETTINGS_RESET: 'settings:reset',
   SETTINGS_EXPORT: 'settings:export',
   SETTINGS_IMPORT: 'settings:import',
