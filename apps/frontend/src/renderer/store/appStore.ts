@@ -5,17 +5,72 @@
 
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import type { Settings, LLMProviderId } from '../../preload/api/settings-api';
+import type { LLMProviderId } from '../../preload/api/settings-api';
+
+/** View types for navigation */
+export type ViewType =
+  | 'kanban'
+  | 'terminal'
+  | 'agents'
+  | 'memory'
+  | 'workflow'
+  | 'settings'
+  | 'analytics';
+
+/** Theme setting */
+export type ThemeSetting = 'light' | 'dark' | 'system';
+
+/** Settings interface matching what the app expects */
+export interface Settings {
+  theme: ThemeSetting;
+  language: string;
+  fontSize: number;
+  autoSave: boolean;
+  wordWrap: boolean;
+  tabSize: number;
+  notifications: boolean;
+  sounds: boolean;
+  defaultLLMProvider: LLMProviderId;
+  llmProviders: Record<string, unknown>;
+  modelPreference: string;
+  maxTokens: number;
+  temperature: number;
+  agentConfig: {
+    maxConcurrent: number;
+    timeout: number;
+    defaultType: string;
+    autoRetry: boolean;
+    maxRetries: number;
+    verbose: boolean;
+    useMemory: boolean;
+    memoryContextLength: number;
+    similarityThreshold: number;
+    requireApproval: boolean;
+    notifyOnComplete: boolean;
+  };
+  integrations: Record<string, unknown>;
+  keybinds: Record<string, string>;
+  // UI settings nested for compatibility
+  ui: {
+    theme: ThemeSetting;
+    terminalHeight: number;
+    sidebarWidth: number;
+  };
+}
 
 /** App state */
 export interface AppState {
   // Initialization
   initialized: boolean;
+  isInitialized: boolean; // Alias for initialized
   loading: boolean;
   error: Error | null;
 
   // Settings
   settings: Settings;
+
+  // Navigation
+  currentView: ViewType;
 
   // Active context
   currentProject: string | null;
@@ -32,6 +87,9 @@ export interface AppActions {
   updateSettings: (updates: Partial<Settings>) => Promise<void>;
   resetSettings: () => Promise<void>;
 
+  // Navigation
+  setCurrentView: (view: ViewType) => void;
+
   // Project
   setCurrentProject: (path: string | null) => void;
   setCurrentWorkspace: (path: string | null) => void;
@@ -42,7 +100,7 @@ export interface AppActions {
 
 /** Default settings */
 const defaultSettings: Settings = {
-  theme: 'system',
+  theme: 'dark',
   language: 'en',
   fontSize: 14,
   autoSave: true,
@@ -70,6 +128,11 @@ const defaultSettings: Settings = {
   },
   integrations: {},
   keybinds: {},
+  ui: {
+    theme: 'dark',
+    terminalHeight: 300,
+    sidebarWidth: 280,
+  },
 };
 
 /**
@@ -81,9 +144,11 @@ export const useAppStore = create<AppState & AppActions>()(
       (set, get) => ({
         // Initial state
         initialized: false,
+        isInitialized: false, // Alias
         loading: false,
         error: null,
         settings: defaultSettings,
+        currentView: 'kanban',
         currentProject: null,
         currentWorkspace: null,
 
@@ -94,15 +159,34 @@ export const useAppStore = create<AppState & AppActions>()(
           set({ loading: true, error: null });
           try {
             // Load settings from backend
-            const settings = await window.apex.settings.getAll();
+            const backendSettings = await window.apex.settings.getAll();
+            
+            // Merge with defaults, ensuring ui object exists
+            const mergedSettings: Settings = {
+              ...defaultSettings,
+              ...backendSettings,
+              ui: {
+                ...defaultSettings.ui,
+                ...(backendSettings?.ui || {}),
+                // Also check for top-level theme
+                theme: backendSettings?.ui?.theme || backendSettings?.theme || defaultSettings.theme,
+              },
+            };
+            
             set({
               initialized: true,
+              isInitialized: true,
               loading: false,
-              settings: { ...defaultSettings, ...settings },
+              settings: mergedSettings,
             });
           } catch (error) {
+            console.error('[AppStore] Initialization error:', error);
+            // Still mark as initialized with defaults so app renders
             set({
+              initialized: true,
+              isInitialized: true,
               loading: false,
+              settings: defaultSettings,
               error: error instanceof Error ? error : new Error('Initialization failed'),
             });
           }
@@ -116,14 +200,25 @@ export const useAppStore = create<AppState & AppActions>()(
           const currentSettings = get().settings;
           const newSettings = { ...currentSettings, ...updates };
           set({ settings: newSettings });
-          await window.apex.settings.update(updates);
+          try {
+            await window.apex.settings.update(updates);
+          } catch (error) {
+            console.error('[AppStore] Failed to save settings:', error);
+          }
         },
 
         // Reset settings
         resetSettings: async () => {
           set({ settings: defaultSettings });
-          await window.apex.settings.reset();
+          try {
+            await window.apex.settings.reset();
+          } catch (error) {
+            console.error('[AppStore] Failed to reset settings:', error);
+          }
         },
+
+        // Set current view
+        setCurrentView: (view) => set({ currentView: view }),
 
         // Set current project
         setCurrentProject: (path) => set({ currentProject: path }),
@@ -147,6 +242,7 @@ export const useAppStore = create<AppState & AppActions>()(
         partialize: (state) => ({
           settings: state.settings,
           currentProject: state.currentProject,
+          currentView: state.currentView,
         }),
       }
     ),
