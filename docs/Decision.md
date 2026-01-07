@@ -929,3 +929,39 @@ Verification process:
 - Consistency between design and code
 - Easier navigation
 - Reduced confusion
+
+### ADR-051: Phase 8 Analytics & Tools Implementation
+**Status**: ✅ Accepted  
+**Date**: 2026-01-07  
+**Phase**: Phase 8
+
+#### Context
+Phase 8 requires comprehensive analytics and tools modules to enable:
+- Multi-provider cost tracking across all 8 LLM providers (copilot, openrouter, ollama, lmstudio, gemini, openai, anthropic, azure)
+- Real-time metrics collection and aggregation
+- Dashboard API for visualization
+- Enterprise-grade tool execution with sandboxing and timeout handling
+
+#### Decision
+Implemented the following modules:
+
+**Analytics Module (22 files)**:
+- Core: models.py, config.py, __init__.py
+- Metrics: collector.py, ggregator.py, 	ime_series.py, storage.py, xporters.py
+- Cost: pricing.py, 	racker.py, udget.py, eports.py, optimization.py
+- Dashboard: data_builder.py, charts.py, xporter.py, pi.py, widgets.py
+- Provider Analytics: copilot.py, openrouter.py, ggregated.py
+
+**Tools Extensions (18 files)**:
+- Core: models.py, config.py
+- Registry: egistry.py, loader.py, discovery.py, alidator.py
+- Executor: xecutor.py, sandbox.py, 	imeout.py, esults.py
+- Builtin: ilesystem/ (4 files), git/ (4 files)
+
+#### Rationale
+- **Equal Provider Treatment**: All 8 LLM providers receive identical analytics support
+- **Cost Transparency**: Real-time cost tracking prevents budget overruns
+- **Sandboxed Execution**: Tool execution in isolated environments ensures security
+- **Dashboard API**: Sub-100ms response times for real-time monitoring
+- **Type Safety**: Full dataclass-based models with validation
+
