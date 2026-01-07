@@ -1,5 +1,5 @@
 /**
- * Browser mock for window.electronAPI
+ * Browser mock for window.electronAPI and window.apex
  * This allows the app to run in a regular browser for UI development/testing
  *
  * This module aggregates all mock implementations from separate modules
@@ -23,6 +23,117 @@ import {
 
 // Check if we're in a browser (not Electron)
 const isElectron = typeof window !== 'undefined' && window.electronAPI !== undefined;
+const hasApex = typeof window !== 'undefined' && window.apex !== undefined;
+
+/**
+ * Mock for window.apex (APEX Development Platform API)
+ * Required by App.tsx and appStore.ts
+ */
+const apexMockAPI = {
+  platform: {
+    platform: 'browser',
+    isMac: false,
+    isWindows: true,
+    isLinux: false,
+    versions: {
+      electron: '0.0.0',
+      chrome: '0.0.0',
+      node: '0.0.0',
+    },
+  },
+  window: {
+    minimize: async () => {},
+    maximize: async () => {},
+    close: async () => {},
+    isMaximized: async () => false,
+    setTitle: async (_title: string) => {},
+  },
+  events: {
+    on: (_channel: string, _callback: (...args: unknown[]) => void) => {
+      // Return unsubscribe function
+      return () => {};
+    },
+    once: (_channel: string, _callback: (...args: unknown[]) => void) => {},
+    removeAllListeners: (_channel: string) => {},
+  },
+  dialog: {
+    openFile: async () => ({ canceled: true, filePaths: [] }),
+    openDirectory: async () => ({ canceled: true, filePaths: [] }),
+    saveFile: async () => ({ canceled: true }),
+    showMessage: async () => ({ response: 0 }),
+    showError: async () => {},
+  },
+  shell: {
+    openExternal: async (_url: string) => {},
+    openPath: async (_path: string) => {},
+    showItemInFolder: async (_path: string) => {},
+  },
+  clipboard: {
+    writeText: async (_text: string) => {},
+    readText: async () => '',
+    writeHTML: async (_html: string) => {},
+    readHTML: async () => '',
+  },
+  tasks: {
+    getAll: async () => [],
+    get: async (_id: string) => null,
+    create: async (task: any) => ({ ...task, id: `task-${Date.now()}` }),
+    update: async (_id: string, updates: any) => updates,
+    delete: async (_id: string) => true,
+  },
+  agents: {
+    getAll: async () => [],
+    get: async (_id: string) => null,
+    start: async (_id: string) => true,
+    stop: async (_id: string) => true,
+    getStatus: async (_id: string) => ({ status: 'idle' }),
+  },
+  memory: {
+    search: async (_query: string) => [],
+    add: async (_content: any) => ({ id: `mem-${Date.now()}` }),
+    delete: async (_id: string) => true,
+  },
+  settings: {
+    getAll: async () => ({
+      theme: 'dark',
+      language: 'en',
+      fontSize: 14,
+      autoSave: true,
+      wordWrap: true,
+      tabSize: 2,
+      notifications: true,
+      sounds: false,
+      defaultLLMProvider: 'copilot',
+      llmProviders: {},
+      modelPreference: 'auto',
+      maxTokens: 4096,
+      temperature: 0.7,
+      agentConfig: {
+        maxConcurrent: 3,
+        timeout: 300,
+        defaultType: 'coder',
+        autoRetry: true,
+        maxRetries: 3,
+        verbose: false,
+        useMemory: true,
+        memoryContextLength: 10,
+        similarityThreshold: 0.7,
+        requireApproval: false,
+        notifyOnComplete: true,
+      },
+      integrations: {},
+      keybinds: {},
+      ui: {
+        theme: 'dark',
+        terminalHeight: 300,
+        sidebarWidth: 250,
+      },
+    }),
+    get: async (_key: string) => null,
+    update: async (_updates: any) => {},
+    reset: async () => {},
+  },
+};
 
 /**
  * Create mock electronAPI for browser
@@ -307,6 +418,12 @@ export function initBrowserMock(): void {
   if (!isElectron) {
     console.warn('%c[Browser Mock] Initializing mock electronAPI for browser preview', 'color: #f0ad4e; font-weight: bold;');
     (window as Window & { electronAPI: ElectronAPI }).electronAPI = browserMockAPI;
+  }
+  
+  // Also mock window.apex for APEX components
+  if (!hasApex) {
+    console.warn('%c[Browser Mock] Initializing mock apex API for browser preview', 'color: #f0ad4e; font-weight: bold;');
+    (window as any).apex = apexMockAPI;
   }
 }
 
