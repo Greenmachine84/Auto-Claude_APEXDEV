@@ -186,11 +186,16 @@ class MockAgentOrchestrator:
         phase: WorkflowPhase
     ) -> None:
         """Execute a workflow phase."""
+        import asyncio as aio
+        import inspect
+
         execution.current_phase = phase
 
-        # Call phase hooks
+        # Call phase hooks (may be sync or async)
         for handler in self._workflow_hooks.get(phase.value, []):
-            await handler(execution)
+            result = handler(execution)
+            if inspect.iscoroutine(result):
+                await result
 
         # Execute phase-specific logic
         if phase == WorkflowPhase.PLANNING:

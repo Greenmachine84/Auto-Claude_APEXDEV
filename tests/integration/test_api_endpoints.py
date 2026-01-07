@@ -166,28 +166,27 @@ class MockValidationMiddleware:
             return True, []
 
         errors = []
+        body = request.body or {}
 
         # Check required fields
         required = schema.get("required", [])
-        if request.body:
-            for field_name in required:
-                if field_name not in request.body:
-                    errors.append(f"Missing required field: {field_name}")
+        for field_name in required:
+            if field_name not in body:
+                errors.append(f"Missing required field: {field_name}")
 
         # Check field types
         properties = schema.get("properties", {})
-        if request.body:
-            for field_name, field_schema in properties.items():
-                if field_name in request.body:
-                    expected_type = field_schema.get("type")
-                    value = request.body[field_name]
+        for field_name, field_schema in properties.items():
+            if field_name in body:
+                expected_type = field_schema.get("type")
+                value = body[field_name]
 
-                    if expected_type == "string" and not isinstance(value, str):
-                        errors.append(f"Field {field_name} must be string")
-                    elif expected_type == "integer" and not isinstance(value, int):
-                        errors.append(f"Field {field_name} must be integer")
-                    elif expected_type == "boolean" and not isinstance(value, bool):
-                        errors.append(f"Field {field_name} must be boolean")
+                if expected_type == "string" and not isinstance(value, str):
+                    errors.append(f"Field {field_name} must be string")
+                elif expected_type == "integer" and not isinstance(value, int):
+                    errors.append(f"Field {field_name} must be integer")
+                elif expected_type == "boolean" and not isinstance(value, bool):
+                    errors.append(f"Field {field_name} must be boolean")
 
         return len(errors) == 0, errors
 

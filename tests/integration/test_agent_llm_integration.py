@@ -80,7 +80,8 @@ class MockLLMProvider:
         self.call_count += 1
         self.last_messages = messages
 
-        if self._should_fail and (self._fail_after < 0 or self.call_count > self._fail_after):
+        # fail_after means fail for the first N calls, then succeed
+        if self._should_fail and (self._fail_after < 0 or self.call_count <= self._fail_after):
             raise RuntimeError(f"Provider {self.provider_type.value} failed")
 
         response_content = self._responses.pop(0) if self._responses else "Default response"
@@ -343,7 +344,8 @@ class TestProviderFailover:
     async def test_retry_on_failure(self, agent: MockAgent):
         """Test agent retries on provider failure."""
         agent.provider.set_failure_mode(True, fail_after=2)
-        agent.provider.set_responses(["", "", "Success after retry"])
+        # Only one response needed - for the successful 3rd call
+        agent.provider.set_responses(["Success after retry"])
 
         response = await agent.send_message("Retry test")
         assert response == "Success after retry"

@@ -5,6 +5,7 @@ Tests the complete flow of workflow execution including step sequencing,
 state management, conditional branching, and error handling.
 """
 
+import asyncio
 import pytest
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -130,7 +131,6 @@ class MockStepExecutor:
 
         # Simulate delay
         if step.id in self._delays:
-            import asyncio
             await asyncio.sleep(self._delays[step.id])
 
         # Check condition
@@ -209,8 +209,6 @@ class MockWorkflowEngine:
         context: WorkflowContext
     ) -> None:
         """Execute workflow from a specific step."""
-        import asyncio
-
         while step_id:
             # Check for pause/cancel
             if context.workflow_id in self._pause_requested:
@@ -496,7 +494,8 @@ class TestErrorHandling:
             id="risky",
             name="Risky Step",
             step_type=StepType.ACTION,
-            on_failure="error_handler"
+            on_failure="error_handler",
+            max_retries=0
         ))
         workflow.add_step(WorkflowStep(
             id="error_handler",
@@ -528,7 +527,8 @@ class TestErrorHandling:
         workflow.add_step(WorkflowStep(
             id="failing",
             name="Failing Step",
-            step_type=StepType.ACTION
+            step_type=StepType.ACTION,
+            max_retries=0
         ))
 
         step_executor.set_result("failing", [
@@ -647,11 +647,11 @@ class TestWorkflowControl:
             step_type=StepType.ACTION
         ))
 
-        # Request cancel before start
-        await engine.cancel("cancel-workflow")
+        # Add to active workflows and cancel set before start
         engine.active_workflows["cancel-workflow"] = WorkflowContext(
             workflow_id="cancel-workflow"
         )
+        engine._cancel_requested.add("cancel-workflow")
 
         with pytest.raises(RuntimeError) as exc_info:
             await engine.start(workflow)

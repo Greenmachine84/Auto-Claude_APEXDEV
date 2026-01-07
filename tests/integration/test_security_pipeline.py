@@ -309,10 +309,11 @@ class MockOutputSanitizer:
     """Mock output sanitizer."""
 
     def __init__(self):
+        # More specific patterns first to prevent generic pattern from matching
         self._secret_patterns = [
-            (r"[A-Za-z0-9]{32,}", "API_KEY_REDACTED"),
             (r"sk-[a-zA-Z0-9]{48}", "OPENAI_KEY_REDACTED"),
             (r"ghp_[a-zA-Z0-9]{36}", "GITHUB_TOKEN_REDACTED"),
+            (r"[A-Za-z0-9]{32,}", "API_KEY_REDACTED"),
         ]
 
     async def sanitize(self, content: str) -> tuple[str, list[SecurityFinding]]:
@@ -647,7 +648,8 @@ class TestOutputSanitization:
     @pytest.mark.asyncio
     async def test_api_key_redacted(self, sanitizer: MockOutputSanitizer):
         """Test API keys are redacted."""
-        content = "Your key is sk-1234567890123456789012345678901234567890123456"
+        # OpenAI keys are sk- followed by 48 alphanumeric characters
+        content = "Your key is sk-abcdefghij1234567890abcdefghij1234567890abcdefgh"
 
         sanitized, findings = await sanitizer.sanitize(content)
 

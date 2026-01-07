@@ -597,6 +597,8 @@ class TestBlockingComments:
         """Test cannot merge with unresolved blockers."""
         request = ReviewRequest(id="pr-block", title="Blocked", description="", author="dev")
         await workflow.submit_review(request)
+        # Request review which adds blocking comments
+        await workflow.request_review("pr-block", "blocker")
         # Manually set to approved to test blocker check
         workflow.reviews["pr-block"].status = ReviewStatus.APPROVED
 

@@ -12,26 +12,26 @@ Mock Categories:
 - Services: Mock external services (HTTP, database, etc.)
 """
 
-from tests.mocks.mock_providers import (
+from .mock_providers import (
     MockLLMProvider,
     MockProviderFactory,
     MockProviderRegistry,
     MockStreamingProvider,
 )
-from tests.mocks.mock_agents import (
+from .mock_agents import (
     MockAgent,
     MockCoderAgent,
     MockReviewerAgent,
     MockAgentFactory,
     MockAgentOrchestrator,
 )
-from tests.mocks.mock_tools import (
+from .mock_tools import (
     MockTool,
     MockToolExecutor,
     MockToolRegistry,
     MockSandboxedTool,
 )
-from tests.mocks.mock_services import (
+from .mock_services import (
     MockHttpClient,
     MockDatabase,
     MockCache,
