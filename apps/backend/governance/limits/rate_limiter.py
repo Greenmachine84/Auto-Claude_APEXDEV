@@ -16,8 +16,8 @@ from collections import deque
 import threading
 import logging
 
-from ..models import RateLimit, RateLimitResult, SUPPORTED_PROVIDERS
-from ..config import PROVIDER_RATE_LIMITS, get_provider_rate_limit
+from ..models import RateLimit, RateLimitResult, LimitType, SUPPORTED_PROVIDERS
+from ..config import PROVIDER_RATE_LIMITS
 
 
 logger = logging.getLogger(__name__)
@@ -29,6 +29,18 @@ class WindowEntry:
     timestamp: datetime
     count: int = 1
     tokens: int = 0
+
+
+@dataclass
+class ProviderRateLimit:
+    """
+    Provider-specific rate limit configuration.
+    
+    Wraps the config data into a structured object.
+    """
+    requests_per_minute: int
+    tokens_per_minute: Optional[int] = None
+    window_seconds: int = 60
 
 
 class SlidingWindow:
@@ -90,7 +102,7 @@ class RateLimiter:
     
     def __init__(self) -> None:
         self._windows: Dict[str, Dict[str, SlidingWindow]] = {}
-        self._limits: Dict[str, RateLimit] = {}
+        self._limits: Dict[str, ProviderRateLimit] = {}
         self._lock = threading.Lock()
         self._initialize_providers()
     
@@ -98,8 +110,17 @@ class RateLimiter:
         """Initialize windows for all supported providers."""
         for provider in SUPPORTED_PROVIDERS:
             self._windows[provider] = {}
-            rate_limit = get_provider_rate_limit(provider)
-            self._limits[provider] = rate_limit
+            # Get config dict for this provider
+            config = PROVIDER_RATE_LIMITS.get(provider, {})
+            # Create ProviderRateLimit object from config
+            rpm = config.get("requests_per_minute", 60)
+            tpm = config.get("tokens_per_day")  # Note: using tokens_per_day from config
+            if rpm:
+                self._limits[provider] = ProviderRateLimit(
+                    requests_per_minute=rpm,
+                    tokens_per_minute=tpm // 1440 if tpm else None,  # Convert daily to per-minute
+                    window_seconds=60,
+                )
         logger.info(f"Initialized rate limiter for {len(SUPPORTED_PROVIDERS)} providers")
     
     def _get_window(
@@ -140,8 +161,8 @@ class RateLimiter:
             return RateLimitResult(
                 allowed=False,
                 remaining=0,
+                limit=0,
                 reset_at=datetime.utcnow() + timedelta(seconds=60),
-                reason=f"Unsupported provider: {provider}",
             )
         
         limit = self._limits.get(provider)
@@ -149,7 +170,8 @@ class RateLimiter:
             # No limit configured, allow
             return RateLimitResult(
                 allowed=True,
-                remaining=float("inf"),
+                remaining=999999,
+                limit=999999,
                 reset_at=datetime.utcnow() + timedelta(seconds=60),
             )
         
@@ -162,9 +184,8 @@ class RateLimiter:
             return RateLimitResult(
                 allowed=False,
                 remaining=0,
-                reset_at=datetime.utcnow() + timedelta(seconds=limit.window_seconds),
-                reason="Request limit exceeded",
                 limit=limit.requests_per_minute,
+                reset_at=datetime.utcnow() + timedelta(seconds=limit.window_seconds),
             )
         
         # Check token limit
@@ -172,17 +193,16 @@ class RateLimiter:
             return RateLimitResult(
                 allowed=False,
                 remaining=limit.tokens_per_minute - current_tokens,
-                reset_at=datetime.utcnow() + timedelta(seconds=limit.window_seconds),
-                reason="Token limit exceeded",
                 limit=limit.tokens_per_minute,
+                reset_at=datetime.utcnow() + timedelta(seconds=limit.window_seconds),
             )
         
         remaining = limit.requests_per_minute - current_count - 1
         return RateLimitResult(
             allowed=True,
             remaining=remaining,
-            reset_at=datetime.utcnow() + timedelta(seconds=limit.window_seconds),
             limit=limit.requests_per_minute,
+            reset_at=datetime.utcnow() + timedelta(seconds=limit.window_seconds),
         )
     
     def record(
@@ -232,7 +252,7 @@ class RateLimiter:
                 window_seconds = limit.window_seconds if limit else 60
                 self._windows[provider][user_id] = SlidingWindow(window_seconds)
     
-    def set_limit(self, provider: str, limit: RateLimit) -> None:
+    def set_limit(self, provider: str, limit: ProviderRateLimit) -> None:
         """Set custom rate limit for provider."""
         if provider not in SUPPORTED_PROVIDERS:
             raise ValueError(f"Unsupported provider: {provider}")
