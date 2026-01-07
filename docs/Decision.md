@@ -57,6 +57,8 @@
 | ADR-045 | Architecture Header Standardization | ✅ Accepted | QA | 2026-01-06 |
 | ADR-046 | Naming Alignment Verification | ✅ Accepted | QA | 2026-01-06 |
 | ADR-047 | Phase 3 Implementation Complete | ✅ Accepted | 3-Impl | 2026-01-06 |
+| ADR-048 | Phase 4 UI, Integrations & Analytics | ✅ Accepted | 4-Impl | 2026-01-06 |
+| ADR-049 | Phase 5 Testing & Documentation System | ✅ Accepted | 5-Impl | 2026-01-06 |
 
 ---
 
@@ -821,7 +823,7 @@ class LLMProvider(Enum):
 
 ---
 
-## Total Decisions: 47
+## Total Decisions: 49
 
 | Category | Count |
 |----------|-------|
@@ -829,18 +831,18 @@ class LLMProvider(Enum):
 | Phase 1 - Agents | 4 |
 | Phase 2 - Memory/LLM | 4 |
 | Phase 3 - Skills/Tools/Orchestration | 4 + 1 (impl) |
-| Phase 4 - UI/Integrations | 4 |
-| Phase 5 - Testing/Docs | 3 |
+| Phase 4 - UI/Integrations | 4 + 1 (impl) |
+| Phase 5 - Testing/Docs | 3 + 1 (impl) |
 | Phase 6 - Security | 4 |
 | Phase 7 - Enterprise Agents | 2 |
 | Phase 8 - Analytics/Tools | 2 |
 | Phase 9 - Governance | 2 |
 | Phase 10 - Extended Testing | 2 |
 | Quality Review | 3 |
-| **TOTAL** | **47** |
+| **TOTAL** | **49** |
 
 ---
 
-*Architecture Decision Records complete. All 47 decisions documented.*
+*Architecture Decision Records complete. All 49 decisions documented.*
 
 *Document maintained as part of APEX governance requirements*
