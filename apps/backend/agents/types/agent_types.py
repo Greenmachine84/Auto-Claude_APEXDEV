@@ -186,7 +186,7 @@ assert len(AGENT_CATEGORY_MAP) == len(AgentType), (
 # ═══════════════════════════════════════════════════════════════════════════
 
 CORE_AGENT_COUNT: Final[int] = 4
-ENTERPRISE_AGENT_COUNT: Final[int] = 16
+ENTERPRISE_AGENT_COUNT: Final[int] = 15
 TOTAL_AGENT_COUNT: Final[int] = CORE_AGENT_COUNT + ENTERPRISE_AGENT_COUNT
 
 # Validate counts
