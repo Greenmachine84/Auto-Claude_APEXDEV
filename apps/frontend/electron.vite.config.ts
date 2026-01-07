@@ -30,6 +30,11 @@ export default defineConfig({
       rollupOptions: {
         input: {
           index: resolve(__dirname, 'src/preload/index.ts')
+        },
+        output: {
+          // Output as .js (CommonJS) to match window-manager.ts expectation
+          entryFileNames: '[name].js',
+          format: 'cjs'
         }
       }
     }
