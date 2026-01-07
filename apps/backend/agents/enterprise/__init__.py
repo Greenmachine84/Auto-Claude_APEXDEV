@@ -10,6 +10,11 @@ Categories:
 - Documentation: DocumentationAgent, APIDocumenter, ChangelogGenerator
 - API: APIDesigner, SchemaValidator
 - Orchestration: TaskCoordinator, WorkflowManager
+
+Phase 7 Additions:
+- Core: AgentLLMConfig, EnterpriseAgentConfig, LLM-agnostic base class
+- Subdirectories: code_review, security, qa, documentation, project_analysis, 
+                  orchestration, capabilities
 """
 
 # Architecture Agents
@@ -40,29 +45,153 @@ from .schema_validator_agent import SchemaValidatorAgent
 from .task_coordinator_agent import TaskCoordinatorAgent
 from .workflow_manager_agent import WorkflowManagerAgent
 
+# Phase 7: Core LLM-Agnostic Infrastructure
+from .config import AgentLLMConfig, EnterpriseAgentConfig, LLMProvider
+from .types import EnterpriseAgentType, Severity, AgentCapability
+from .base_enterprise_agent import BaseEnterpriseAgent
+
+# Phase 7: Code Review Module
+from .code_review import (
+    CodeReviewAgent,
+    ReviewResult,
+    ReviewFinding,
+    ReviewPrompts,
+    SeverityClassifier,
+)
+
+# Phase 7: Security Module
+from .security import (
+    SecurityAgent,
+    ScanResult,
+    SecurityFinding,
+    VulnerabilityDB,
+    OWASPChecker,
+)
+
+# Phase 7: QA Module
+from .qa import (
+    QAAgent,
+    TestResult,
+    TestGenerator,
+    CoverageAnalyzer,
+    TestTemplates,
+)
+
+# Phase 7: Documentation Module
+from .documentation import (
+    DocumentationAgentV2,
+    DocResult,
+    DocstringGenerator,
+    ReadmeGenerator,
+    APIDocGenerator,
+)
+
+# Phase 7: Project Analysis Module
+from .project_analysis import (
+    ProjectAnalyzerAgent,
+    AnalysisResult,
+    DependencyMapper,
+    ArchitectureExtractor,
+    TechDebtAnalyzer,
+)
+
+# Phase 7: Orchestration Module
+from .orchestration import (
+    OrchestratorAgent,
+    OrchestrationResult,
+    AgentCoordinator,
+    ResultAggregator,
+    PipelineManager,
+)
+
+# Phase 7: Capabilities Module
+from .capabilities import (
+    CodeAnalysisCapability,
+    AnalysisResult as CapabilityAnalysisResult,
+    TestGenerationCapability,
+    TestSuite,
+    DocumentationCapability,
+    DocOutput,
+    CollaborationCapability,
+    Message,
+)
+
 __all__ = [
-    # Architecture
+    # Architecture (Legacy)
     "ArchitectAgent",
     "SystemDesignerAgent",
     "MigrationAgent",
-    # Security
+    # Security (Legacy)
     "SecurityScannerAgent",
     "VulnerabilityAnalyzerAgent",
     "ComplianceCheckerAgent",
-    # Quality
+    # Quality (Legacy)
     "TestGeneratorAgent",
     "PerformanceAnalyzerAgent",
     "CoverageAgent",
-    # Documentation
+    # Documentation (Legacy)
     "DocumentationAgent",
     "APIDocumenterAgent",
     "ChangelogGeneratorAgent",
-    # API
+    # API (Legacy)
     "APIDesignerAgent",
     "SchemaValidatorAgent",
-    # Orchestration
+    # Orchestration (Legacy)
     "TaskCoordinatorAgent",
     "WorkflowManagerAgent",
+    # Phase 7: Core
+    "AgentLLMConfig",
+    "EnterpriseAgentConfig",
+    "LLMProvider",
+    "EnterpriseAgentType",
+    "Severity",
+    "AgentCapability",
+    "BaseEnterpriseAgent",
+    # Phase 7: Code Review
+    "CodeReviewAgent",
+    "ReviewResult",
+    "ReviewFinding",
+    "ReviewPrompts",
+    "SeverityClassifier",
+    # Phase 7: Security
+    "SecurityAgent",
+    "ScanResult",
+    "SecurityFinding",
+    "VulnerabilityDB",
+    "OWASPChecker",
+    # Phase 7: QA
+    "QAAgent",
+    "TestResult",
+    "TestGenerator",
+    "CoverageAnalyzer",
+    "TestTemplates",
+    # Phase 7: Documentation
+    "DocumentationAgentV2",
+    "DocResult",
+    "DocstringGenerator",
+    "ReadmeGenerator",
+    "APIDocGenerator",
+    # Phase 7: Project Analysis
+    "ProjectAnalyzerAgent",
+    "AnalysisResult",
+    "DependencyMapper",
+    "ArchitectureExtractor",
+    "TechDebtAnalyzer",
+    # Phase 7: Orchestration
+    "OrchestratorAgent",
+    "OrchestrationResult",
+    "AgentCoordinator",
+    "ResultAggregator",
+    "PipelineManager",
+    # Phase 7: Capabilities
+    "CodeAnalysisCapability",
+    "CapabilityAnalysisResult",
+    "TestGenerationCapability",
+    "TestSuite",
+    "DocumentationCapability",
+    "DocOutput",
+    "CollaborationCapability",
+    "Message",
 ]
 
 # Register all enterprise agents on import
