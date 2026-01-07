@@ -59,6 +59,7 @@ export interface AppSettings {
     jira: { enabled: boolean; baseUrl?: string; token?: string };
   };
   ui: {
+    theme: ThemeSetting;
     sidebarCollapsed: boolean;
     terminalHeight: number;
     kanbanColumns: string[];
@@ -108,6 +109,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     jira: { enabled: false },
   },
   ui: {
+    theme: 'dark',
     sidebarCollapsed: false,
     terminalHeight: 300,
     kanbanColumns: ['pending', 'running', 'completed'],
@@ -150,12 +152,29 @@ async function saveSettings(settings: AppSettings): Promise<void> {
  * Register settings IPC handlers
  */
 export function registerSettingsIPCHandlers(ipcMain: IpcMain): void {
-  // Get all settings
+  // Get all settings (used by preload settings.getAll())
   ipcMain.handle(
-    IPCChannels.SETTINGS_GET,
-    async (): Promise<IPCResponse<AppSettings>> => {
+    IPCChannels.SETTINGS_GET_ALL,
+    async (): Promise<AppSettings> => {
       try {
         const settings = await loadSettings();
+        return settings;
+      } catch (error) {
+        console.error('[Settings] Error getting all settings:', error);
+        return { ...DEFAULT_SETTINGS };
+      }
+    }
+  );
+
+  // Get specific setting section
+  ipcMain.handle(
+    IPCChannels.SETTINGS_GET,
+    async (_, key?: keyof AppSettings): Promise<IPCResponse<AppSettings | AppSettings[keyof AppSettings]>> => {
+      try {
+        const settings = await loadSettings();
+        if (key) {
+          return createIPCSuccess(settings[key]);
+        }
         return createIPCSuccess(settings);
       } catch (error) {
         return createIPCError('SETTINGS_GET_FAILED', (error as Error).message);
@@ -163,10 +182,10 @@ export function registerSettingsIPCHandlers(ipcMain: IpcMain): void {
     }
   );
 
-  // Update settings
+  // Update settings (partial update)
   ipcMain.handle(
-    IPCChannels.SETTINGS_SET,
-    async (_, updates: Partial<AppSettings>): Promise<IPCResponse<AppSettings>> => {
+    IPCChannels.SETTINGS_UPDATE,
+    async (_, updates: Partial<AppSettings>): Promise<void> => {
       try {
         const current = await loadSettings();
         const updated = deepMerge(current, updates);
@@ -176,10 +195,35 @@ export function registerSettingsIPCHandlers(ipcMain: IpcMain): void {
         if (updates.general?.theme) {
           nativeTheme.themeSource = updates.general.theme;
         }
-
-        return createIPCSuccess(updated);
+        if (updates.ui?.theme) {
+          nativeTheme.themeSource = updates.ui.theme;
+        }
       } catch (error) {
-        return createIPCError('SETTINGS_SET_FAILED', (error as Error).message);
+        console.error('[Settings] Error updating settings:', error);
+        throw error;
+      }
+    }
+  );
+
+  // Set settings (full replacement)
+  ipcMain.handle(
+    IPCChannels.SETTINGS_SET,
+    async (_, key: keyof AppSettings, value: AppSettings[keyof AppSettings]): Promise<void> => {
+      try {
+        const current = await loadSettings();
+        (current as Record<string, unknown>)[key] = value;
+        await saveSettings(current);
+
+        // Apply theme if changed
+        if (key === 'general' && (value as AppSettings['general']).theme) {
+          nativeTheme.themeSource = (value as AppSettings['general']).theme;
+        }
+        if (key === 'ui' && (value as AppSettings['ui']).theme) {
+          nativeTheme.themeSource = (value as AppSettings['ui']).theme;
+        }
+      } catch (error) {
+        console.error('[Settings] Error setting settings:', error);
+        throw error;
       }
     }
   );
@@ -187,13 +231,19 @@ export function registerSettingsIPCHandlers(ipcMain: IpcMain): void {
   // Reset settings to defaults
   ipcMain.handle(
     IPCChannels.SETTINGS_RESET,
-    async (): Promise<IPCResponse<AppSettings>> => {
+    async (_, key?: keyof AppSettings): Promise<void> => {
       try {
-        await saveSettings({ ...DEFAULT_SETTINGS });
-        nativeTheme.themeSource = 'system';
-        return createIPCSuccess({ ...DEFAULT_SETTINGS });
+        if (key) {
+          const current = await loadSettings();
+          (current as Record<string, unknown>)[key] = DEFAULT_SETTINGS[key];
+          await saveSettings(current);
+        } else {
+          await saveSettings({ ...DEFAULT_SETTINGS });
+          nativeTheme.themeSource = 'system';
+        }
       } catch (error) {
-        return createIPCError('SETTINGS_RESET_FAILED', (error as Error).message);
+        console.error('[Settings] Error resetting settings:', error);
+        throw error;
       }
     }
   );
@@ -201,7 +251,7 @@ export function registerSettingsIPCHandlers(ipcMain: IpcMain): void {
   // Export settings
   ipcMain.handle(
     IPCChannels.SETTINGS_EXPORT,
-    async (): Promise<IPCResponse<string>> => {
+    async (_, filePath?: string): Promise<IPCResponse<string | boolean>> => {
       try {
         const settings = await loadSettings();
         // Exclude sensitive data
@@ -212,6 +262,11 @@ export function registerSettingsIPCHandlers(ipcMain: IpcMain): void {
             exportable.llm.providers[provider].apiKey = '***';
           }
         });
+        
+        if (filePath) {
+          await fs.writeFile(filePath, JSON.stringify(exportable, null, 2), 'utf-8');
+          return createIPCSuccess(true);
+        }
         return createIPCSuccess(JSON.stringify(exportable, null, 2));
       } catch (error) {
         return createIPCError('SETTINGS_EXPORT_FAILED', (error as Error).message);
@@ -222,9 +277,18 @@ export function registerSettingsIPCHandlers(ipcMain: IpcMain): void {
   // Import settings
   ipcMain.handle(
     IPCChannels.SETTINGS_IMPORT,
-    async (_, settingsJson: string): Promise<IPCResponse<AppSettings>> => {
+    async (_, input: string): Promise<IPCResponse<AppSettings | boolean>> => {
       try {
-        const imported = JSON.parse(settingsJson) as Partial<AppSettings>;
+        let imported: Partial<AppSettings>;
+        
+        // Check if input is a file path or JSON string
+        if (input.startsWith('{')) {
+          imported = JSON.parse(input) as Partial<AppSettings>;
+        } else {
+          const data = await fs.readFile(input, 'utf-8');
+          imported = JSON.parse(data) as Partial<AppSettings>;
+        }
+        
         const current = await loadSettings();
         const merged = deepMerge(current, imported);
         await saveSettings(merged);
@@ -238,7 +302,7 @@ export function registerSettingsIPCHandlers(ipcMain: IpcMain): void {
   // Theme handlers
   ipcMain.handle(IPCChannels.THEME_GET, async (): Promise<IPCResponse<ThemeSetting>> => {
     const settings = await loadSettings();
-    return createIPCSuccess(settings.general.theme);
+    return createIPCSuccess(settings.ui?.theme || settings.general.theme);
   });
 
   ipcMain.handle(
@@ -247,6 +311,9 @@ export function registerSettingsIPCHandlers(ipcMain: IpcMain): void {
       nativeTheme.themeSource = theme;
       const settings = await loadSettings();
       settings.general.theme = theme;
+      if (settings.ui) {
+        settings.ui.theme = theme;
+      }
       await saveSettings(settings);
       return createIPCSuccess(theme);
     }
