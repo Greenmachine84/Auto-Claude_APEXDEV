@@ -112,16 +112,16 @@ class APIDocGenerator:
     # Framework-specific route patterns
     ROUTE_PATTERNS = {
         "fastapi": [
-            r'@app\.(get|post|put|delete|patch)\(["\']([^"\']*)["\']",
-            r'@router\.(get|post|put|delete|patch)\(["\']([^"\']*)["\']",
+            r'@app\.(get|post|put|delete|patch)\(["\']([^"\']*)["\']',
+            r'@router\.(get|post|put|delete|patch)\(["\']([^"\']*)["\']',
         ],
         "flask": [
             r'@app\.route\(["\']([^"\']*)["\'](.*?)\)',
             r'@blueprint\.route\(["\']([^"\']*)["\'](.*?)\)',
         ],
         "express": [
-            r'app\.(get|post|put|delete|patch)\(["\']([^"\']*)["\']",
-            r'router\.(get|post|put|delete|patch)\(["\']([^"\']*)["\']",
+            r'app\.(get|post|put|delete|patch)\(["\']([^"\']*)["\']',
+            r'router\.(get|post|put|delete|patch)\(["\']([^"\']*)["\']',
         ],
     }
     

@@ -6,7 +6,8 @@ Follows PHASE1_AGENT_SYSTEM_ARCHITECTURE.md specification.
 
 from typing import ClassVar, Any
 
-from ..types import AgentType, AgentResult, SuccessResult, ErrorResult, ErrorCode
+from ..types import AgentResult, SuccessResult, ErrorResult, ErrorCode
+from .types import EnterpriseAgentType
 from ..base import ExecutionContext
 from .base_enterprise_agent import BaseEnterpriseAgent
 
@@ -21,7 +22,7 @@ class SchemaValidatorAgent(BaseEnterpriseAgent):
     - Compatibility checks
     """
 
-    AGENT_TYPE: ClassVar[AgentType] = AgentType.SCHEMA_VALIDATOR
+    AGENT_TYPE: ClassVar[EnterpriseAgentType] = EnterpriseAgentType.QA
     AGENT_CATEGORY: ClassVar[str] = "api"
 
     @classmethod

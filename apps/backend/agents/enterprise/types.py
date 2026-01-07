@@ -59,6 +59,15 @@ class TestStatus(Enum):
     SKIPPED = "skipped"
     ERROR = "error"
 
+class DocstringStyle(Enum):
+    """Docstring style formats."""
+    GOOGLE = "google"
+    NUMPY = "numpy"
+    SPHINX = "sphinx"
+    RESTRUCTURED = "restructured"
+
+
+
 
 @dataclass
 class Finding:

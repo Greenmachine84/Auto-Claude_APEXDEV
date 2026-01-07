@@ -47,7 +47,8 @@ from .workflow_manager_agent import WorkflowManagerAgent
 
 # Phase 7: Core LLM-Agnostic Infrastructure
 from .config import AgentLLMConfig, EnterpriseAgentConfig, LLMProvider
-from .types import EnterpriseAgentType, Severity, AgentCapability
+from .types import EnterpriseAgentType, Severity
+from .config import AgentCapability
 from .base_enterprise_agent import BaseEnterpriseAgent
 
 # Phase 7: Code Review Module
@@ -63,7 +64,8 @@ from .code_review import (
 from .security import (
     SecurityAgent,
     ScanResult,
-    SecurityFinding,
+    VulnerabilityFinding,
+    SecretFinding,
     VulnerabilityDB,
     OWASPChecker,
 )
@@ -71,37 +73,46 @@ from .security import (
 # Phase 7: QA Module
 from .qa import (
     QAAgent,
-    TestResult,
     TestGenerator,
+    GeneratedTest,
     CoverageAnalyzer,
+    CoverageReport,
     TestTemplates,
+    TestTemplate,
 )
 
 # Phase 7: Documentation Module
 from .documentation import (
-    DocumentationAgentV2,
-    DocResult,
+    DocumentationAgent as DocumentationAgentV2,
     DocstringGenerator,
+    GeneratedDocstring,
     ReadmeGenerator,
+    ReadmeSection,
     APIDocGenerator,
+    APIEndpoint,
 )
 
 # Phase 7: Project Analysis Module
 from .project_analysis import (
     ProjectAnalyzerAgent,
-    AnalysisResult,
     DependencyMapper,
+    DependencyGraph,
     ArchitectureExtractor,
+    ArchitectureMap,
     TechDebtAnalyzer,
+    TechDebtReport,
 )
 
 # Phase 7: Orchestration Module
 from .orchestration import (
     OrchestratorAgent,
-    OrchestrationResult,
     AgentCoordinator,
+    CoordinationResult,
     ResultAggregator,
+    AggregatedResult,
     PipelineManager,
+    Pipeline,
+    PipelineStage,
 )
 
 # Phase 7: Capabilities Module
@@ -156,7 +167,8 @@ __all__ = [
     # Phase 7: Security
     "SecurityAgent",
     "ScanResult",
-    "SecurityFinding",
+    "VulnerabilityFinding",
+    "SecretFinding",
     "VulnerabilityDB",
     "OWASPChecker",
     # Phase 7: QA
@@ -194,36 +206,63 @@ __all__ = [
     "Message",
 ]
 
-# Register all enterprise agents on import
-from ..registry import get_registry
-from ..types import AgentType
+# Enterprise Agent Registry
+# Maps EnterpriseAgentType categories to their implementing agents
+# Note: These use EnterpriseAgentType (simplified 6-category system)
+# while the core registry uses AgentType (full 20-type system)
 
-_registry = get_registry()
+ENTERPRISE_AGENT_REGISTRY: dict[EnterpriseAgentType, list[type]] = {
+    EnterpriseAgentType.PROJECT_ANALYSIS: [
+        ArchitectAgent,
+        SystemDesignerAgent,
+        MigrationAgent,
+    ],
+    EnterpriseAgentType.SECURITY: [
+        SecurityScannerAgent,
+        VulnerabilityAnalyzerAgent,
+        ComplianceCheckerAgent,
+    ],
+    EnterpriseAgentType.QA: [
+        TestGeneratorAgent,
+        PerformanceAnalyzerAgent,
+        CoverageAgent,
+    ],
+    EnterpriseAgentType.DOCUMENTATION: [
+        DocumentationAgent,
+        APIDocumenterAgent,
+        ChangelogGeneratorAgent,
+    ],
+    EnterpriseAgentType.CODE_REVIEW: [
+        APIDesignerAgent,
+        SchemaValidatorAgent,
+    ],
+    EnterpriseAgentType.ORCHESTRATOR: [
+        TaskCoordinatorAgent,
+        WorkflowManagerAgent,
+    ],
+}
 
-# Architecture
-_registry.register_class(AgentType.ARCHITECT, ArchitectAgent, override=True)
-_registry.register_class(AgentType.SYSTEM_DESIGNER, SystemDesignerAgent, override=True)
-_registry.register_class(AgentType.MIGRATION, MigrationAgent, override=True)
 
-# Security
-_registry.register_class(AgentType.SECURITY_SCANNER, SecurityScannerAgent, override=True)
-_registry.register_class(AgentType.VULNERABILITY_ANALYZER, VulnerabilityAnalyzerAgent, override=True)
-_registry.register_class(AgentType.COMPLIANCE_CHECKER, ComplianceCheckerAgent, override=True)
+def get_enterprise_agents_by_type(agent_type: EnterpriseAgentType) -> list[type]:
+    """Get all enterprise agent classes for a given type.
+    
+    Args:
+        agent_type: The enterprise agent type category
+        
+    Returns:
+        List of agent classes in that category
+    """
+    return ENTERPRISE_AGENT_REGISTRY.get(agent_type, [])
 
-# Quality
-_registry.register_class(AgentType.TEST_GENERATOR, TestGeneratorAgent, override=True)
-_registry.register_class(AgentType.PERFORMANCE_ANALYZER, PerformanceAnalyzerAgent, override=True)
-_registry.register_class(AgentType.COVERAGE, CoverageAgent, override=True)
 
-# Documentation
-_registry.register_class(AgentType.DOCUMENTATION, DocumentationAgent, override=True)
-_registry.register_class(AgentType.API_DOCUMENTER, APIDocumenterAgent, override=True)
-_registry.register_class(AgentType.CHANGELOG_GENERATOR, ChangelogGeneratorAgent, override=True)
-
-# API
-_registry.register_class(AgentType.API_DESIGNER, APIDesignerAgent, override=True)
-_registry.register_class(AgentType.SCHEMA_VALIDATOR, SchemaValidatorAgent, override=True)
-
-# Orchestration
-_registry.register_class(AgentType.TASK_COORDINATOR, TaskCoordinatorAgent, override=True)
-_registry.register_class(AgentType.WORKFLOW_MANAGER, WorkflowManagerAgent, override=True)
+def get_all_enterprise_agents() -> list[type]:
+    """Get all enterprise agent classes.
+    
+    Returns:
+        List of all enterprise agent classes
+    """
+    return [
+        agent
+        for agents in ENTERPRISE_AGENT_REGISTRY.values()
+        for agent in agents
+    ]

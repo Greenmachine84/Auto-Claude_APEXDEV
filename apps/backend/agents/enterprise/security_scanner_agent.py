@@ -8,7 +8,8 @@ from typing import ClassVar, Any
 from dataclasses import dataclass, field
 from enum import Enum, auto
 
-from ..types import AgentType, AgentResult, SuccessResult, ErrorResult, ErrorCode
+from ..types import AgentResult, SuccessResult, ErrorResult, ErrorCode
+from .types import EnterpriseAgentType
 from ..base import ExecutionContext
 from .base_enterprise_agent import BaseEnterpriseAgent
 
@@ -55,7 +56,7 @@ class SecurityScannerAgent(BaseEnterpriseAgent):
     - Security best practices
     """
 
-    AGENT_TYPE: ClassVar[AgentType] = AgentType.SECURITY_SCANNER
+    AGENT_TYPE: ClassVar[EnterpriseAgentType] = EnterpriseAgentType.SECURITY
     AGENT_CATEGORY: ClassVar[str] = "security"
 
     def __init__(self, config=None, agent_id=None):

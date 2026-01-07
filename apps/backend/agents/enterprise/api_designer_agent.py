@@ -6,7 +6,8 @@ Follows PHASE1_AGENT_SYSTEM_ARCHITECTURE.md specification.
 
 from typing import ClassVar, Any
 
-from ..types import AgentType, AgentResult, SuccessResult, ErrorResult, ErrorCode
+from ..types import AgentResult, SuccessResult, ErrorResult, ErrorCode
+from .types import EnterpriseAgentType
 from ..base import ExecutionContext
 from .base_enterprise_agent import BaseEnterpriseAgent
 
@@ -21,7 +22,7 @@ class APIDesignerAgent(BaseEnterpriseAgent):
     - Error handling design
     """
 
-    AGENT_TYPE: ClassVar[AgentType] = AgentType.API_DESIGNER
+    AGENT_TYPE: ClassVar[EnterpriseAgentType] = EnterpriseAgentType.PROJECT_ANALYSIS
     AGENT_CATEGORY: ClassVar[str] = "api"
 
     @classmethod

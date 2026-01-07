@@ -25,6 +25,24 @@ class AgentCapability(Enum):
     DEPENDENCY_ANALYSIS = "dependency_analysis"
     ARCHITECTURE_ANALYSIS = "architecture_analysis"
 
+class LLMProvider(Enum):
+    """Supported LLM providers.
+    
+    All 8 providers are supported equally - no defaults.
+    Each agent can use any provider independently.
+    """
+    COPILOT = "copilot"
+    OPENROUTER = "openrouter"
+    OLLAMA = "ollama"
+    LMSTUDIO = "lmstudio"
+    GEMINI = "gemini"
+    OPENAI = "openai"
+    ANTHROPIC = "anthropic"
+    AZURE = "azure"
+
+
+
+
 
 @dataclass
 class AgentLLMConfig:

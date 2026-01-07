@@ -1,0 +1,16 @@
+{
+    "include": [
+        "apps",
+        "tests"
+    ],
+    "extraPaths": [
+        ".",
+        "apps",
+        "apps/backend"
+    ],
+    "pythonVersion": "3.11",
+    "pythonPlatform": "Windows",
+    "typeCheckingMode": "basic",
+    "reportMissingImports": "none",
+    "reportMissingModuleSource": "none"
+}

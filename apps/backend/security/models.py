@@ -23,6 +23,7 @@ class ThreatType(Enum):
     RATE_LIMIT_EXCEEDED = "rate_limit_exceeded"
     CREDENTIAL_THEFT = "credential_theft"
     DATA_EXFILTRATION = "data_exfiltration"
+    DATA_LEAK = "data_leak"
     PRIVILEGE_ESCALATION = "privilege_escalation"
 
 

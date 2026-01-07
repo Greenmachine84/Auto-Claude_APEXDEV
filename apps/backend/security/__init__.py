@@ -178,7 +178,42 @@ from .validation import (
 __version__ = "3.2.0"
 __phase__ = "6 - Security Infrastructure"
 
+# Hooks
+from .hooks import bash_security_hook, validate_command
+
+
+# Parser
+from .parser import extract_commands, split_command_segments, get_command_for_validation
+
+# Profile
+from .profile import get_security_profile, reset_profile_cache
+
+# Validators
+from .validator import (
+    validate_pkill_command,
+    validate_kill_command,
+    validate_killall_command,
+    validate_chmod_command,
+    validate_rm_command,
+    validate_init_script,
+    validate_git_commit,
+    validate_git_config,
+    validate_git_command,
+    validate_dropdb_command,
+    validate_dropuser_command,
+    validate_psql_command,
+    validate_mysql_command,
+    validate_mysqladmin_command,
+    validate_mongosh_command,
+    validate_redis_cli_command,
+    VALIDATORS,
+    get_validator,
+    ValidationResult,
+    ValidatorFunction,
+)
+
 __all__ = [
+    "bash_security_hook",
     # Version info
     "__version__",
     "__phase__",

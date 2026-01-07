@@ -7,7 +7,8 @@ Follows PHASE1_AGENT_SYSTEM_ARCHITECTURE.md specification.
 from typing import ClassVar, Any
 from enum import Enum, auto
 
-from ..types import AgentType, AgentResult, SuccessResult, ErrorResult, ErrorCode
+from ..types import AgentResult, SuccessResult, ErrorResult, ErrorCode
+from .types import EnterpriseAgentType
 from ..base import ExecutionContext
 from .base_enterprise_agent import BaseEnterpriseAgent
 
@@ -32,7 +33,7 @@ class ComplianceCheckerAgent(BaseEnterpriseAgent):
     - Compliance gap analysis
     """
 
-    AGENT_TYPE: ClassVar[AgentType] = AgentType.COMPLIANCE_CHECKER
+    AGENT_TYPE: ClassVar[EnterpriseAgentType] = EnterpriseAgentType.QA
     AGENT_CATEGORY: ClassVar[str] = "security"
 
     @classmethod
