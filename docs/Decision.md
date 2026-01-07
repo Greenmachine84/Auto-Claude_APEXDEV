@@ -60,6 +60,243 @@
 | ADR-048 | Phase 4 UI, Integrations & Analytics | ✅ Accepted | 4-Impl | 2026-01-06 |
 | ADR-049 | Phase 5 Testing & Documentation System | ✅ Accepted | 5-Impl | 2026-01-06 |
 | ADR-050 | Phase 6 Security Infrastructure Complete | ✅ Accepted | 6-Impl | 2026-01-07 |
+| ADR-051 | Phase 7 Enterprise Agents Complete | ✅ Accepted | 7-Impl | 2026-01-07 |
+
+---
+
+## Phase 7 Implementation Decisions
+
+### ADR-051: Phase 7 Enterprise Agents Implementation Complete
+
+**Status**: ✅ Accepted  
+**Date**: 2026-01-07  
+**Phase**: 7 - Enterprise Agents Implementation
+
+#### Context
+
+Phase 7 specification (PHASE7_ENTERPRISE_AGENTS_ARCHITECTURE.md) defined 39 files across seven specialized modules: Core (3 files), Code Review (5 files), Security (5 files), QA (5 files), Documentation (5 files), Project Analysis (5 files), Orchestration (5 files), and Capabilities (5 files). Implementation required LLM-agnostic design treating all 8 providers equally with no default provider.
+
+Key requirements from ADR-036, ADR-037, and ADR-044:
+- LLM-agnostic agents with per-agent provider configuration
+- 8 providers with equal support (no default)
+- Multi-agent task decomposition and orchestration
+- Specialized enterprise agents for code review, security, QA, documentation
+
+#### Decision
+
+Implement Phase 7 in 12 atomic commits following a structured approach:
+
+**Enterprise Agent Modules (38 files, 12 commits)**:
+
+| Commit | Phase | Component | Files |
+|--------|-------|-----------|-------|
+| `f4f7ffe` | 7.1 | Core | config.py, types.py |
+| `d793c62` | 7.2 | Base Class | base_enterprise_agent.py (LLM-agnostic rewrite) |
+| `712ef59` | 7.3 | Code Review | code_review_agent.py, review_result.py, review_prompts.py, severity_classifier.py, __init__.py |
+| `7057e9d` | 7.4 | Security | security_agent.py, scan_result.py, vulnerability_db.py, owasp_checker.py, __init__.py |
+| `3d4ff08` | 7.5 | QA | qa_agent.py, test_generator.py, coverage_analyzer.py, test_templates.py, __init__.py |
+| `ee568c5` | 7.6 | Documentation | documentation_agent.py, docstring_generator.py, readme_generator.py, api_doc_generator.py, __init__.py |
+| `5eb91db` | 7.7 | Project Analysis | project_analyzer_agent.py, dependency_mapper.py, architecture_extractor.py, tech_debt_analyzer.py, __init__.py |
+| `cc3f9e2` | 7.8 | Orchestration | orchestrator_agent.py, agent_coordinator.py, result_aggregator.py, pipeline_manager.py, __init__.py |
+| `0fbbb0a` | 7.9 | Capabilities | code_analysis.py, test_generation.py, documentation.py, collaboration.py, __init__.py |
+| `5574031` | 7.10 | Exports | enterprise/__init__.py (60+ Phase 7 exports) |
+| `40ede58` | 7.11 | CHANGELOG | CHANGELOG.md v3.3.0 entry |
+| (current) | 7.12 | ADR | Decision.md ADR-051 |
+
+#### Implementation Details
+
+**LLM-Agnostic Base Class** (`base_enterprise_agent.py`):
+```python
+class LLMRouter(Protocol):
+    """Protocol for LLM routing - provider-agnostic."""
+    async def complete(self, messages: List[Dict], **kwargs) -> str: ...
+
+class BaseEnterpriseAgent(ABC):
+    """LLM-agnostic base class for all enterprise agents."""
+    
+    def __init__(
+        self,
+        agent_type: EnterpriseAgentType,
+        llm_config: AgentLLMConfig,
+        llm_router: LLMRouter,
+    ):
+        # Provider configured at initialization, not hardcoded
+        self.llm_config = llm_config
+        self.llm_router = llm_router
+        
+    async def complete_with_fallback(self, messages: List[Dict]) -> str:
+        """Complete with automatic fallback to alternative providers."""
+        providers = [self.llm_config.provider] + self.llm_config.fallback_providers
+        for provider in providers:
+            try:
+                return await self._complete_with_provider(messages, provider)
+            except Exception:
+                continue
+        raise AllProvidersFailedError(providers)
+```
+
+**Per-Agent Configuration** (`config.py`):
+```python
+class LLMProvider(str, Enum):
+    """8 LLM providers with EQUAL support."""
+    COPILOT = "copilot"
+    OPENROUTER = "openrouter"
+    OLLAMA = "ollama"
+    LMSTUDIO = "lmstudio"
+    GEMINI = "gemini"
+    OPENAI = "openai"
+    ANTHROPIC = "anthropic"
+    AZURE = "azure"
+
+@dataclass
+class AgentLLMConfig:
+    """Per-agent LLM configuration - NO DEFAULT PROVIDER."""
+    provider: LLMProvider  # Must be explicitly set
+    model: str
+    fallback_providers: List[LLMProvider] = field(default_factory=list)
+    
+    def validate(self) -> None:
+        if self.provider is None:
+            raise ValueError("Provider must be explicitly configured")
+```
+
+**Code Review Agent** (`code_review/code_review_agent.py`):
+```python
+class CodeReviewAgent(BaseEnterpriseAgent):
+    """LLM-agnostic code review agent."""
+    
+    async def review_file(self, file_path: str, content: str) -> ReviewResult:
+        language = self._detect_language(file_path)
+        prompt = ReviewPrompts.get_prompt(language, content)
+        response = await self.complete_with_fallback([{"role": "user", "content": prompt}])
+        return self._parse_review_response(response, file_path)
+```
+
+**Security Agent** (`security/security_agent.py`):
+```python
+class SecurityAgent(BaseEnterpriseAgent):
+    """LLM-agnostic security scanning agent with OWASP compliance."""
+    
+    def __init__(self, llm_config: AgentLLMConfig, llm_router: LLMRouter):
+        super().__init__(EnterpriseAgentType.SECURITY, llm_config, llm_router)
+        self.vulnerability_db = VulnerabilityDB()
+        self.owasp_checker = OWASPChecker()
+        
+    async def scan_code(self, code: str, file_path: str) -> ScanResult:
+        # Pattern-based detection
+        findings = self.vulnerability_db.scan(code, file_path)
+        # OWASP compliance check
+        owasp_findings = self.owasp_checker.check_compliance(code)
+        # LLM-enhanced analysis (provider-agnostic)
+        if self.llm_config.provider:
+            llm_findings = await self._llm_security_analysis(code)
+            findings.extend(llm_findings)
+        return ScanResult(findings=findings)
+```
+
+**Orchestrator Agent** (`orchestration/orchestrator_agent.py`):
+```python
+class OrchestratorAgent(BaseEnterpriseAgent):
+    """Multi-agent task coordination."""
+    
+    async def orchestrate(
+        self,
+        task: Dict[str, Any],
+        agents: List[BaseEnterpriseAgent],
+        mode: ExecutionMode = ExecutionMode.PARALLEL,
+    ) -> OrchestrationResult:
+        coordinator = AgentCoordinator()
+        results = await coordinator.coordinate(agents, task, mode)
+        aggregator = ResultAggregator()
+        return aggregator.aggregate(results, strategy=AggregationStrategy.MERGE)
+```
+
+#### Provider Equality Enforcement
+
+| Principle | Implementation |
+|-----------|----------------|
+| No Default Provider | `AgentLLMConfig.validate()` raises if provider is None |
+| Equal API Surface | All providers use same `LLMRouter` protocol |
+| Per-Agent Config | Each agent can use different providers |
+| Automatic Fallback | `complete_with_fallback()` tries multiple providers |
+| No Hardcoded Providers | Provider set at initialization, not in code |
+
+#### Rationale
+
+1. **LLM-Agnostic**: No vendor lock-in, any of 8 providers usable
+2. **Provider Equality**: All providers treated identically per ADR-044
+3. **Specialized Agents**: Each module (security, QA, docs) optimized for its domain
+4. **Orchestration**: Multi-agent coordination enables complex workflows
+5. **Extensible**: New agents follow same pattern
+
+#### File Structure Implemented
+
+```
+apps/backend/agents/enterprise/           # 38 files total
+├── __init__.py                            # Main exports (60+ symbols)
+├── config.py                              # Per-agent LLM configuration
+├── types.py                               # Enterprise agent types
+├── base_enterprise_agent.py               # LLM-agnostic base class
+├── code_review/                           # Code review agents (5 files)
+│   ├── __init__.py
+│   ├── code_review_agent.py               # Main review agent
+│   ├── review_result.py                   # Structured findings
+│   ├── review_prompts.py                  # Language-specific prompts
+│   └── severity_classifier.py             # Pattern-based classification
+├── security/                              # Security agents (5 files)
+│   ├── __init__.py
+│   ├── security_agent.py                  # Security scanner
+│   ├── scan_result.py                     # Security findings
+│   ├── vulnerability_db.py                # 13 vulnerability patterns
+│   └── owasp_checker.py                   # OWASP 2021 Top 10
+├── qa/                                    # QA agents (5 files)
+│   ├── __init__.py
+│   ├── qa_agent.py                        # QA coordination
+│   ├── test_generator.py                  # Test skeleton generation
+│   ├── coverage_analyzer.py               # Coverage analysis
+│   └── test_templates.py                  # pytest/Jest/Vitest/Mocha/Go
+├── documentation/                         # Documentation agents (5 files)
+│   ├── __init__.py
+│   ├── documentation_agent.py             # Multi-style docstrings
+│   ├── docstring_generator.py             # Google/NumPy/Sphinx
+│   ├── readme_generator.py                # Project README
+│   └── api_doc_generator.py               # Markdown/OpenAPI
+├── project_analysis/                      # Project analysis (5 files)
+│   ├── __init__.py
+│   ├── project_analyzer_agent.py          # Project structure analysis
+│   ├── dependency_mapper.py               # Circular dependency detection
+│   ├── architecture_extractor.py          # MVC/Clean/Hexagonal detection
+│   └── tech_debt_analyzer.py              # Tech debt scoring
+├── orchestration/                         # Multi-agent coordination (5 files)
+│   ├── __init__.py
+│   ├── orchestrator_agent.py              # Task coordination
+│   ├── agent_coordinator.py               # Parallel/sequential execution
+│   ├── result_aggregator.py               # Merge/vote/first/latest
+│   └── pipeline_manager.py                # Standard pipelines
+└── capabilities/                          # Shared capabilities (5 files)
+    ├── __init__.py
+    ├── code_analysis.py                   # Language-agnostic analysis
+    ├── test_generation.py                 # Framework-aware generation
+    ├── documentation.py                   # Multi-format output
+    └── collaboration.py                   # Inter-agent messaging
+```
+
+#### Consequences
+
+- **38 files implemented** across 7 specialized modules
+- **12 commits** with clear separation of concerns
+- **60+ exports** in main enterprise module
+- **8 LLM providers** with equal support, no default
+- **7 agent categories**: Code Review, Security, QA, Documentation, Project Analysis, Orchestration, Capabilities
+- **Pre-built pipelines**: `code_review` (security→review→qa) and `documentation` (analysis→doc→readme)
+- **Ready for Phase 8** analytics and extended tools integration
+
+#### Related ADRs
+
+- **ADR-036**: Enterprise Agent Specialization - Defined 16 enterprise agents
+- **ADR-037**: Multi-Agent Task Decomposition - Orchestration patterns
+- **ADR-044**: LLM-Agnostic Provider Equality - 8 providers, no default
+- **ADR-050**: Phase 6 Security Infrastructure - Security patterns reused
 
 ---
 
