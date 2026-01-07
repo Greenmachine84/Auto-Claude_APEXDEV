@@ -80,8 +80,8 @@ export class WindowManager {
     });
 
     // Load the renderer
-    if (process.env.NODE_ENV === 'development') {
-      this.mainWindow.loadURL('http://localhost:3000');
+    if (process.env['ELECTRON_RENDERER_URL']) {
+      this.mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL']);
       this.mainWindow.webContents.openDevTools();
     } else {
       this.mainWindow.loadFile(
@@ -144,8 +144,8 @@ export class WindowManager {
     });
 
     // Load settings page
-    if (process.env.NODE_ENV === 'development') {
-      this.settingsWindow.loadURL('http://localhost:3000/#/settings');
+    if (process.env['ELECTRON_RENDERER_URL']) {
+      this.settingsWindow.loadURL(process.env['ELECTRON_RENDERER_URL'] + '/#/settings');
     } else {
       this.settingsWindow.loadFile(
         path.join(__dirname, '../renderer/index.html'),
