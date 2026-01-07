@@ -17,7 +17,7 @@ import threading
 import logging
 
 from ..models import Quota, QuotaUsage, SUPPORTED_PROVIDERS
-from ..config import PROVIDER_QUOTAS, get_provider_quota
+from ..config import PROVIDER_QUOTAS
 
 
 logger = logging.getLogger(__name__)
@@ -43,6 +43,17 @@ class QuotaAlert:
     timestamp: datetime
 
 
+@dataclass
+class ProviderQuota:
+    """
+    Provider-specific quota configuration.
+    
+    Wraps the config data into a structured object.
+    """
+    monthly_cost_limit: float
+    daily_cost_limit: Optional[float] = None
+
+
 class QuotaManager:
     """
     Provider-aware quota manager.
@@ -55,7 +66,7 @@ class QuotaManager:
     
     def __init__(self) -> None:
         self._usage: Dict[str, Dict[str, QuotaUsage]] = {}
-        self._quotas: Dict[str, Quota] = {}
+        self._quotas: Dict[str, Optional[ProviderQuota]] = {}
         self._lock = threading.Lock()
         self._alert_callbacks: List[Callable[[QuotaAlert], None]] = []
         self._alert_thresholds = [0.75, 0.90, 1.0]
@@ -66,8 +77,18 @@ class QuotaManager:
         """Initialize quotas for all providers."""
         for provider in SUPPORTED_PROVIDERS:
             self._usage[provider] = {}
-            quota = get_provider_quota(provider)
-            self._quotas[provider] = quota
+            # Get config dict for this provider
+            config = PROVIDER_QUOTAS.get(provider, {})
+            monthly = config.get("monthly_cost_usd")
+            daily = config.get("daily_cost_usd")
+            # Create ProviderQuota object from config if monthly limit exists
+            if monthly is not None:
+                self._quotas[provider] = ProviderQuota(
+                    monthly_cost_limit=monthly,
+                    daily_cost_limit=daily,
+                )
+            else:
+                self._quotas[provider] = None
             self._alerted[provider] = set()
         logger.info(f"Initialized quota manager for {len(SUPPORTED_PROVIDERS)} providers")
     
@@ -79,16 +100,18 @@ class QuotaManager:
                     self._usage[provider] = {}
                 
                 quota = self._quotas.get(provider)
+                limit = quota.monthly_cost_limit if quota else float("inf")
                 self._usage[provider][user_id] = QuotaUsage(
-                    provider=provider,
-                    user_id=user_id,
+                    quota_key=f"{provider}:{user_id}",
                     period_start=datetime.utcnow().replace(
                         day=1, hour=0, minute=0, second=0, microsecond=0
                     ),
                     period_end=self._get_period_end(datetime.utcnow()),
                     current_usage=0.0,
-                    limit=quota.monthly_cost_limit if quota else float("inf"),
-                    unit="USD",
+                    limit=limit,
+                    remaining=limit,
+                    usage_percent=0.0,
+                    provider=provider,
                 )
         
         return self._usage[provider][user_id]
@@ -118,13 +141,14 @@ class QuotaManager:
         """
         if provider not in SUPPORTED_PROVIDERS:
             dummy = QuotaUsage(
-                provider=provider,
-                user_id=user_id,
+                quota_key=f"{provider}:{user_id}",
                 period_start=datetime.utcnow(),
                 period_end=datetime.utcnow(),
                 current_usage=0,
                 limit=0,
-                unit="USD",
+                remaining=0,
+                usage_percent=0.0,
+                provider=provider,
             )
             return False, dummy
         
@@ -161,7 +185,9 @@ class QuotaManager:
         
         with self._lock:
             usage.current_usage += cost
-            usage.last_updated = datetime.utcnow()
+            usage.remaining = max(0, usage.limit - usage.current_usage)
+            if usage.limit > 0:
+                usage.usage_percent = (usage.current_usage / usage.limit) * 100
         
         # Check for alerts
         self._check_alerts(provider, user_id, usage)
@@ -219,15 +245,17 @@ class QuotaManager:
         with self._lock:
             quota = self._quotas.get(provider)
             now = datetime.utcnow()
+            limit = quota.monthly_cost_limit if quota else float("inf")
             
             self._usage[provider][user_id] = QuotaUsage(
-                provider=provider,
-                user_id=user_id,
+                quota_key=f"{provider}:{user_id}",
                 period_start=now.replace(day=1, hour=0, minute=0, second=0, microsecond=0),
                 period_end=self._get_period_end(now),
                 current_usage=0.0,
-                limit=quota.monthly_cost_limit if quota else float("inf"),
-                unit="USD",
+                limit=limit,
+                remaining=limit,
+                usage_percent=0.0,
+                provider=provider,
             )
             
             # Clear alerts for new period
@@ -248,7 +276,7 @@ class QuotaManager:
         usage = self._get_usage(provider, user_id)
         return max(0, usage.limit - usage.current_usage)
     
-    def set_quota(self, provider: str, quota: Quota) -> None:
+    def set_quota(self, provider: str, quota: ProviderQuota) -> None:
         """Set custom quota for provider."""
         if provider not in SUPPORTED_PROVIDERS:
             raise ValueError(f"Unsupported provider: {provider}")
