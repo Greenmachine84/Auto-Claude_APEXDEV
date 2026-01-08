@@ -1034,3 +1034,39 @@ export function clearToolCache(): void {
 export function isPathFromWrongPlatform(pathStr: string | undefined): boolean {
   return isWrongPlatformPath(pathStr);
 }
+
+/**
+ * Pre-warm the CLI tool cache in background (non-blocking)
+ * 
+ * This ensures CLI detection is done before user needs it, preventing
+ * main process freeze from sync detection calls. Should be called at
+ * app startup with setImmediate() for non-blocking behavior.
+ * 
+ * @param tools - Array of tool names to pre-warm (default: all common tools)
+ * 
+ * @example
+ * ```typescript
+ * import { preWarmToolCache } from './cli-tool-manager';
+ * 
+ * // Pre-warm at app startup
+ * setImmediate(() => {
+ *   preWarmToolCache(['claude', 'git', 'gh', 'python']).catch(console.error);
+ * });
+ * ```
+ */
+export async function preWarmToolCache(tools: CLITool[] = ['claude', 'git', 'python', 'gh']): Promise<void> {
+  console.log('[CLI Tools] Pre-warming cache for tools:', tools.join(', '));
+  
+  for (const tool of tools) {
+    try {
+      // Use getToolPath which handles detection and caching
+      const path = cliToolManager.getToolPath(tool);
+      console.log(`[CLI Tools] Pre-warmed ${tool}: ${path}`);
+    } catch (error) {
+      // Don't throw - pre-warming is best-effort
+      console.warn(`[CLI Tools] Failed to pre-warm ${tool}:`, error);
+    }
+  }
+  
+  console.log('[CLI Tools] Pre-warming complete');
+}
