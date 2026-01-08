@@ -49,6 +49,7 @@ import { WorkflowView } from './components/workflow';
 import { AgentView } from './components/agents';
 import { SecurityView } from './components/security';
 import { GovernanceView } from './components/governance';
+import { DashboardView } from './components/dashboard';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { RateLimitModal } from './components/RateLimitModal';
 import { SDKRateLimitModal } from './components/SDKRateLimitModal';
@@ -131,7 +132,7 @@ export function App() {
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
   const [settingsInitialSection, setSettingsInitialSection] = useState<AppSection | undefined>(undefined);
   const [settingsInitialProjectSection, setSettingsInitialProjectSection] = useState<ProjectSettingsSection | undefined>(undefined);
-  const [activeView, setActiveView] = useState<SidebarView>('kanban');
+  const [activeView, setActiveView] = useState<SidebarView>('dashboard');
   const [isOnboardingWizardOpen, setIsOnboardingWizardOpen] = useState(false);
   const [isRefreshingTasks, setIsRefreshingTasks] = useState(false);
 
@@ -739,6 +740,9 @@ export function App() {
           <main className="flex-1 overflow-hidden">
             {selectedProject ? (
               <>
+                {activeView === 'dashboard' && (
+                  <DashboardView onNavigate={(view) => setActiveView(view as SidebarView)} />
+                )}
                 {activeView === 'kanban' && (
                   <KanbanBoard
                     tasks={tasks}
@@ -1044,3 +1048,4 @@ export function App() {
     </ViewStateProvider>
   );
 }
+
