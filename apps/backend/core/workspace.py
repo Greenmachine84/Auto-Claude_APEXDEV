@@ -4,7 +4,7 @@ Workspace Management - Per-Spec Architecture
 =============================================
 
 Handles workspace isolation through Git worktrees, where each spec
-gets its own isolated worktree in .auto-claude/worktrees/tasks/{spec-name}/.
+gets its own isolated worktree in .apexdev/worktrees/tasks/{spec-name}/.
 
 This module has been refactored for better maintainability:
 - Models and enums: workspace/models.py
@@ -628,7 +628,7 @@ def _check_git_conflicts(project_dir: Path, spec_name: str) -> dict:
                     )
                     if match:
                         file_path = match.group(1).strip()
-                        # Skip .auto-claude files - they should never be merged
+                        # Skip .apexdev files - they should never be merged
                         if (
                             file_path
                             and file_path not in result["conflicting_files"]
@@ -663,7 +663,7 @@ def _check_git_conflicts(project_dir: Path, spec_name: str) -> dict:
                 )
 
                 # Files modified in both = potential conflicts
-                # Filter out .auto-claude files - they should never be merged
+                # Filter out .apexdev files - they should never be merged
                 conflicting = main_files & spec_files
                 result["conflicting_files"] = [
                     f for f in conflicting if not _is_auto_claude_file(f)

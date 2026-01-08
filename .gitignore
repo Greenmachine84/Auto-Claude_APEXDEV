@@ -56,10 +56,10 @@ lerna-debug.log*
 # ===========================
 # Auto Claude Generated
 # ===========================
-.auto-claude/
+.apexdev/
 .auto-build-security.json
-.auto-claude-security.json
-.auto-claude-status
+.apexdev-security.json
+.apexdev-status
 .claude_settings.json
 .update-metadata.json
 /config.json

@@ -4,7 +4,7 @@ Git Worktree Manager - Per-Spec Architecture
 =============================================
 
 Each spec gets its own worktree:
-- Worktree path: .auto-claude/worktrees/tasks/{spec-name}/
+- Worktree path: .apexdev/worktrees/tasks/{spec-name}/
 - Branch name: auto-claude/{spec-name}
 
 This allows:
@@ -48,14 +48,14 @@ class WorktreeManager:
     """
     Manages per-spec Git worktrees.
 
-    Each spec gets its own worktree in .auto-claude/worktrees/tasks/{spec-name}/ with
+    Each spec gets its own worktree in .apexdev/worktrees/tasks/{spec-name}/ with
     a corresponding branch auto-claude/{spec-name}.
     """
 
     def __init__(self, project_dir: Path, base_branch: str | None = None):
         self.project_dir = project_dir
         self.base_branch = base_branch or self._detect_base_branch()
-        self.worktrees_dir = project_dir / ".auto-claude" / "worktrees" / "tasks"
+        self.worktrees_dir = project_dir / ".apexdev" / "worktrees" / "tasks"
         self._merge_lock = asyncio.Lock()
 
     def _detect_base_branch(self) -> str:
@@ -159,10 +159,10 @@ class WorktreeManager:
     def _unstage_gitignored_files(self) -> None:
         """
         Unstage any staged files that are gitignored in the current branch,
-        plus any files in the .auto-claude directory which should never be merged.
+        plus any files in the .apexdev directory which should never be merged.
 
         This is needed after a --no-commit merge because files that exist in the
-        source branch (like spec files in .auto-claude/specs/) get staged even if
+        source branch (like spec files in .apexdev/specs/) get staged even if
         they're gitignored in the target branch.
         """
         # Get list of staged files
@@ -172,7 +172,7 @@ class WorktreeManager:
 
         staged_files = result.stdout.strip().split("\n")
 
-        # Files to unstage: gitignored files + .auto-claude directory files
+        # Files to unstage: gitignored files + .apexdev directory files
         files_to_unstage = set()
 
         # 1. Check which staged files are gitignored
@@ -192,9 +192,9 @@ class WorktreeManager:
                 if file.strip():
                     files_to_unstage.add(file.strip())
 
-        # 2. Always unstage .auto-claude directory files - these are project-specific
+        # 2. Always unstage .apexdev directory files - these are project-specific
         # and should never be merged from the worktree branch
-        auto_claude_patterns = [".auto-claude/", "auto-claude/specs/"]
+        auto_claude_patterns = [".apexdev/", "auto-claude/specs/"]
         for file in staged_files:
             file = file.strip()
             if not file:
@@ -257,19 +257,19 @@ class WorktreeManager:
 
     def _check_branch_namespace_conflict(self) -> str | None:
         """
-        Check if a branch named 'auto-claude' exists, which would block creating
+        Check if a branch named 'apexdev' exists, which would block creating
         branches in the 'auto-claude/*' namespace.
 
         Git stores branch refs as files under .git/refs/heads/, so a branch named
-        'auto-claude' creates a file that prevents creating the 'auto-claude/'
+        'apexdev' creates a file that prevents creating the 'auto-claude/'
         directory needed for 'auto-claude/{spec-name}' branches.
 
         Returns:
             The conflicting branch name if found, None otherwise.
         """
-        result = self._run_git(["rev-parse", "--verify", "auto-claude"])
+        result = self._run_git(["rev-parse", "--verify", "apexdev"])
         if result.returncode == 0:
-            return "auto-claude"
+            return "apexdev"
         return None
 
     def _get_worktree_stats(self, spec_name: str) -> dict:
@@ -327,13 +327,13 @@ class WorktreeManager:
         worktree_path = self.get_worktree_path(spec_name)
         branch_name = self.get_branch_name(spec_name)
 
-        # Check for branch namespace conflict (e.g., 'auto-claude' blocking 'auto-claude/*')
+        # Check for branch namespace conflict (e.g., 'apexdev' blocking 'auto-claude/*')
         conflicting_branch = self._check_branch_namespace_conflict()
         if conflicting_branch:
             raise WorktreeError(
                 f"Branch '{conflicting_branch}' exists and blocks creating '{branch_name}'.\n"
                 f"\n"
-                f"Git branch names work like file paths - a branch named 'auto-claude' prevents\n"
+                f"Git branch names work like file paths - a branch named 'apexdev' prevents\n"
                 f"creating branches under 'auto-claude/' (like 'auto-claude/{spec_name}').\n"
                 f"\n"
                 f"Fix: Rename the conflicting branch:\n"

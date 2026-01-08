@@ -800,7 +800,7 @@ apps/backend/agents/enterprise/
 - F-string prefixes removed from strings without placeholders
 - Import ordering fixed for ruff compliance
 - Preview panel now receives projectPath prop correctly for image component functionality
-- Default database path unified to ~/.auto-claude/memories for consistency
+- Default database path unified to ~/.apexdev/memories for consistency
 - @lydell/node-pty build scripts compatibility improved for pnpm v10
 
 ---

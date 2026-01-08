@@ -64,7 +64,7 @@ class EncryptionConfig:
     warn_before_expiry_days: int = 14
     
     # Storage
-    vault_path: str = ".auto-claude/credentials"
+    vault_path: str = ".apexdev/credentials"
     backup_enabled: bool = True
     backup_count: int = 3
 
@@ -73,14 +73,14 @@ class EncryptionConfig:
 class AuditConfig:
     """Configuration for audit logging."""
     # Storage
-    log_path: str = ".auto-claude/audit/audit.log"
+    log_path: str = ".apexdev/audit/audit.log"
     max_log_size_mb: int = 100
     rotation_count: int = 10
     
     # Retention
     retention_days: int = 365
     archive_enabled: bool = True
-    archive_path: str = ".auto-claude/audit/archive"
+    archive_path: str = ".apexdev/audit/archive"
     
     # Performance
     buffer_size: int = 1000  # Events before flush
@@ -92,7 +92,7 @@ class AuditConfig:
     
     # Database
     use_sqlite: bool = True
-    sqlite_path: str = ".auto-claude/audit/audit.db"
+    sqlite_path: str = ".apexdev/audit/audit.db"
 
 
 @dataclass

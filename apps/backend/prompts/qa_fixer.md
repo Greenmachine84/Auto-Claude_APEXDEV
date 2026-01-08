@@ -167,8 +167,8 @@ If any issue is not fixed, go back to Phase 3.
 ## PHASE 6: COMMIT FIXES
 
 ```bash
-# Add all files EXCEPT .auto-claude directory (spec files should never be committed)
-git add . ':!.auto-claude'
+# Add all files EXCEPT .apexdev directory (spec files should never be committed)
+git add . ':!.apexdev'
 git commit -m "fix: Address QA issues (qa-requested)
 
 Fixes:
@@ -183,7 +183,7 @@ Verified:
 QA Fix Session: [N]"
 ```
 
-**CRITICAL**: The `:!.auto-claude` pathspec exclusion ensures spec files are NEVER committed.
+**CRITICAL**: The `:!.apexdev` pathspec exclusion ensures spec files are NEVER committed.
 
 **NOTE**: Do NOT push to remote. All work stays local until user reviews and approves.
 

@@ -260,7 +260,7 @@ def get_existing_build_worktree(project_dir: Path, spec_name: str) -> Path | Non
         Path to the worktree if it exists for this spec, None otherwise
     """
     # New path first
-    new_path = project_dir / ".auto-claude" / "worktrees" / "tasks" / spec_name
+    new_path = project_dir / ".apexdev" / "worktrees" / "tasks" / spec_name
     if new_path.exists():
         return new_path
 
@@ -319,7 +319,7 @@ def get_changed_files_from_branch(
         project_dir: Project directory
         base_branch: Base branch name
         spec_branch: Spec branch name
-        exclude_auto_claude: If True, exclude .auto-claude directory files (default True)
+        exclude_auto_claude: If True, exclude .apexdev directory files (default True)
 
     Returns:
         List of (file_path, status) tuples
@@ -338,7 +338,7 @@ def get_changed_files_from_branch(
                 parts = line.split("\t", 1)
                 if len(parts) == 2:
                     file_path = parts[1]
-                    # Exclude .auto-claude directory files from merge
+                    # Exclude .apexdev directory files from merge
                     if exclude_auto_claude and _is_auto_claude_file(file_path):
                         continue
                     files.append((file_path, parts[0]))  # (file_path, status)
@@ -346,10 +346,10 @@ def get_changed_files_from_branch(
 
 
 def _is_auto_claude_file(file_path: str) -> bool:
-    """Check if a file is in the .auto-claude or auto-claude/specs directory."""
+    """Check if a file is in the .apexdev or auto-claude/specs directory."""
     # These patterns cover the internal spec/build files that shouldn't be merged
     excluded_patterns = [
-        ".auto-claude/",
+        ".apexdev/",
         "auto-claude/specs/",
     ]
     for pattern in excluded_patterns:

@@ -201,9 +201,9 @@ def copy_spec_to_worktree(
         Path to the spec directory inside the worktree
     """
     # Determine target location inside worktree
-    # Use .auto-claude/specs/{spec_name}/ as the standard location
-    # Note: auto-claude/ is source code, .auto-claude/ is the installed instance
-    target_spec_dir = worktree_path / ".auto-claude" / "specs" / spec_name
+    # Use .apexdev/specs/{spec_name}/ as the standard location
+    # Note: auto-claude/ is source code, .apexdev/ is the installed instance
+    target_spec_dir = worktree_path / ".apexdev" / "specs" / spec_name
 
     # Create parent directories if needed
     target_spec_dir.parent.mkdir(parents=True, exist_ok=True)
@@ -296,14 +296,14 @@ def setup_workspace(
             f"Security config copied: {', '.join(security_files_copied)}", "success"
         )
 
-    # Ensure .auto-claude/ is in the worktree's .gitignore
+    # Ensure .apexdev/ is in the worktree's .gitignore
     # This is critical because the worktree inherits .gitignore from the base branch,
-    # which may not have .auto-claude/ if that change wasn't committed/pushed.
+    # which may not have .apexdev/ if that change wasn't committed/pushed.
     # Without this, spec files would be committed to the worktree's branch.
     from init import ensure_gitignore_entry
 
-    if ensure_gitignore_entry(worktree_info.path, ".auto-claude/"):
-        debug(MODULE, "Added .auto-claude/ to worktree's .gitignore")
+    if ensure_gitignore_entry(worktree_info.path, ".apexdev/"):
+        debug(MODULE, "Added .apexdev/ to worktree's .gitignore")
 
     # Copy spec files to worktree if provided
     localized_spec_dir = None

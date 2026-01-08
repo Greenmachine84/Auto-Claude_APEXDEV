@@ -85,7 +85,7 @@ def setup_environment() -> Path:
 
     # Load .env file - check both auto-claude/ and dev/auto-claude/ locations
     env_file = script_dir / ".env"
-    dev_env_file = script_dir.parent / "dev" / "auto-claude" / ".env"
+    dev_env_file = script_dir.parent / "dev" / "apexdev" / ".env"
     if env_file.exists():
         load_dotenv(env_file)
     elif dev_env_file.exists():
@@ -122,11 +122,11 @@ def find_spec(project_dir: Path, spec_identifier: str) -> Path | None:
                     return spec_folder
 
     # Check worktree specs (for merge-preview, merge, review, discard operations)
-    worktree_base = project_dir / ".auto-claude" / "worktrees" / "tasks"
+    worktree_base = project_dir / ".apexdev" / "worktrees" / "tasks"
     if worktree_base.exists():
         # Try exact match in worktree
         worktree_spec = (
-            worktree_base / spec_identifier / ".auto-claude" / "specs" / spec_identifier
+            worktree_base / spec_identifier / ".apexdev" / "specs" / spec_identifier
         )
         if worktree_spec.exists() and (worktree_spec / "spec.md").exists():
             return worktree_spec
@@ -137,7 +137,7 @@ def find_spec(project_dir: Path, spec_identifier: str) -> Path | None:
                 spec_identifier + "-"
             ):
                 spec_in_worktree = (
-                    worktree_dir / ".auto-claude" / "specs" / worktree_dir.name
+                    worktree_dir / ".apexdev" / "specs" / worktree_dir.name
                 )
                 if (
                     spec_in_worktree.exists()

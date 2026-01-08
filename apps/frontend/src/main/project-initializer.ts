@@ -155,7 +155,7 @@ export function initializeGit(projectPath: string): InitializationResult {
 /**
  * Entries to add to .gitignore when initializing a project
  */
-const GITIGNORE_ENTRIES = ['.APEXDEV/'];
+const GITIGNORE_ENTRIES = ['.apexdev/'];
 
 /**
  * Ensure entries exist in the project's .gitignore file.
@@ -214,7 +214,7 @@ function ensureGitignoreEntries(projectPath: string, entries: string[]): void {
 }
 
 /**
- * Data directories created in .APEXDEV for each project
+ * Data directories created in .apexdev for each project
  */
 const DATA_DIRECTORIES = [
   'specs',
@@ -254,17 +254,17 @@ export function getLocalSourcePath(projectPath: string): string | null {
 }
 
 /**
- * Check if project is initialized (has .APEXDEV directory)
+ * Check if project is initialized (has .apexdev directory)
  */
 export function isInitialized(projectPath: string): boolean {
-  const dotAutoBuildPath = path.join(projectPath, '.APEXDEV');
+  const dotAutoBuildPath = path.join(projectPath, '.apexdev');
   return existsSync(dotAutoBuildPath);
 }
 
 /**
  * Initialize APEXDEV data directory in a project.
  *
- * Creates .APEXDEV/ with data directories (specs, ideation, insights, roadmap).
+ * Creates .apexdev/ with data directories (specs, ideation, insights, roadmap).
  * The framework code runs from the source repo - only data is stored here.
  *
  * Requires:
@@ -294,20 +294,20 @@ export function initializeProject(projectPath: string): InitializationResult {
   }
 
   // Check if already initialized
-  const dotAutoBuildPath = path.join(projectPath, '.APEXDEV');
+  const dotAutoBuildPath = path.join(projectPath, '.apexdev');
 
   if (existsSync(dotAutoBuildPath)) {
-    debug('Already initialized - .APEXDEV exists');
+    debug('Already initialized - .apexdev exists');
     return {
       success: false,
-      error: 'Project already has APEXDEV initialized (.APEXDEV exists)'
+      error: 'Project already has APEXDEV initialized (.apexdev exists)'
     };
   }
 
   try {
-    debug('Creating .APEXDEV data directory', { dotAutoBuildPath });
+    debug('Creating .apexdev data directory', { dotAutoBuildPath });
 
-    // Create the .APEXDEV directory
+    // Create the .apexdev directory
     mkdirSync(dotAutoBuildPath, { recursive: true });
 
     // Create data directories
@@ -318,7 +318,7 @@ export function initializeProject(projectPath: string): InitializationResult {
       writeFileSync(path.join(dirPath, '.gitkeep'), '');
     }
 
-    // Update .gitignore to exclude .APEXDEV/
+    // Update .gitignore to exclude .apexdev/
     ensureGitignoreEntries(projectPath, GITIGNORE_ENTRIES);
 
     debug('Initialization complete');
@@ -334,11 +334,11 @@ export function initializeProject(projectPath: string): InitializationResult {
 }
 
 /**
- * Ensure all data directories exist in .APEXDEV.
+ * Ensure all data directories exist in .apexdev.
  * Useful if new directories are added in future versions.
  */
 export function ensureDataDirectories(projectPath: string): InitializationResult {
-  const dotAutoBuildPath = path.join(projectPath, '.APEXDEV');
+  const dotAutoBuildPath = path.join(projectPath, '.apexdev');
 
   if (!existsSync(dotAutoBuildPath)) {
     return {
@@ -368,23 +368,24 @@ export function ensureDataDirectories(projectPath: string): InitializationResult
 /**
  * Get the APEXDEV folder path for a project.
  *
- * IMPORTANT: Only .APEXDEV/ is considered a valid "installed" APEXDEV.
+ * IMPORTANT: Only .apexdev/ is considered a valid "installed" APEXDEV.
  * The APEXDEV/ folder (if it exists) is the SOURCE CODE being developed,
  * not an installation. This allows APEXDEV to be used to develop itself.
  */
 export function getAutoBuildPath(projectPath: string): string | null {
-  const dotAutoBuildPath = path.join(projectPath, '.APEXDEV');
+  const dotAutoBuildPath = path.join(projectPath, '.apexdev');
 
   debug('getAutoBuildPath called', { projectPath, dotAutoBuildPath });
 
   if (existsSync(dotAutoBuildPath)) {
-    debug('Returning .APEXDEV (installed version)');
-    return '.APEXDEV';
+    debug('Returning .apexdev (installed version)');
+    return '.apexdev';
   }
 
-  debug('No .APEXDEV folder found - project not initialized');
+  debug('No .apexdev folder found - project not initialized');
   return null;
 }
+
 
 
 
