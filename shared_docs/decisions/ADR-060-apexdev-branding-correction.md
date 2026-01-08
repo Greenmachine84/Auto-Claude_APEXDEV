@@ -38,6 +38,33 @@ Generated icon files:
 - `icon-1024.png` - High-resolution source for ICNS conversion
 - `icons/*.png` - Linux icons (16, 32, 48, 64, 128, 256, 512)
 
+### Backend Directory Structure Migration
+
+Migrated backend Python codebase from .auto-claude to .apexdev directory structure across 83+ files:
+
+**Core Systems:**
+- pps/backend/init.py - Project initialization utilities
+- pps/backend/core/ - Client and workspace management
+- pps/backend/cli/ - Batch commands and utilities
+
+**Agent Systems:**
+- pps/backend/agents/ - Tools, permissions, and utilities
+
+**Integration Systems:**
+- pps/backend/integrations/graphiti/ - Configuration and tests
+- pps/backend/memory/ - Memory paths
+- pps/backend/services/ - Context services
+
+**Runner Systems:**
+- pps/backend/runners/ - GitHub, GitLab, insights, roadmap, spec runners
+- pps/backend/security/ - Configuration and constants
+- pps/backend/spec/pipeline/ - Models and orchestrator
+
+**Frontend Consistency:**
+- pps/frontend/src/main/project-initializer.ts - Lowercase .apexdev consistency (.APEXDEV -> .apexdev)
+
+This migration fixed the Initialize button functionality and enabled Agent/Skill/Command creation by aligning the backend directory structure with the frontend.
+
 ### Path/Directory Names
 
 Updated directory references:
@@ -62,3 +89,5 @@ Updated directory references:
 
 - ADR-058: API Provider Updates
 - ADR-059: APEXDEV Branding Completion
+
+

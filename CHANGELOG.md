@@ -1,5 +1,33 @@
 # Changelog
 
+## 3.7.4 - APEXDEV Backend Directory Migration
+
+### Critical Fixes
+
+- **Backend Directory Structure Migration**
+  - Migrated 83+ Python files from .auto-claude to .apexdev directory structure
+  - Fixed Initialize button functionality
+  - Enabled Agent, Skill, and Command creation features
+  - Aligned backend and frontend directory structures
+
+### Branding Completion
+
+- **DEVAPEX to APEXDEV Correction**
+  - Corrected all instances of incorrect "DEVAPEX" branding to "APEXDEV"
+  - Updated 124 files across frontend, backend, and documentation
+  - Fixed window title to display "APEXDEV - Autonomous Coding Platform"
+  
+- **Icon Updates**
+  - Created custom APEXDEV-branded icons (Windows .ico, PNG, Linux sizes)
+  - Modern indigo/purple gradient design with apex "A" symbol
+  - Replaced all Auto-Claude icons
+
+### Documentation
+
+- ADR-060: APEXDEV Branding Correction and Icon Update (updated with backend migration)
+- Updated CHANGELOG with comprehensive branding changes
+# Changelog
+
 ## 3.7.3 - APEXDEV Branding Completion
 
 ### Branding Update
@@ -1091,6 +1119,7 @@ apps/backend/agents/enterprise/
 
 - ADR-045: Phase 1 Agent System Complete
 - Reference: `docs/architecture/PHASE1_AGENT_SYSTEM_ARCHITECTURE.md`
+
 
 
 
