@@ -1,5 +1,34 @@
 # Changelog
 
+## 3.7.5 - Virtual GitHub Repository Connection
+
+### New Features
+
+- **Virtual GitHub Repository Support**
+  - Connect to GitHub repositories without local cloning
+  - Work directly with repos via GitHub Contents API
+  - Browse and select from user's repositories or enter URL
+  - Support for both public and private repositories
+  - PAT token authentication for private repo access
+
+- **Virtual File Operations API**
+  - List files from virtual GitHub repos
+  - Read file contents with base64 decoding
+  - Create new files in connected repos
+  - Update existing files with SHA validation
+  - Delete files with commit messages
+  - Recursive directory tree traversal
+
+### Technical Implementation
+
+- Added `ProjectSourceType` enum (local, github, gitlab)
+- Added `VirtualRepoInfo` interface for repo metadata
+- New IPC channels for virtual file operations
+- ConnectGitHubRepoModal component for repo connection
+- Preload API for renderer process access
+
+### Documentation
+- ADR-061: Virtual GitHub Repository Connection Architecture
 ## 3.7.4 - APEXDEV Backend Directory Migration
 
 ### Critical Fixes
