@@ -1077,3 +1077,67 @@ Implemented the following modules:
 | Package Inits | 10 | Test organization |
 | Doc Generators | 5 | Automated docs |
 | **Total** | **42** | Testing/Docs framework |
+
+---
+
+### ADR-055: Frontend Dashboard and Phase View Integration
+**Status**: ✅ Accepted
+**Date**: 2026-01-08
+**Phase**: Frontend Integration
+
+#### Context
+The APEXDEV_MERGE branch frontend components used `apex-*` CSS classes that were incompatible with the original Auto-Claude shadcn/ui styling system. When the original Auto-Claude globals.css was restored for dark theme support, the Phase view components (Analytics, Memory, Workflow, Agents) failed to render properly due to missing CSS class definitions.
+
+Additionally, users expected a dedicated Dashboard view as the main landing page rather than going directly to the Kanban Board.
+
+#### Decision
+Implement the following frontend enhancements:
+
+**1. Dashboard View (New Component)**:
+- Created `DashboardView.tsx` as the main landing page
+- Quick stats grid showing: Active Tasks, Completed, Active Agents, Memory Episodes, Workflows Running, Security Score
+- Phase feature cards with clickable navigation to each module
+- Quick action buttons for common tasks
+- Set as default view on app launch
+
+**2. Phase View Component Rewrites**:
+All Phase components rewritten with shadcn/ui styling:
+
+| Component | Phase | Key Changes |
+|-----------|-------|-------------|
+| AnalyticsView | 4 | Card, Badge, Progress, Select from ../ui/* |
+| MemoryView | 2 | Episode list with search, insights panel |
+| WorkflowView | 3 | Workflow list with node visualization |
+| AgentView | 5 | Agent registry with status indicators |
+| SecurityView | 6 | Already shadcn/ui (created earlier) |
+| GovernanceView | 7 | Already shadcn/ui (created earlier) |
+
+**3. Navigation Updates**:
+- Added 'dashboard' as first navigation item with Home icon
+- Added dashboard label to i18n translations
+- Changed default view from 'kanban' to 'dashboard'
+
+**4. Styling Consistency**:
+- Replaced all `apex-*` CSS classes with Tailwind utility classes
+- Use shadcn/ui components: Card, Badge, Button, ScrollArea, Progress
+- Dark theme as default (config.ts: theme: 'dark')
+
+#### Rationale
+- **User Experience**: Dashboard provides immediate visibility into platform status
+- **Consistency**: All components now use shadcn/ui for uniform appearance
+- **Maintainability**: Tailwind classes are self-documenting and easily customizable
+- **Phase Integration**: All 10 phases now accessible from sidebar with working views
+
+#### Implementation Summary
+| Component | Files | Status |
+|-----------|-------|--------|
+| Dashboard | 2 | New (DashboardView.tsx, index.ts) |
+| Analytics | 1 | Rewritten |
+| Memory | 1 | Rewritten |
+| Workflow | 1 | Rewritten |
+| Agents | 1 | Rewritten |
+| Sidebar | 1 | Updated |
+| App.tsx | 1 | Updated |
+| Navigation i18n | 1 | Updated |
+| Config | 1 | Updated |
+| **Total** | **10** | Frontend integration |
