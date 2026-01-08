@@ -141,4 +141,31 @@ export const taskAPI = {
     ipcRenderer.on('task:error', listener);
     return () => ipcRenderer.removeListener('task:error', listener);
   },
+
+  /**
+   * Subscribe to task creation
+   */
+  onCreated: (callback: (task: Task) => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, task: Task) => callback(task);
+    ipcRenderer.on('task:created', listener);
+    return () => ipcRenderer.removeListener('task:created', listener);
+  },
+
+  /**
+   * Subscribe to task updates
+   */
+  onUpdated: (callback: (task: Task) => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, task: Task) => callback(task);
+    ipcRenderer.on('task:updated', listener);
+    return () => ipcRenderer.removeListener('task:updated', listener);
+  },
+
+  /**
+   * Subscribe to task deletion
+   */
+  onDeleted: (callback: (taskId: string) => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, taskId: string) => callback(taskId);
+    ipcRenderer.on('task:deleted', listener);
+    return () => ipcRenderer.removeListener('task:deleted', listener);
+  },
 };

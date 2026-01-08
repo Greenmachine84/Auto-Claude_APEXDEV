@@ -77,9 +77,17 @@ const apexMockAPI = {
   tasks: {
     getAll: async () => [],
     get: async (_id: string) => null,
-    create: async (task: any) => ({ ...task, id: `task-${Date.now()}` }),
+    list: async (_filter?: any) => [],
+    create: async (task: any) => ({ ...task, id: `task-${Date.now()}`, status: 'pending', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }),
     update: async (_id: string, updates: any) => updates,
     delete: async (_id: string) => true,
+    // Event subscriptions - return unsubscribe functions
+    onCreated: (_callback: (task: any) => void) => () => {},
+    onUpdated: (_callback: (task: any) => void) => () => {},
+    onDeleted: (_callback: (taskId: string) => void) => () => {},
+    onTaskUpdate: (_callback: (task: any) => void) => () => {},
+    onTaskComplete: (_callback: (task: any) => void) => () => {},
+    onTaskError: (_callback: (task: any, error: string) => void) => () => {},
   },
   agents: {
     getAll: async () => [],
