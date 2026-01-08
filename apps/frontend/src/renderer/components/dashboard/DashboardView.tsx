@@ -91,7 +91,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
       <div className="p-6 space-y-6">
         <div>
           <h1 className="text-3xl font-bold">APEX Development Platform</h1>
-          <p className="text-muted-foreground">AI-powered development with 10-phase architecture</p>
+          <p className="text-muted-foreground">AI-powered autonomous development platform</p>
         </div>
 
         {/* Quick Stats */}
@@ -161,7 +161,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
                         <CardDescription className="text-xs">{phase.description}</CardDescription>
                       </div>
                     </div>
-                    <Badge variant="secondary">Phase {phase.phase}</Badge>
+                    
                   </div>
                 </CardHeader>
                 <CardContent>
