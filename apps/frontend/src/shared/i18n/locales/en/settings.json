@@ -223,8 +223,8 @@
     "sourceFallback": "Fallback",
     "notDetected": "Not detected",
     "autoClaudePath": "APEXDEV Path",
-    "autoClaudePathDescription": "Relative path to auto-claude directory in projects",
-    "autoClaudePathPlaceholder": "auto-claude (default)",
+    "autoClaudePathDescription": "Relative path to apexdev directory in projects",
+    "autoClaudePathPlaceholder": "apexdev (default)",
     "autoNameTerminals": "Automatically name terminals",
     "autoNameTerminalsDescription": "Use AI to generate descriptive names for terminal tabs based on their activity"
   },
@@ -510,7 +510,7 @@
         "description": "Web browser automation for testing"
       },
       "autoClaude": {
-        "name": "Auto-Claude Tools",
+        "name": "apexdev Tools",
         "description": "Build progress tracking"
       }
     },

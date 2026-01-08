@@ -3,7 +3,7 @@
     "title": "Initialize APEXDEV",
     "description": "This project doesn't have APEXDEV initialized. Would you like to set it up now?",
     "willDo": "This will:",
-    "createFolder": "Create a .auto-claude folder in your project",
+    "createFolder": "Create a .apexdev folder in your project",
     "copyFramework": "Copy the APEXDEV framework files",
     "setupSpecs": "Set up the specs directory for your tasks",
     "sourcePathNotConfigured": "Source path not configured",

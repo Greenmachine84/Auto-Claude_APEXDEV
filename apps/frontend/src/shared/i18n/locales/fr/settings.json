@@ -223,8 +223,8 @@
     "sourceFallback": "Valeur par défaut",
     "notDetected": "Non détecté",
     "autoClaudePath": "Chemin APEXDEV",
-    "autoClaudePathDescription": "Chemin relatif vers le répertoire auto-claude dans les projets",
-    "autoClaudePathPlaceholder": "auto-claude (par défaut)",
+    "autoClaudePathDescription": "Chemin relatif vers le répertoire apexdev dans les projets",
+    "autoClaudePathPlaceholder": "apexdev (par défaut)",
     "autoNameTerminals": "Nommer automatiquement les terminaux",
     "autoNameTerminalsDescription": "Utiliser l'IA pour générer des noms descriptifs pour les onglets de terminal en fonction de leur activité"
   },
@@ -510,7 +510,7 @@
         "description": "Automatisation du navigateur web pour les tests"
       },
       "autoClaude": {
-        "name": "Outils Auto-Claude",
+        "name": "Outils apexdev",
         "description": "Suivi de la progression du build"
       }
     },
