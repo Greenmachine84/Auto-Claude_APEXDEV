@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useState } from 'react';
+import { useEffect, useRef, useCallback, useState, MutableRefObject } from 'react';
 import { useTerminalStore } from '../../stores/terminal-store';
 
 interface UsePtyProcessOptions {
@@ -8,6 +8,8 @@ interface UsePtyProcessOptions {
   cols: number;
   rows: number;
   skipCreation?: boolean; // Skip PTY creation until dimensions are ready
+  // Track deliberate terminal recreation to prevent race conditions
+  isRecreatingRef?: MutableRefObject<boolean>;
   onCreated?: () => void;
   onError?: (error: string) => void;
 }
@@ -19,6 +21,7 @@ export function usePtyProcess({
   cols,
   rows,
   skipCreation = false,
+  isRecreatingRef,
   onCreated,
   onError,
 }: UsePtyProcessOptions) {
@@ -87,8 +90,16 @@ export function usePtyProcess({
           const store = getStore();
           store.setTerminalStatus(terminalId, terminalState.isClaudeMode ? 'claude-active' : 'running');
           store.updateTerminal(terminalId, { isRestored: false });
+          // Clear recreation flag after successful PTY creation
+          if (isRecreatingRef) {
+            isRecreatingRef.current = false;
+          }
           onCreated?.();
         } else {
+          // Clear recreation flag on failure to prevent stuck terminals
+          if (isRecreatingRef) {
+            isRecreatingRef.current = false;
+          }
           const error = `Error restoring session: ${result.data?.error || result.error}`;
           onError?.(error);
         }
@@ -99,6 +110,16 @@ export function usePtyProcess({
       });
     } else {
       // New terminal
+      // When recreating after deliberate destruction, reset status from 'exited' to 'idle'
+      // to allow proper recreation flow
+      if (isRecreatingRef?.current) {
+        const store = getStore();
+        const terminalData = store.terminals.find((t) => t.id === terminalId);
+        if (terminalData?.status === 'exited') {
+          store.setTerminalStatus(terminalId, 'idle');
+        }
+      }
+      
       window.electronAPI.createTerminal({
         id: terminalId,
         cwd,
@@ -111,12 +132,24 @@ export function usePtyProcess({
           if (!alreadyRunning) {
             getStore().setTerminalStatus(terminalId, 'running');
           }
+          // Clear recreation flag after successful PTY creation
+          if (isRecreatingRef) {
+            isRecreatingRef.current = false;
+          }
           onCreated?.();
         } else {
+          // Clear recreation flag on failure to prevent stuck terminals
+          if (isRecreatingRef) {
+            isRecreatingRef.current = false;
+          }
           onError?.(result.error || 'Unknown error');
         }
         isCreatingRef.current = false;
       }).catch((err) => {
+        // Clear recreation flag on failure to prevent stuck terminals
+        if (isRecreatingRef) {
+          isRecreatingRef.current = false;
+        }
         onError?.(err.message);
         isCreatingRef.current = false;
       });
