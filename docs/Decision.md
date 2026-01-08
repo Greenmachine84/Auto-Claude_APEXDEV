@@ -66,6 +66,7 @@
 | ADR-054 | Phase 10 Testing and Documentation Framework | ✅ Accepted | 10-Impl | 2026-01-07 |
 | ADR-055 | Frontend Dashboard and Phase View Integration | ✅ Accepted | Frontend | 2026-01-08 |
 | ADR-056 | Upstream Integration Strategy (TIER 1-5) | ✅ Accepted | Integration | 2026-01-08 |
+| ADR-057 | TIER 6 Additional Safe Enhancements | ✅ Accepted | Enhancement | 2026-01-08 |
 
 ---
 
@@ -1296,4 +1297,128 @@ Implement a 5-tier risk-based cherry-pick strategy:
 |------|--------|
 | memory.py | Async conversion would break sync Phase callers |
 | KanbanBoard/TaskCard/TaskDetailModal | PR UI requires missing backend infrastructure |
+
+
+---
+
+### ADR-057: TIER 6 Additional Safe Enhancements
+**Status**: ✅ Accepted
+**Date**: 2026-01-08
+**Phase**: Enhancement
+
+#### Context
+After completing TIER 1-5 integration, additional safe enhancements were identified in the upstream commits that could be applied without risk to Phase components. These enhancements follow the APEX protocol of behavior-preserving transformations.
+
+#### Decision
+Apply the following TIER 6 enhancements:
+
+**1. Prompt Enhancements (Path Confusion Prevention)**:
+- Added 🚨 CRITICAL: PATH CONFUSION PREVENTION section to coder.md
+- Added same section to qa_fixer.md
+- Added Path Verification (MANDATORY FIRST STEP) to qa_fixer.md PHASE 6
+- Prevents doubled paths in monorepo cd + git operations
+
+**2. File Checkpointing Configuration**:
+- Added `enable_file_checkpointing: True` to client.py ClaudeAgentOptions
+- Prevents "File has not been read yet" errors in recovery sessions
+- Pure configuration change, no behavior modification
+
+**3. TextBlock Type Checking**:
+- Fixed commit_message.py to check block_type == "TextBlock" before accessing .text
+- Same pattern already applied to insight_extractor.py in TIER 5
+- Defensive fix preventing AttributeError on non-TextBlock content
+
+**4. Security Block Check Fix**:
+- Fixed session.py to check `is_error AND "blocked"` instead of just `"blocked"`
+- Previous logic incorrectly flagged any content containing "blocked" as blocked
+- Bug fix that reduces false positives in security logging
+
+**5. PR Status Mapping**:
+- Added `pr_created` case to mapStatusToPlanStatus() in plan-file-utils.ts
+- Returns 'pr_created' instead of falling through to 'pending'
+- Additive switch case, no existing behavior changed
+
+**6. Task Metadata PR URL Utility**:
+- Added updateTaskMetadataPrUrl() function to plan-file-utils.ts
+- New utility for storing PR URL in task_metadata.json
+- Additive function, supports future PR creation UI
+
+#### Rationale
+- **Behavior Preservation**: All changes are defensive fixes or additive
+- **No Caller Impact**: Existing callers unaffected
+- **Error Prevention**: TextBlock checks and security fixes prevent runtime errors
+- **Future-Ready**: PR metadata utility enables future PR creation features
+
+#### Implementation Summary
+| File | Change Type | Risk |
+|------|-------------|------|
+| apps/backend/prompts/coder.md | Prompt addition | ✅ None |
+| apps/backend/prompts/qa_fixer.md | Prompt addition | ✅ None |
+| apps/backend/core/client.py | Config param | ✅ None |
+| apps/backend/commit_message.py | Defensive check | ✅ None |
+| apps/backend/agents/session.py | Bug fix | ✅ None |
+| apps/frontend/src/main/ipc-handlers/task/plan-file-utils.ts | Additive | ✅ None |
+| **Total** | **6 files** | **Zero Risk** |
+
+
+---
+
+### ADR-057: TIER 6 Additional Safe Enhancements
+**Status**: ✅ Accepted
+**Date**: 2026-01-08
+**Phase**: Enhancement
+
+#### Context
+After completing TIER 1-5 integration, additional safe enhancements were identified in the upstream commits that could be applied without risk to Phase components. These enhancements follow the APEX protocol of behavior-preserving transformations.
+
+#### Decision
+Apply the following TIER 6 enhancements:
+
+**1. Prompt Enhancements (Path Confusion Prevention)**:
+- Added 🚨 CRITICAL: PATH CONFUSION PREVENTION section to coder.md
+- Added same section to qa_fixer.md
+- Added Path Verification (MANDATORY FIRST STEP) to qa_fixer.md PHASE 6
+- Prevents doubled paths in monorepo cd + git operations
+
+**2. File Checkpointing Configuration**:
+- Added `enable_file_checkpointing: True` to client.py ClaudeAgentOptions
+- Prevents "File has not been read yet" errors in recovery sessions
+- Pure configuration change, no behavior modification
+
+**3. TextBlock Type Checking**:
+- Fixed commit_message.py to check block_type == "TextBlock" before accessing .text
+- Same pattern already applied to insight_extractor.py in TIER 5
+- Defensive fix preventing AttributeError on non-TextBlock content
+
+**4. Security Block Check Fix**:
+- Fixed session.py to check `is_error AND "blocked"` instead of just `"blocked"`
+- Previous logic incorrectly flagged any content containing "blocked" as blocked
+- Bug fix that reduces false positives in security logging
+
+**5. PR Status Mapping**:
+- Added `pr_created` case to mapStatusToPlanStatus() in plan-file-utils.ts
+- Returns 'pr_created' instead of falling through to 'pending'
+- Additive switch case, no existing behavior changed
+
+**6. Task Metadata PR URL Utility**:
+- Added updateTaskMetadataPrUrl() function to plan-file-utils.ts
+- New utility for storing PR URL in task_metadata.json
+- Additive function, supports future PR creation UI
+
+#### Rationale
+- **Behavior Preservation**: All changes are defensive fixes or additive
+- **No Caller Impact**: Existing callers unaffected
+- **Error Prevention**: TextBlock checks and security fixes prevent runtime errors
+- **Future-Ready**: PR metadata utility enables future PR creation features
+
+#### Implementation Summary
+| File | Change Type | Risk |
+|------|-------------|------|
+| apps/backend/prompts/coder.md | Prompt addition | ✅ None |
+| apps/backend/prompts/qa_fixer.md | Prompt addition | ✅ None |
+| apps/backend/core/client.py | Config param | ✅ None |
+| apps/backend/commit_message.py | Defensive check | ✅ None |
+| apps/backend/agents/session.py | Bug fix | ✅ None |
+| apps/frontend/src/main/ipc-handlers/task/plan-file-utils.ts | Additive | ✅ None |
+| **Total** | **6 files** | **Zero Risk** |
 

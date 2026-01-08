@@ -5,6 +5,120 @@
 > Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 
+
+---
+
+## [2026-01-08] - TIER 6 Additional Safe Enhancements ✅ COMPLETE
+
+### Context
+Extended upstream integration with additional behavior-preserving enhancements identified through ULTRATHINK analysis. All changes are additive or defensive fixes with zero risk to existing functionality.
+
+### Added
+
+**Prompt Enhancements (Path Confusion Prevention)**:
+- 🚨 CRITICAL: PATH CONFUSION PREVENTION section added to coder.md
+- Same section added to qa_fixer.md  
+- Path Verification (MANDATORY FIRST STEP) added to qa_fixer.md PHASE 6
+- Prevents doubled paths bug in monorepo cd + git operations
+- Example: `cd ./apps/frontend && git add apps/frontend/src/file.ts` creates doubled path
+
+**File Checkpointing**:
+- Added `enable_file_checkpointing: True` to ClaudeAgentOptions (client.py)
+- Tracks file read/write state across tool calls
+- Prevents "File has not been read yet" errors in recovery sessions
+
+**Task Metadata Utility**:
+- Added updateTaskMetadataPrUrl() function to plan-file-utils.ts
+- Stores PR URL in task_metadata.json for future UI integration
+- Additive utility function with no caller impact
+
+### Fixed
+
+**TextBlock Type Checking**:
+- commit_message.py now checks `block_type == "TextBlock"` before accessing .text
+- Prevents AttributeError on ToolResultBlock or other content types
+- Same pattern applied to insight_extractor.py in TIER 5
+
+**Security Block Detection**:
+- session.py now checks `is_error AND "blocked"` instead of just `"blocked"`
+- Previous logic flagged ANY content containing "blocked" as a security block
+- Reduces false positives in security logging
+
+**PR Status Mapping**:
+- Added `pr_created` case to mapStatusToPlanStatus() in plan-file-utils.ts
+- Returns 'pr_created' instead of falling through to default 'pending'
+
+### Files Modified (6 files)
+- apps/backend/prompts/coder.md
+- apps/backend/prompts/qa_fixer.md
+- apps/backend/core/client.py
+- apps/backend/commit_message.py
+- apps/backend/agents/session.py
+- apps/frontend/src/main/ipc-handlers/task/plan-file-utils.ts
+
+### Integration Statistics
+| Tier | Files | Strategy | Status |
+|------|-------|----------|--------|
+| TIER 1-5 | 12 | Cherry-pick + Extract | ✅ Complete |
+| TIER 6 | 6 | Additional Enhancements | ✅ Complete |
+| **Total** | **18** | Mixed | **All Complete** |
+
+---
+
+## [2026-01-08] - TIER 6 Additional Safe Enhancements ✅ COMPLETE
+
+### Context
+Extended upstream integration with additional behavior-preserving enhancements identified through ULTRATHINK analysis. All changes are additive or defensive fixes with zero risk to existing functionality.
+
+### Added
+
+**Prompt Enhancements (Path Confusion Prevention)**:
+- 🚨 CRITICAL: PATH CONFUSION PREVENTION section added to coder.md
+- Same section added to qa_fixer.md  
+- Path Verification (MANDATORY FIRST STEP) added to qa_fixer.md PHASE 6
+- Prevents doubled paths bug in monorepo cd + git operations
+- Example: `cd ./apps/frontend && git add apps/frontend/src/file.ts` creates doubled path
+
+**File Checkpointing**:
+- Added `enable_file_checkpointing: True` to ClaudeAgentOptions (client.py)
+- Tracks file read/write state across tool calls
+- Prevents "File has not been read yet" errors in recovery sessions
+
+**Task Metadata Utility**:
+- Added updateTaskMetadataPrUrl() function to plan-file-utils.ts
+- Stores PR URL in task_metadata.json for future UI integration
+- Additive utility function with no caller impact
+
+### Fixed
+
+**TextBlock Type Checking**:
+- commit_message.py now checks `block_type == "TextBlock"` before accessing .text
+- Prevents AttributeError on ToolResultBlock or other content types
+- Same pattern applied to insight_extractor.py in TIER 5
+
+**Security Block Detection**:
+- session.py now checks `is_error AND "blocked"` instead of just `"blocked"`
+- Previous logic flagged ANY content containing "blocked" as a security block
+- Reduces false positives in security logging
+
+**PR Status Mapping**:
+- Added `pr_created` case to mapStatusToPlanStatus() in plan-file-utils.ts
+- Returns 'pr_created' instead of falling through to default 'pending'
+
+### Files Modified (6 files)
+- apps/backend/prompts/coder.md
+- apps/backend/prompts/qa_fixer.md
+- apps/backend/core/client.py
+- apps/backend/commit_message.py
+- apps/backend/agents/session.py
+- apps/frontend/src/main/ipc-handlers/task/plan-file-utils.ts
+
+### Integration Statistics
+| Tier | Files | Strategy | Status |
+|------|-------|----------|--------|
+| TIER 1-5 | 12 | Cherry-pick + Extract | ✅ Complete |
+| TIER 6 | 6 | Additional Enhancements | ✅ Complete |
+| **Total** | **18** | Mixed | **All Complete** |
 ---
 
 ## [2026-01-08] - Upstream Integration (TIER 1-5) ✅ COMPLETE
