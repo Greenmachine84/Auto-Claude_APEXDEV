@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Download, RefreshCw, AlertCircle } from 'lucide-react';
 import { debugLog } from '../shared/utils/debug-logger';
@@ -52,6 +52,7 @@ import { SecurityView } from './components/security';
 import { GovernanceView } from './components/governance';
 import { DashboardView } from './components/dashboard';
 import { WelcomeScreen } from './components/WelcomeScreen';
+import { ConnectGitHubRepoModal } from './components/ConnectGitHubRepoModal';
 import { RateLimitModal } from './components/RateLimitModal';
 import { SDKRateLimitModal } from './components/SDKRateLimitModal';
 import { OnboardingWizard } from './components/onboarding';
@@ -68,7 +69,7 @@ import { initDownloadProgressListener } from './stores/download-store';
 import { GlobalDownloadIndicator } from './components/GlobalDownloadIndicator';
 import { useIpcListeners } from './hooks/useIpc';
 import { COLOR_THEMES, UI_SCALE_MIN, UI_SCALE_MAX, UI_SCALE_DEFAULT } from '../shared/constants';
-import type { Task, Project, ColorTheme } from '../shared/types';
+import type { Task, Project, ColorTheme, VirtualRepoInfo } from '../shared/types';
 import { ProjectTabBar } from './components/ProjectTabBar';
 import { AddProjectModal } from './components/AddProjectModal';
 import { ViewStateProvider } from './contexts/ViewStateContext';
@@ -145,6 +146,7 @@ export function App() {
   const [initError, setInitError] = useState<string | null>(null);
   const [skippedInitProjectId, setSkippedInitProjectId] = useState<string | null>(null);
   const [showAddProjectModal, setShowAddProjectModal] = useState(false);
+  const [showConnectGitHubModal, setShowConnectGitHubModal] = useState(false);
 
   // GitHub setup state (shown after APEXDEV init)
   const [showGitHubSetup, setShowGitHubSetup] = useState(false);
@@ -585,6 +587,24 @@ export function App() {
     }
   };
 
+  const handleConnectGitHub = () => {
+    setShowConnectGitHubModal(true);
+  };
+
+  const handleGitHubRepoConnected = async (repoInfo: VirtualRepoInfo, githubToken: string) => {
+    try {
+      const result = await window.api.project.addVirtualProject(repoInfo, githubToken);
+      if (result.success && result.data) {
+        openProjectTab(result.data.id);
+        setShowConnectGitHubModal(false);
+      } else {
+        console.error('Failed to add virtual project:', result.error);
+      }
+    } catch (error) {
+      console.error('Error connecting GitHub repo:', error);
+    }
+  };
+
   const handleProjectTabSelect = (projectId: string) => {
     setActiveProject(projectId);
   };
@@ -917,6 +937,7 @@ export function App() {
                 onSelectProject={(projectId) => {
                   openProjectTab(projectId);
                 }}
+                onConnectGitHub={handleConnectGitHub}
               />
             )}
           </main>
@@ -967,6 +988,13 @@ export function App() {
           open={showAddProjectModal}
           onOpenChange={setShowAddProjectModal}
           onProjectAdded={handleProjectAdded}
+        />
+
+        {/* Connect GitHub Repository Modal */}
+        <ConnectGitHubRepoModal
+          open={showConnectGitHubModal}
+          onOpenChange={setShowConnectGitHubModal}
+          onConnect={handleGitHubRepoConnected}
         />
 
         {/* Initialize APEXDEV Dialog */}
@@ -1120,6 +1148,12 @@ export function App() {
     </ViewStateProvider>
   );
 }
+
+
+
+
+
+
 
 
 

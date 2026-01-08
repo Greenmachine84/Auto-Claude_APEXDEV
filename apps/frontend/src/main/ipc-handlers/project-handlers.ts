@@ -10,7 +10,8 @@ import type {
   IPCResult,
   InitializationResult,
   AutoBuildVersionInfo,
-  GitStatus
+  GitStatus,
+  VirtualRepoInfo
 } from '../../shared/types';
 import { projectStore } from '../project-store';
 import {
@@ -212,6 +213,26 @@ export function registerProjectHandlers(
         }
 
         const project = projectStore.addProject(projectPath);
+        return { success: true, data: project };
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error'
+        };
+      }
+    }
+  );
+
+    // Handler for adding virtual GitHub projects (without local clone)
+  ipcMain.handle(
+    IPC_CHANNELS.PROJECT_ADD_VIRTUAL,
+    async (
+      _,
+      repoInfo: VirtualRepoInfo,
+      githubToken: string
+    ): Promise<IPCResult<Project>> => {
+      try {
+        const project = projectStore.addVirtualProject(repoInfo, githubToken);
         return { success: true, data: project };
       } catch (error) {
         return {
@@ -506,4 +527,6 @@ export function registerProjectHandlers(
     }
   );
 }
+
+
 

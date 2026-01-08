@@ -11,6 +11,7 @@ export const IPC_CHANNELS = {
   PROJECT_UPDATE_SETTINGS: 'project:updateSettings',
   PROJECT_INITIALIZE: 'project:initialize',
   PROJECT_CHECK_VERSION: 'project:checkVersion',
+  PROJECT_ADD_VIRTUAL: 'project:addVirtual',
 
   // Tab state operations (persisted in main process)
   TAB_STATE_GET: 'tabState:get',
@@ -509,4 +510,5 @@ export const IPC_CHANNELS = {
   GET_SENTRY_DSN: 'sentry:get-dsn',              // Get DSN from main process (env var)
   GET_SENTRY_CONFIG: 'sentry:get-config'         // Get full Sentry config (DSN + sample rates)
 } as const;
+
 

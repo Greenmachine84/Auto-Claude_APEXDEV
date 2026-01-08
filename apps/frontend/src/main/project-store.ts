@@ -2,7 +2,7 @@ import { app } from 'electron';
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, Dirent } from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import type { Project, ProjectSettings, Task, TaskStatus, TaskMetadata, ImplementationPlan, ReviewReason, PlanSubtask } from '../shared/types';
+import type { Project, ProjectSettings, Task, TaskStatus, TaskMetadata, ImplementationPlan, ReviewReason, PlanSubtask, VirtualRepoInfo } from '../shared/types';
 import { DEFAULT_PROJECT_SETTINGS, AUTO_BUILD_PATHS, getSpecsDir } from '../shared/constants';
 import { getAutoBuildPath, isInitialized } from './project-initializer';
 import { getTaskWorktreeDir } from './worktree-paths';
@@ -101,6 +101,41 @@ export class ProjectStore {
       settings: { ...DEFAULT_PROJECT_SETTINGS },
       createdAt: new Date(),
       updatedAt: new Date()
+    };
+
+    this.data.projects.push(project);
+    this.save();
+
+    return project;
+  }
+
+  /**
+   * Add a virtual GitHub project (no local clone)
+   */
+  addVirtualProject(repoInfo: VirtualRepoInfo, githubToken: string): Project {
+    // Check if project already exists by full name
+    const existing = this.data.projects.find(
+      (p) => p.virtualRepo?.fullName === repoInfo.fullName
+    );
+    if (existing) {
+      // Update token if changed
+      existing.githubToken = githubToken;
+      existing.updatedAt = new Date();
+      this.save();
+      return existing;
+    }
+
+    const project: Project = {
+      id: uuidv4(),
+      name: repoInfo.name,
+      path: `github://{repoInfo.fullName}`, // Virtual path identifier
+      autoBuildPath: '', // No local autoBuildPath for virtual projects
+      settings: { ...DEFAULT_PROJECT_SETTINGS },
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      sourceType: 'github',
+      virtualRepo: repoInfo,
+      githubToken: githubToken,
     };
 
     this.data.projects.push(project);
@@ -769,4 +804,6 @@ export class ProjectStore {
 
 // Singleton instance
 export const projectStore = new ProjectStore();
+
+
 
