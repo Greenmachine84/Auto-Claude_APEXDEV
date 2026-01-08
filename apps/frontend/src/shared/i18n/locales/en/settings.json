@@ -57,9 +57,9 @@
     "presets": {
       "anthropic": "Anthropic",
       "openrouter": "OpenRouter",
-      "groq": "Groq",
-      "glmGlobal": "GLM (Global)",
-      "glmChina": "GLM (China)"
+      "gemini": "Google Gemini",
+      "githubCopilot": "GitHub Copilot",
+      "groq": "Groq"
     },
     "fields": {
       "name": "Name",
@@ -562,3 +562,4 @@
     }
   }
 }
+
