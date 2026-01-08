@@ -155,7 +155,7 @@ export function initializeGit(projectPath: string): InitializationResult {
 /**
  * Entries to add to .gitignore when initializing a project
  */
-const GITIGNORE_ENTRIES = ['.DEVAPEX/'];
+const GITIGNORE_ENTRIES = ['.APEXDEV/'];
 
 /**
  * Ensure entries exist in the project's .gitignore file.
@@ -199,7 +199,7 @@ function ensureGitignoreEntries(projectPath: string, entries: string[]): void {
     appendContent += '\n';
   }
 
-  appendContent += '\n# DEVAPEX data directory\n';
+  appendContent += '\n# APEXDEV data directory\n';
   for (const entry of entriesToAdd) {
     appendContent += entry + '\n';
   }
@@ -207,14 +207,14 @@ function ensureGitignoreEntries(projectPath: string, entries: string[]): void {
   if (existsSync(gitignorePath)) {
     appendFileSync(gitignorePath, appendContent);
   } else {
-    writeFileSync(gitignorePath, '# DEVAPEX data directory\n' + entriesToAdd.join('\n') + '\n');
+    writeFileSync(gitignorePath, '# APEXDEV data directory\n' + entriesToAdd.join('\n') + '\n');
   }
 
   debug('Added entries to .gitignore', { entries: entriesToAdd });
 }
 
 /**
- * Data directories created in .DEVAPEX for each project
+ * Data directories created in .APEXDEV for each project
  */
 const DATA_DIRECTORIES = [
   'specs',
@@ -254,17 +254,17 @@ export function getLocalSourcePath(projectPath: string): string | null {
 }
 
 /**
- * Check if project is initialized (has .DEVAPEX directory)
+ * Check if project is initialized (has .APEXDEV directory)
  */
 export function isInitialized(projectPath: string): boolean {
-  const dotAutoBuildPath = path.join(projectPath, '.DEVAPEX');
+  const dotAutoBuildPath = path.join(projectPath, '.APEXDEV');
   return existsSync(dotAutoBuildPath);
 }
 
 /**
- * Initialize DEVAPEX data directory in a project.
+ * Initialize APEXDEV data directory in a project.
  *
- * Creates .DEVAPEX/ with data directories (specs, ideation, insights, roadmap).
+ * Creates .APEXDEV/ with data directories (specs, ideation, insights, roadmap).
  * The framework code runs from the source repo - only data is stored here.
  *
  * Requires:
@@ -283,31 +283,31 @@ export function initializeProject(projectPath: string): InitializationResult {
     };
   }
 
-  // Check git status - DEVAPEX requires git for worktree-based builds
+  // Check git status - APEXDEV requires git for worktree-based builds
   const gitStatus = checkGitStatus(projectPath);
   if (!gitStatus.isGitRepo || !gitStatus.hasCommits) {
     debug('Git check failed', { gitStatus });
     return {
       success: false,
-      error: gitStatus.error || 'Git repository required. DEVAPEX uses git worktrees for isolated builds.'
+      error: gitStatus.error || 'Git repository required. APEXDEV uses git worktrees for isolated builds.'
     };
   }
 
   // Check if already initialized
-  const dotAutoBuildPath = path.join(projectPath, '.DEVAPEX');
+  const dotAutoBuildPath = path.join(projectPath, '.APEXDEV');
 
   if (existsSync(dotAutoBuildPath)) {
-    debug('Already initialized - .DEVAPEX exists');
+    debug('Already initialized - .APEXDEV exists');
     return {
       success: false,
-      error: 'Project already has DEVAPEX initialized (.DEVAPEX exists)'
+      error: 'Project already has APEXDEV initialized (.APEXDEV exists)'
     };
   }
 
   try {
-    debug('Creating .DEVAPEX data directory', { dotAutoBuildPath });
+    debug('Creating .APEXDEV data directory', { dotAutoBuildPath });
 
-    // Create the .DEVAPEX directory
+    // Create the .APEXDEV directory
     mkdirSync(dotAutoBuildPath, { recursive: true });
 
     // Create data directories
@@ -318,7 +318,7 @@ export function initializeProject(projectPath: string): InitializationResult {
       writeFileSync(path.join(dirPath, '.gitkeep'), '');
     }
 
-    // Update .gitignore to exclude .DEVAPEX/
+    // Update .gitignore to exclude .APEXDEV/
     ensureGitignoreEntries(projectPath, GITIGNORE_ENTRIES);
 
     debug('Initialization complete');
@@ -334,11 +334,11 @@ export function initializeProject(projectPath: string): InitializationResult {
 }
 
 /**
- * Ensure all data directories exist in .DEVAPEX.
+ * Ensure all data directories exist in .APEXDEV.
  * Useful if new directories are added in future versions.
  */
 export function ensureDataDirectories(projectPath: string): InitializationResult {
-  const dotAutoBuildPath = path.join(projectPath, '.DEVAPEX');
+  const dotAutoBuildPath = path.join(projectPath, '.APEXDEV');
 
   if (!existsSync(dotAutoBuildPath)) {
     return {
@@ -366,23 +366,23 @@ export function ensureDataDirectories(projectPath: string): InitializationResult
 }
 
 /**
- * Get the DEVAPEX folder path for a project.
+ * Get the APEXDEV folder path for a project.
  *
- * IMPORTANT: Only .DEVAPEX/ is considered a valid "installed" DEVAPEX.
- * The DEVAPEX/ folder (if it exists) is the SOURCE CODE being developed,
- * not an installation. This allows DEVAPEX to be used to develop itself.
+ * IMPORTANT: Only .APEXDEV/ is considered a valid "installed" APEXDEV.
+ * The APEXDEV/ folder (if it exists) is the SOURCE CODE being developed,
+ * not an installation. This allows APEXDEV to be used to develop itself.
  */
 export function getAutoBuildPath(projectPath: string): string | null {
-  const dotAutoBuildPath = path.join(projectPath, '.DEVAPEX');
+  const dotAutoBuildPath = path.join(projectPath, '.APEXDEV');
 
   debug('getAutoBuildPath called', { projectPath, dotAutoBuildPath });
 
   if (existsSync(dotAutoBuildPath)) {
-    debug('Returning .DEVAPEX (installed version)');
-    return '.DEVAPEX';
+    debug('Returning .APEXDEV (installed version)');
+    return '.APEXDEV';
   }
 
-  debug('No .DEVAPEX folder found - project not initialized');
+  debug('No .APEXDEV folder found - project not initialized');
   return null;
 }
 

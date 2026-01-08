@@ -67,7 +67,7 @@ interface OllamaEmbeddingModel {
 
 /**
  * Recommended Embedding Model Card
- * Pre-curated models suitable for DEVAPEX memory system
+ * Pre-curated models suitable for APEXDEV memory system
  */
 interface OllamaRecommendedModel {
   name: string;          // Model identifier

@@ -1,4 +1,4 @@
-# ADR-059: DEVAPEX Branding Completion
+# ADR-059: APEXDEV Branding Completion
 
 ## Status
 
@@ -10,7 +10,7 @@ Accepted
 
 ## Context
 
-Following ADR-049 (DEVAPEX Rebranding), additional legacy "Auto Claude" references were discovered in locale files and the dashboard still displayed internal phase numbers that were not relevant to end users.
+Following ADR-049 (APEXDEV Rebranding), additional legacy "Auto Claude" references were discovered in locale files and the dashboard still displayed internal phase numbers that were not relevant to end users.
 
 ## Decision
 
@@ -21,7 +21,7 @@ Complete the branding update across all remaining files:
 - EN: dialogs.json, navigation.json, onboarding.json, settings.json, welcome.json
 - FR: dialogs.json, navigation.json, onboarding.json, settings.json, welcome.json
 
-All instances of "Auto Claude" replaced with "DEVAPEX".
+All instances of "Auto Claude" replaced with "APEXDEV".
 
 ### Dashboard UI Polish
 
@@ -32,7 +32,7 @@ All instances of "Auto Claude" replaced with "DEVAPEX".
 
 ### Positive
 
-- Consistent DEVAPEX branding throughout the application
+- Consistent APEXDEV branding throughout the application
 - Cleaner dashboard without internal phase numbers
 - Professional appearance for end users
 
@@ -42,5 +42,5 @@ All instances of "Auto Claude" replaced with "DEVAPEX".
 
 ## Related ADRs
 
-- ADR-049: DEVAPEX Rebranding
+- ADR-049: APEXDEV Rebranding
 - ADR-058: API Provider Updates

@@ -81,7 +81,7 @@ function loadSettingsSync(): AppSettings {
 function cleanupStaleUpdateMetadata(): void {
   const userData = app.getPath('userData');
   const stalePaths = [
-    join(userData, 'DEVAPEX-source'),
+    join(userData, 'APEXDEV-source'),
     join(userData, 'backend-source'),
   ];
 
@@ -214,10 +214,10 @@ function createWindow(): void {
 }
 
 // Set app name before ready (for dock tooltip on macOS in dev mode)
-app.setName('DEVAPEX');
+app.setName('APEXDEV');
 if (process.platform === 'darwin') {
   // Force the name to appear in dock on macOS
-  app.name = 'DEVAPEX';
+  app.name = 'APEXDEV';
 }
 
 // Fix Windows GPU cache permission errors (0x5 Access Denied)
@@ -230,7 +230,7 @@ if (process.platform === 'win32') {
 // Initialize the application
 app.whenReady().then(() => {
   // Set app user model id for Windows
-  electronApp.setAppUserModelId('com.DEVAPEX.ui');
+  electronApp.setAppUserModelId('com.APEXDEV.ui');
 
   // Clear cache on Windows to prevent permission errors from stale cache
   if (process.platform === 'win32') {
@@ -265,7 +265,7 @@ app.whenReady().then(() => {
   // Initialize agent manager
   agentManager = new AgentManager();
 
-  // Load settings and configure agent manager with Python and DEVAPEX paths
+  // Load settings and configure agent manager with Python and APEXDEV paths
   // Uses EAFP pattern (try/catch) instead of LBYL (existsSync) to avoid TOCTOU race conditions
   const settingsPath = join(app.getPath('userData'), 'settings.json');
   try {
@@ -286,11 +286,11 @@ app.whenReady().then(() => {
 
       if (!specRunnerExists) {
         // Migration: Try to fix stale paths from old project structure
-        // Old structure: /path/to/project/DEVAPEX
+        // Old structure: /path/to/project/APEXDEV
         // New structure: /path/to/project/apps/backend
         let migrated = false;
-        if (validAutoBuildPath.endsWith('/DEVAPEX') || validAutoBuildPath.endsWith('\\DEVAPEX')) {
-          const basePath = validAutoBuildPath.replace(/[/\\]DEVAPEX$/, '');
+        if (validAutoBuildPath.endsWith('/APEXDEV') || validAutoBuildPath.endsWith('\\APEXDEV')) {
+          const basePath = validAutoBuildPath.replace(/[/\\]APEXDEV$/, '');
           const correctedPath = join(basePath, 'apps', 'backend');
           const correctedSpecRunnerPath = join(correctedPath, 'runners', 'spec_runner.py');
 

@@ -35,7 +35,7 @@
     "help": "Help & Feedback"
   },
   "messages": {
-    "initializeToCreateTasks": "Initialize DEVAPEX to create tasks"
+    "initializeToCreateTasks": "Initialize APEXDEV to create tasks"
   },
   "claudeCode": {
     "checking": "Checking Claude Code...",

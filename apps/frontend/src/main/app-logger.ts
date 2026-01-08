@@ -1,11 +1,11 @@
-/**
+﻿/**
  * Application Logger Service
  *
  * Provides persistent, always-on logging for the main process using electron-log.
  * Logs are stored in the standard OS log directory:
- * - macOS: ~/Library/Logs/DEVAPEX/
- * - Windows: %USERPROFILE%\AppData\Roaming\DEVAPEX\logs\
- * - Linux: ~/.config/DEVAPEX/logs/
+ * - macOS: ~/Library/Logs/APEXDEV/
+ * - Windows: %USERPROFILE%\AppData\Roaming\APEXDEV\logs\
+ * - Linux: ~/.config/APEXDEV/logs/
  *
  * Features:
  * - Automatic file rotation (7 days, max 10MB per file)
@@ -137,7 +137,7 @@ export function generateDebugReport(): string {
   const recentErrors = getRecentErrors(10);
 
   const lines = [
-    '=== DEVAPEX Debug Report ===',
+    '=== APEXDEV Debug Report ===',
     `Generated: ${new Date().toISOString()}`,
     '',
     '--- System Information ---',

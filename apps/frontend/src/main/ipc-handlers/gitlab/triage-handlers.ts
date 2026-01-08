@@ -113,7 +113,7 @@ function sanitizeTriageResult(result: GitLabTriageResult): {
  * Get the GitLab directory for a project
  */
 function getGitLabDir(project: Project): string {
-  return path.join(project.path, '.DEVAPEX', 'gitlab');
+  return path.join(project.path, '.APEXDEV', 'gitlab');
 }
 
 /**

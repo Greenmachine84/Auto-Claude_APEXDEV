@@ -46,7 +46,7 @@ const WIZARD_STEPS: { id: WizardStepId; labelKey: string }[] = [
 /**
  * Main onboarding wizard component.
  * Provides a full-screen, multi-step wizard experience for new users
- * to configure their DEVAPEX environment.
+ * to configure their APEXDEV environment.
  *
  * Features:
  * - Step progress indicator

@@ -287,7 +287,7 @@ async function testHttpConnection(server: CustomMcpServer, startTime: number): P
         protocolVersion: '2024-11-05',
         capabilities: {},
         clientInfo: {
-          name: 'DEVAPEX-health-check',
+          name: 'APEXDEV-health-check',
           version: '1.0.0',
         },
       },
@@ -451,7 +451,7 @@ async function testCommandConnection(server: CustomMcpServer, startTime: number)
         protocolVersion: '2024-11-05',
         capabilities: {},
         clientInfo: {
-          name: 'DEVAPEX-health-check',
+          name: 'APEXDEV-health-check',
           version: '1.0.0',
         },
       },

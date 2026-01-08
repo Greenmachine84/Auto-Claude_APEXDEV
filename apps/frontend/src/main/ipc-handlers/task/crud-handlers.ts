@@ -259,7 +259,7 @@ export function registerTaskCRUDHandlers(agentManager: AgentManager): void {
           return { success: false, error: 'Task not found' };
         }
 
-        const autoBuildDir = project.autoBuildPath || '.DEVAPEX';
+        const autoBuildDir = project.autoBuildPath || '.APEXDEV';
         const specDir = path.join(project.path, autoBuildDir, 'specs', task.specId);
 
         if (!existsSync(specDir)) {

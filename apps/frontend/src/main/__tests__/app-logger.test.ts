@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Unit tests for Application Logger Service
  * Tests logging functionality, debug info collection, and cross-platform compatibility
  */
@@ -302,7 +302,7 @@ describe('Application Logger', () => {
       const { generateDebugReport } = await import('../app-logger');
       const report = generateDebugReport();
 
-      expect(report).toContain('=== DEVAPEX Debug Report ===');
+      expect(report).toContain('=== APEXDEV Debug Report ===');
       expect(report).toContain('--- System Information ---');
       expect(report).toContain('--- Recent Errors ---');
       expect(report).toContain('=== End Debug Report ===');

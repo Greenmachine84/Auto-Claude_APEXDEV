@@ -129,7 +129,7 @@ vi.mock('electron', () => {
 // Setup test project structure
 function setupTestProject(): void {
   mkdirSync(TEST_PROJECT_PATH, { recursive: true });
-  mkdirSync(path.join(TEST_PROJECT_PATH, 'DEVAPEX', 'specs'), { recursive: true });
+  mkdirSync(path.join(TEST_PROJECT_PATH, 'APEXDEV', 'specs'), { recursive: true });
 }
 
 // Cleanup test directories
@@ -373,15 +373,15 @@ describe('IPC Handlers', { timeout: 15000 }, () => {
       const { setupIpcHandlers } = await import('../ipc-handlers');
       setupIpcHandlers(mockAgentManager as never, mockTerminalManager as never, () => mockMainWindow as never, mockPythonEnvManager as never);
 
-      // Create .DEVAPEX directory first (before adding project so it gets detected)
-      mkdirSync(path.join(TEST_PROJECT_PATH, '.DEVAPEX', 'specs'), { recursive: true });
+      // Create .APEXDEV directory first (before adding project so it gets detected)
+      mkdirSync(path.join(TEST_PROJECT_PATH, '.APEXDEV', 'specs'), { recursive: true });
 
-      // Add a project - it will detect .DEVAPEX
+      // Add a project - it will detect .APEXDEV
       const addResult = await ipcMain.invokeHandler('project:add', {}, TEST_PROJECT_PATH);
       const projectId = (addResult as { data: { id: string } }).data.id;
 
-      // Create a spec directory with implementation plan in .DEVAPEX/specs
-      const specDir = path.join(TEST_PROJECT_PATH, '.DEVAPEX', 'specs', '001-test-feature');
+      // Create a spec directory with implementation plan in .APEXDEV/specs
+      const specDir = path.join(TEST_PROJECT_PATH, '.APEXDEV', 'specs', '001-test-feature');
       mkdirSync(specDir, { recursive: true });
       writeFileSync(path.join(specDir, 'implementation_plan.json'), JSON.stringify({
         feature: 'Test Feature',
@@ -430,8 +430,8 @@ describe('IPC Handlers', { timeout: 15000 }, () => {
       const { setupIpcHandlers } = await import('../ipc-handlers');
       setupIpcHandlers(mockAgentManager as never, mockTerminalManager as never, () => mockMainWindow as never, mockPythonEnvManager as never);
 
-      // Create .DEVAPEX directory first (before adding project so it gets detected)
-      mkdirSync(path.join(TEST_PROJECT_PATH, '.DEVAPEX', 'specs'), { recursive: true });
+      // Create .APEXDEV directory first (before adding project so it gets detected)
+      mkdirSync(path.join(TEST_PROJECT_PATH, '.APEXDEV', 'specs'), { recursive: true });
 
       // Add a project first
       const addResult = await ipcMain.invokeHandler('project:add', {}, TEST_PROJECT_PATH);
@@ -545,7 +545,7 @@ describe('IPC Handlers', { timeout: 15000 }, () => {
       await ipcMain.invokeHandler('project:add', {}, TEST_PROJECT_PATH);
 
       // Create a spec/task directory with implementation_plan.json
-      const specDir = path.join(TEST_PROJECT_PATH, '.DEVAPEX', 'specs', 'task-1');
+      const specDir = path.join(TEST_PROJECT_PATH, '.APEXDEV', 'specs', 'task-1');
       mkdirSync(specDir, { recursive: true });
       writeFileSync(
         path.join(specDir, 'implementation_plan.json'),

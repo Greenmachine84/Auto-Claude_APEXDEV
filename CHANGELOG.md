@@ -1,26 +1,26 @@
 # Changelog
 
-## 3.7.3 - DEVAPEX Branding Completion
+## 3.7.3 - APEXDEV Branding Completion
 
 ### Branding Update
-- Updated all EN/FR locale files with DEVAPEX branding
-- Onboarding wizard now shows Welcome to DEVAPEX
+- Updated all EN/FR locale files with APEXDEV branding
+- Onboarding wizard now shows Welcome to APEXDEV
 
 ### Dashboard Improvements
 - Removed Phase 2-7 labels from Platform Features cards
 - Updated subtitle to AI-powered autonomous development platform
 
 ### Documentation
-- ADR-059: DEVAPEX Branding Completion
+- ADR-059: APEXDEV Branding Completion
 
-## 3.7.3 - DEVAPEX Branding Completion & UI Polish
+## 3.7.3 - APEXDEV Branding Completion & UI Polish
 
 ### Branding Update
 
 - **Locale Files Rebranded**
   - Updated all EN/FR locale files (dialogs, navigation, onboarding, settings, welcome)
-  - Replaced all Auto Claude references with DEVAPEX
-  - Onboarding wizard now shows Welcome to DEVAPEX
+  - Replaced all Auto Claude references with APEXDEV
+  - Onboarding wizard now shows Welcome to APEXDEV
 
 ### Dashboard Improvements
 
@@ -30,16 +30,16 @@
   - Cleaner, more professional dashboard appearance
 
 ### Documentation
-- ADR-059: DEVAPEX Branding Completion
+- ADR-059: APEXDEV Branding Completion
 
-## 3.7.3 - DEVAPEX Branding Completion & UI Polish
+## 3.7.3 - APEXDEV Branding Completion & UI Polish
 
 ### 🎨 Complete Branding Update
 
 - **Locale Files Rebranded**
   - Updated all EN/FR locale files (dialogs, navigation, onboarding, settings, welcome)
-  - Replaced all "Auto Claude" references with "DEVAPEX"
-  - Onboarding wizard now shows "Welcome to DEVAPEX"
+  - Replaced all "Auto Claude" references with "APEXDEV"
+  - Onboarding wizard now shows "Welcome to APEXDEV"
 
 ### 🖥️ Dashboard Improvements
 
@@ -49,7 +49,7 @@
   - Cleaner, more professional dashboard appearance
 
 ### 📄 Documentation
-- ADR-059: DEVAPEX Branding Completion
+- ADR-059: APEXDEV Branding Completion
 
 ## 3.7.2 - API Provider Updates
 
@@ -72,17 +72,17 @@
 
 All notable changes to this project will be documented in this file.
 
-## 3.7.1 - Complete DEVAPEX Rebranding (Production Release)
+## 3.7.1 - Complete APEXDEV Rebranding (Production Release)
 
 ### 🎨 Comprehensive Branding Update
 
-Complete rebrand from "Auto-Claude" to "DEVAPEX" across **160+ files**
+Complete rebrand from "Auto-Claude" to "APEXDEV" across **160+ files**
 
 - **Application Identity**
-  - Window title: "DEVAPEX - Autonomous Coding Platform"
-  - App name: "DEVAPEX" (Electron)
-  - Package name: `devapex-ui`
-  - New sidebar logo with "D" icon and DEVAPEX text
+  - Window title: "APEXDEV - Autonomous Coding Platform"
+  - App name: "APEXDEV" (Electron)
+  - Package name: `APEXDEV-ui`
+  - New sidebar logo with "D" icon and APEXDEV text
 
 - **Color Theme Update (Indigo/Purple)**
   - Primary: Yellow (#D6D876) → Indigo (#6366F1)
@@ -99,9 +99,9 @@ Complete rebrand from "Auto-Claude" to "DEVAPEX" across **160+ files**
   - All 55 test files updated
 
 - **Service & API Branding**
-  - GitHub PR review comments: "DEVAPEX Review"
-  - GitLab MR review comments: "DEVAPEX MR Review"
-  - User-Agent header: "DEVAPEX-UI"
+  - GitHub PR review comments: "APEXDEV Review"
+  - GitLab MR review comments: "APEXDEV MR Review"
+  - User-Agent header: "APEXDEV-UI"
   - All error messages and logging
 
 - **Documentation**
@@ -125,7 +125,7 @@ Complete rebrand from "Auto-Claude" to "DEVAPEX" across **160+ files**
 
 ### 🏗️ Architecture Decision
 
-See [ADR-049: DEVAPEX Rebranding](shared_docs/decisions/ADR-049-devapex-rebranding.md)
+See [ADR-049: APEXDEV Rebranding](shared_docs/decisions/ADR-049-APEXDEV-rebranding.md)
 
 ---
 ## 3.6.0 - Phase 10: Testing & Documentation Infrastructure

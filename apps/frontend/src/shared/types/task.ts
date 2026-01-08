@@ -256,7 +256,7 @@ export interface Task {
   updatedAt: Date;
 }
 
-// Implementation Plan (from DEVAPEX)
+// Implementation Plan (from APEXDEV)
 export interface ImplementationPlan {
   feature?: string;  // Some plans use 'feature', some use 'title'
   title?: string;    // Alternative to 'feature' for task name

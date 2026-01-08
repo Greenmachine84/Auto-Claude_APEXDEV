@@ -283,7 +283,7 @@ export interface AppSettings {
   sentryEnabled?: boolean;
 }
 
-// DEVAPEX Source Environment Configuration (for DEVAPEX repo .env)
+// APEXDEV Source Environment Configuration (for APEXDEV repo .env)
 export interface SourceEnvConfig {
   // Claude Authentication (required for ideation, roadmap generation, etc.)
   hasClaudeToken: boolean;

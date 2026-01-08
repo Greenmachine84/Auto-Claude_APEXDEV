@@ -9,8 +9,8 @@ import path from 'path';
 import { existsSync } from 'fs';
 
 // Path constants for worktree directories
-export const TASK_WORKTREE_DIR = '.DEVAPEX/worktrees/tasks';
-export const TERMINAL_WORKTREE_DIR = '.DEVAPEX/worktrees/terminal';
+export const TASK_WORKTREE_DIR = '.APEXDEV/worktrees/tasks';
+export const TERMINAL_WORKTREE_DIR = '.APEXDEV/worktrees/terminal';
 
 // Legacy path for backwards compatibility
 export const LEGACY_WORKTREE_DIR = '.worktrees';

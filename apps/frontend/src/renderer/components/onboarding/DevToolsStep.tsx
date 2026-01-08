@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { Code, Terminal, Loader2, Check, RefreshCw, Info } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Label } from '../ui/label';
@@ -237,7 +237,7 @@ export function DevToolsStep({ onNext, onBack }: DevToolsStepProps) {
             Developer Tools
           </h1>
           <p className="mt-2 text-muted-foreground">
-            Choose your preferred IDE and terminal for working with DEVAPEX worktrees
+            Choose your preferred IDE and terminal for working with APEXDEV worktrees
           </p>
         </div>
 
@@ -271,7 +271,7 @@ export function DevToolsStep({ onNext, onBack }: DevToolsStepProps) {
                       Why configure these?
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      When DEVAPEX builds features in isolated worktrees, you can open them
+                      When APEXDEV builds features in isolated worktrees, you can open them
                       directly in your preferred IDE or terminal to test and review changes.
                     </p>
                   </div>
@@ -320,7 +320,7 @@ export function DevToolsStep({ onNext, onBack }: DevToolsStepProps) {
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                DEVAPEX will open worktrees in this editor
+                APEXDEV will open worktrees in this editor
               </p>
 
               {/* Custom IDE Path */}
@@ -369,7 +369,7 @@ export function DevToolsStep({ onNext, onBack }: DevToolsStepProps) {
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                DEVAPEX will open terminal sessions here
+                APEXDEV will open terminal sessions here
               </p>
 
               {/* Custom Terminal Path */}

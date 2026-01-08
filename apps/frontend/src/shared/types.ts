@@ -1,5 +1,5 @@
 /**
- * Shared TypeScript interfaces for DEVAPEX UI
+ * Shared TypeScript interfaces for APEXDEV UI
  *
  * This file re-exports all types from the organized domain-specific modules.
  * See ./types/ directory for the actual type definitions.

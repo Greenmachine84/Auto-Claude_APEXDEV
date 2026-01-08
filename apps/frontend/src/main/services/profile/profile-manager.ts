@@ -1,7 +1,7 @@
 /**
  * Profile Manager - File I/O for API profiles
  *
- * Handles loading and saving profiles.json from the DEVAPEX directory.
+ * Handles loading and saving profiles.json from the APEXDEV directory.
  * Provides graceful handling for missing or corrupted files.
  * Uses file locking to prevent race conditions in concurrent operations.
  */
@@ -14,11 +14,11 @@ import * as lockfile from 'proper-lockfile';
 import type { APIProfile, ProfilesFile } from '@shared/types/profile';
 
 /**
- * Get the path to profiles.json in the DEVAPEX directory
+ * Get the path to profiles.json in the APEXDEV directory
  */
 export function getProfilesFilePath(): string {
   const userDataPath = app.getPath('userData');
-  return path.join(userDataPath, 'DEVAPEX', 'profiles.json');
+  return path.join(userDataPath, 'APEXDEV', 'profiles.json');
 }
 
 /**
@@ -110,7 +110,7 @@ export async function loadProfilesFile(): Promise<ProfilesFile> {
 
 /**
  * Save profiles.json to disk
- * Creates the DEVAPEX directory if it doesn't exist
+ * Creates the APEXDEV directory if it doesn't exist
  * Ensures secure file permissions (user read/write only)
  */
 export async function saveProfilesFile(data: ProfilesFile): Promise<void> {

@@ -26,7 +26,7 @@ export const integrationMock = {
     data: {
       hasClaudeToken: true,
       envExists: true,
-      sourcePath: '/mock/DEVAPEX'
+      sourcePath: '/mock/APEXDEV'
     }
   }),
 
@@ -38,7 +38,7 @@ export const integrationMock = {
     success: true,
     data: {
       hasToken: true,
-      sourcePath: '/mock/DEVAPEX'
+      sourcePath: '/mock/APEXDEV'
     }
   }),
 

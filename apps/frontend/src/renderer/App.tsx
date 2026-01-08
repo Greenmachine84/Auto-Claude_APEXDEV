@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Download, RefreshCw, AlertCircle } from 'lucide-react';
 import { debugLog } from '../shared/utils/debug-logger';
@@ -146,7 +146,7 @@ export function App() {
   const [skippedInitProjectId, setSkippedInitProjectId] = useState<string | null>(null);
   const [showAddProjectModal, setShowAddProjectModal] = useState(false);
 
-  // GitHub setup state (shown after DEVAPEX init)
+  // GitHub setup state (shown after APEXDEV init)
   const [showGitHubSetup, setShowGitHubSetup] = useState(false);
   const [gitHubSetupProject, setGitHubSetupProject] = useState<Project | null>(null);
 
@@ -310,7 +310,7 @@ export function App() {
     setInitError(null);
   }, [selectedProjectId]);
 
-  // Check if selected project needs initialization (e.g., .DEVAPEX folder was deleted)
+  // Check if selected project needs initialization (e.g., .APEXDEV folder was deleted)
   useEffect(() => {
     // Don't show dialog while initialization is in progress
     if (isInitializing) return;
@@ -683,7 +683,7 @@ export function App() {
       } else {
         // Initialization failed - show error but keep dialog open
         console.log('[InitDialog] Initialization failed, showing error');
-        const errorMessage = result?.error || 'Failed to initialize DEVAPEX. Please try again.';
+        const errorMessage = result?.error || 'Failed to initialize APEXDEV. Please try again.';
         setInitError(errorMessage);
         setIsInitializing(false);
       }
@@ -969,7 +969,7 @@ export function App() {
           onProjectAdded={handleProjectAdded}
         />
 
-        {/* Initialize DEVAPEX Dialog */}
+        {/* Initialize APEXDEV Dialog */}
         <Dialog open={showInitDialog} onOpenChange={(open) => {
           console.log('[InitDialog] onOpenChange called', { open, pendingProject: !!pendingProject, isInitializing, initSuccess });
           // Only trigger skip if user manually closed the dialog
@@ -1048,7 +1048,7 @@ export function App() {
           </DialogContent>
         </Dialog>
 
-        {/* GitHub Setup Modal - shows after DEVAPEX init to configure GitHub */}
+        {/* GitHub Setup Modal - shows after APEXDEV init to configure GitHub */}
         {gitHubSetupProject && (
           <GitHubSetupModal
             open={showGitHubSetup}

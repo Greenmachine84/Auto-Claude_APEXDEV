@@ -10,7 +10,7 @@ export const mockProjects = [
     id: 'mock-project-1',
     name: 'sample-project',
     path: '/Users/demo/projects/sample-project',
-    autoBuildPath: '/Users/demo/projects/sample-project/DEVAPEX',
+    autoBuildPath: '/Users/demo/projects/sample-project/APEXDEV',
     settings: DEFAULT_PROJECT_SETTINGS,
     createdAt: new Date(),
     updatedAt: new Date()
@@ -19,7 +19,7 @@ export const mockProjects = [
     id: 'mock-project-2',
     name: 'another-project',
     path: '/Users/demo/projects/another-project',
-    autoBuildPath: '/Users/demo/projects/another-project/DEVAPEX',
+    autoBuildPath: '/Users/demo/projects/another-project/APEXDEV',
     settings: DEFAULT_PROJECT_SETTINGS,
     createdAt: new Date(),
     updatedAt: new Date()

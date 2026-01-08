@@ -1,11 +1,11 @@
 {
   "wizard": {
     "title": "Setup Wizard",
-    "description": "Configure your DEVAPEX environment in a few simple steps",
+    "description": "Configure your APEXDEV environment in a few simple steps",
     "helpText": "This wizard will help you set up your environment in just a few steps. You can configure your Claude OAuth token, set up memory features, and create your first task."
   },
   "welcome": {
-    "title": "Welcome to DEVAPEX",
+    "title": "Welcome to APEXDEV",
     "subtitle": "Build software autonomously with AI-powered agents",
     "getStarted": "Get Started",
     "skip": "Skip Setup",
@@ -16,7 +16,7 @@
       },
       "specDriven": {
         "title": "Spec-Driven Workflow",
-        "description": "Define tasks with clear specifications and let DEVAPEX handle the implementation"
+        "description": "Define tasks with clear specifications and let APEXDEV handle the implementation"
       },
       "memory": {
         "title": "Memory & Context",
@@ -37,7 +37,7 @@
   "memory": {
     "title": "Memory",
     "description": "Configure persistent cross-session memory for agents",
-    "contextDescription": "DEVAPEX Memory helps remember context across your coding sessions",
+    "contextDescription": "APEXDEV Memory helps remember context across your coding sessions",
     "enableMemory": "Enable Memory",
     "enableMemoryDescription": "Persistent cross-session memory using LadybugDB (embedded database)",
     "memoryDisabledInfo": "Memory is disabled. Session insights will be stored in local files only. Enable Memory for persistent cross-session context with semantic search.",
@@ -75,13 +75,13 @@
   },
   "completion": {
     "title": "You're All Set!",
-    "subtitle": "DEVAPEX is ready to help you build amazing software",
+    "subtitle": "APEXDEV is ready to help you build amazing software",
     "setupComplete": "Setup Complete",
     "setupCompleteDescription": "Your environment is configured and ready. You can start creating tasks immediately or explore the application at your own pace.",
     "whatsNext": "What's Next?",
     "createTask": {
       "title": "Create a Task",
-      "description": "Start by creating your first task to see DEVAPEX in action.",
+      "description": "Start by creating your first task to see APEXDEV in action.",
       "action": "Open Task Creator"
     },
     "customizeSettings": {
@@ -107,7 +107,7 @@
     "done": "Done"
   },
   "privacy": {
-    "title": "Help Improve DEVAPEX",
+    "title": "Help Improve APEXDEV",
     "subtitle": "Anonymous error reporting helps us fix bugs faster",
     "whatWeCollect": {
       "title": "What we collect",
@@ -133,7 +133,7 @@
     "detecting": "Checking Claude Code installation...",
     "info": {
       "title": "What is Claude Code?",
-      "description": "Claude Code is Anthropic's official CLI that powers DEVAPEX's AI features. It provides secure authentication and direct access to Claude models."
+      "description": "Claude Code is Anthropic's official CLI that powers APEXDEV's AI features. It provides secure authentication and direct access to Claude models."
     },
     "status": {
       "installed": "Installed",
@@ -155,19 +155,19 @@
   },
   "devtools": {
     "title": "Developer Tools",
-    "description": "Choose your preferred IDE and terminal for working with DEVAPEX worktrees",
+    "description": "Choose your preferred IDE and terminal for working with APEXDEV worktrees",
     "detecting": "Detecting installed tools...",
     "detectAgain": "Detect Again",
     "whyConfigure": "Why configure these?",
-    "whyConfigureDescription": "When DEVAPEX builds features in isolated worktrees, you can open them directly in your preferred IDE or terminal to test and review changes.",
+    "whyConfigureDescription": "When APEXDEV builds features in isolated worktrees, you can open them directly in your preferred IDE or terminal to test and review changes.",
     "ide": {
       "label": "Preferred IDE",
-      "description": "DEVAPEX will open worktrees in this editor",
+      "description": "APEXDEV will open worktrees in this editor",
       "customPath": "Custom IDE Path"
     },
     "terminal": {
       "label": "Preferred Terminal",
-      "description": "DEVAPEX will open terminal sessions here",
+      "description": "APEXDEV will open terminal sessions here",
       "customPath": "Custom Terminal Path"
     },
     "detectedSummary": "Detected on your system:",

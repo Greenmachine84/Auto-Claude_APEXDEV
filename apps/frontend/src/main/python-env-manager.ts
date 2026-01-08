@@ -16,7 +16,7 @@ export interface PythonEnvStatus {
 }
 
 /**
- * Manages the Python environment for the DEVAPEX backend.
+ * Manages the Python environment for the APEXDEV backend.
  *
  * For packaged apps:
  *   - Uses bundled Python binary (resources/python/)
@@ -170,7 +170,7 @@ export class PythonEnvManager extends EventEmitter {
     try {
       // Check all dependencies - if any fail, we need to reinstall
       // This prevents issues where partial installs leave some packages missing
-      // See: https://github.com/AndyMik90/DEVAPEX/issues/359
+      // See: https://github.com/AndyMik90/APEXDEV/issues/359
       //
       // Dependencies checked:
       // - claude_agent_sdk: Core agent SDK (required)
@@ -641,7 +641,7 @@ if sys.version_info >= (3, 12):
    * problematic Python variables removed. This fixes the "Could not find platform
    * independent libraries <prefix>" error on Windows when PYTHONHOME is set.
    *
-   * @see https://github.com/AndyMik90/DEVAPEX/issues/176
+   * @see https://github.com/AndyMik90/APEXDEV/issues/176
    */
   getPythonEnv(): Record<string, string> {
     // Start with process.env but explicitly remove problematic Python variables

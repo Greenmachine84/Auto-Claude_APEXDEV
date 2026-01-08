@@ -109,7 +109,7 @@ export function initSentryMain(): void {
   Sentry.init({
     dsn: cachedDsn,
     environment: app.isPackaged ? 'production' : 'development',
-    release: `DEVAPEX@${app.getVersion()}`,
+    release: `APEXDEV@${app.getVersion()}`,
 
     beforeSend(event: Sentry.ErrorEvent) {
       if (!sentryEnabledState) {

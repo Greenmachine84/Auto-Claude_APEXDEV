@@ -53,7 +53,7 @@ export class ChangelogService extends EventEmitter {
 
   /**
    * Check if debug mode is enabled
-   * Checks DEBUG from DEVAPEX/.env and DEBUG from process.env
+   * Checks DEBUG from APEXDEV/.env and DEBUG from process.env
    */
   private isDebugEnabled(): boolean {
     // Cache the result after first check
@@ -72,14 +72,14 @@ export class ChangelogService extends EventEmitter {
       return true;
     }
 
-    // Check DEVAPEX .env file
+    // Check APEXDEV .env file
     const env = this.loadAutoBuildEnv();
     this.debugEnabled = env.DEBUG === 'true' || env.DEBUG === '1';
     return this.debugEnabled;
   }
 
   /**
-   * Debug logging - only logs when DEBUG=true in DEVAPEX/.env or DEBUG is set
+   * Debug logging - only logs when DEBUG=true in APEXDEV/.env or DEBUG is set
    */
   private debug(...args: unknown[]): void {
     if (this.isDebugEnabled()) {
@@ -109,7 +109,7 @@ export class ChangelogService extends EventEmitter {
   }
 
   /**
-   * Get the DEVAPEX source path (detects automatically if not configured)
+   * Get the APEXDEV source path (detects automatically if not configured)
    */
   private getAutoBuildSourcePath(): string | null {
     if (this.autoBuildSourcePath && existsSync(this.autoBuildSourcePath)) {
@@ -132,7 +132,7 @@ export class ChangelogService extends EventEmitter {
   }
 
   /**
-   * Load environment variables from DEVAPEX .env file
+   * Load environment variables from APEXDEV .env file
    */
   private loadAutoBuildEnv(): Record<string, string> {
     const autoBuildSource = this.getAutoBuildSourcePath();

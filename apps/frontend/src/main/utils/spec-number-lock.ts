@@ -34,7 +34,7 @@ export class SpecNumberLock {
 
   constructor(projectDir: string) {
     this.projectDir = projectDir;
-    this.lockDir = path.join(projectDir, '.DEVAPEX', '.locks');
+    this.lockDir = path.join(projectDir, '.APEXDEV', '.locks');
     this.lockFile = path.join(this.lockDir, 'spec-numbering.lock');
   }
 
@@ -147,14 +147,14 @@ export class SpecNumberLock {
     let maxNumber = 0;
 
     // Determine specs directory base path
-    const specsBase = autoBuildPath || '.DEVAPEX';
+    const specsBase = autoBuildPath || '.APEXDEV';
 
     // 1. Scan main project specs
     const mainSpecsDir = path.join(this.projectDir, specsBase, 'specs');
     maxNumber = Math.max(maxNumber, this.scanSpecsDir(mainSpecsDir));
 
     // 2. Scan all worktree specs
-    const worktreesDir = path.join(this.projectDir, '.DEVAPEX', 'worktrees', 'tasks');
+    const worktreesDir = path.join(this.projectDir, '.APEXDEV', 'worktrees', 'tasks');
     if (existsSync(worktreesDir)) {
       try {
         const worktrees = readdirSync(worktreesDir, { withFileTypes: true });

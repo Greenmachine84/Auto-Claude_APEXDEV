@@ -1,23 +1,23 @@
 {
   "initialize": {
-    "title": "Initialize DEVAPEX",
-    "description": "This project doesn't have DEVAPEX initialized. Would you like to set it up now?",
+    "title": "Initialize APEXDEV",
+    "description": "This project doesn't have APEXDEV initialized. Would you like to set it up now?",
     "willDo": "This will:",
     "createFolder": "Create a .auto-claude folder in your project",
-    "copyFramework": "Copy the DEVAPEX framework files",
+    "copyFramework": "Copy the APEXDEV framework files",
     "setupSpecs": "Set up the specs directory for your tasks",
     "sourcePathNotConfigured": "Source path not configured",
-    "sourcePathNotConfiguredDescription": "Please set the DEVAPEX source path in App Settings before initializing.",
+    "sourcePathNotConfiguredDescription": "Please set the APEXDEV source path in App Settings before initializing.",
     "initFailed": "Initialization Failed",
-    "initFailedDescription": "Failed to initialize DEVAPEX. Please try again."
+    "initFailedDescription": "Failed to initialize APEXDEV. Please try again."
   },
   "gitSetup": {
     "title": "Git Repository Required",
-    "description": "DEVAPEX uses git to safely build features in isolated workspaces",
+    "description": "APEXDEV uses git to safely build features in isolated workspaces",
     "notGitRepo": "This folder is not a git repository",
     "noCommits": "Git repository has no commits",
-    "needsInit": "Git needs to be initialized before DEVAPEX can manage your code.",
-    "needsCommit": "At least one commit is required for DEVAPEX to create worktrees.",
+    "needsInit": "Git needs to be initialized before APEXDEV can manage your code.",
+    "needsCommit": "At least one commit is required for APEXDEV to create worktrees.",
     "willSetup": "We'll set up git for you:",
     "initRepo": "Initialize a new git repository",
     "createCommit": "Create an initial commit with your current files",
@@ -25,20 +25,20 @@
     "settingUp": "Setting up Git",
     "initializingRepo": "Initializing git repository and creating initial commit...",
     "success": "Git Initialized",
-    "readyToUse": "Your project is now ready to use with DEVAPEX!"
+    "readyToUse": "Your project is now ready to use with APEXDEV!"
   },
   "githubSetup": {
     "connectTitle": "Connect to GitHub",
-    "connectDescription": "DEVAPEX requires GitHub to manage your code branches and keep tasks up to date.",
+    "connectDescription": "APEXDEV requires GitHub to manage your code branches and keep tasks up to date.",
     "claudeTitle": "Connect to Claude AI",
-    "claudeDescription": "DEVAPEX uses Claude AI for intelligent features like Roadmap generation, Task automation, and Ideation.",
+    "claudeDescription": "APEXDEV uses Claude AI for intelligent features like Roadmap generation, Task automation, and Ideation.",
     "selectRepo": "Select Repository",
-    "repoDescription": "DEVAPEX will use this repository for managing task branches and keeping your code up to date.",
+    "repoDescription": "APEXDEV will use this repository for managing task branches and keeping your code up to date.",
     "selectBranch": "Select Base Branch",
-    "branchDescription": "Choose which branch DEVAPEX should use as the base for creating task branches.",
+    "branchDescription": "Choose which branch APEXDEV should use as the base for creating task branches.",
     "whyBranch": "Why select a branch?",
-    "branchExplanation": "DEVAPEX creates isolated workspaces for each task. Selecting the right base branch ensures your tasks start with the latest code from your main development line.",
-    "ready": "DEVAPEX is ready to use! You can now create tasks that will be automatically based on the {{branchName}} branch.",
+    "branchExplanation": "APEXDEV creates isolated workspaces for each task. Selecting the right base branch ensures your tasks start with the latest code from your main development line.",
+    "ready": "APEXDEV is ready to use! You can now create tasks that will be automatically based on the {{branchName}} branch.",
     "createRepoAriaLabel": "Create new repository on GitHub",
     "linkRepoAriaLabel": "Link to existing repository",
     "goBackAriaLabel": "Go back to repository selection",
@@ -48,16 +48,16 @@
   },
   "worktrees": {
     "title": "Worktrees",
-    "description": "Manage isolated workspaces for your DEVAPEX tasks",
+    "description": "Manage isolated workspaces for your APEXDEV tasks",
     "empty": "No Worktrees",
-    "emptyDescription": "Worktrees are created automatically when DEVAPEX builds features. They provide isolated workspaces for each task.",
+    "emptyDescription": "Worktrees are created automatically when APEXDEV builds features. They provide isolated workspaces for each task.",
     "merge": "Merge Worktree",
     "mergeDescription": "Merge changes from this worktree into the base branch.",
     "delete": "Delete Worktree?",
     "deleteDescription": "This will permanently delete the worktree and all uncommitted changes. This action cannot be undone."
   },
   "update": {
-    "title": "DEVAPEX",
+    "title": "APEXDEV",
     "projectInitialized": "Project is initialized."
   },
   "addFeature": {

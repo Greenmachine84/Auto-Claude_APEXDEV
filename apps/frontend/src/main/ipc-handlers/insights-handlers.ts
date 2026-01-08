@@ -94,7 +94,7 @@ export function registerInsightsHandlers(
       }
 
       if (!project.autoBuildPath) {
-        return { success: false, error: 'DEVAPEX not initialized for this project' };
+        return { success: false, error: 'APEXDEV not initialized for this project' };
       }
 
       try {

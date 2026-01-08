@@ -17,7 +17,7 @@
 import * as path from 'path';
 import * as os from 'os';
 
-const APP_NAME = 'DEVAPEX';
+const APP_NAME = 'APEXDEV';
 
 /**
  * Get the XDG config home directory
@@ -69,11 +69,11 @@ export function getAppCacheDir(): string {
 
 /**
  * Get the memories storage directory
- * This is where graph databases are stored (previously ~/.DEVAPEX/memories)
+ * This is where graph databases are stored (previously ~/.APEXDEV/memories)
  */
 export function getMemoriesDir(): string {
   // For compatibility, we still support the legacy path
-  const legacyPath = path.join(os.homedir(), '.DEVAPEX', 'memories');
+  const legacyPath = path.join(os.homedir(), '.APEXDEV', 'memories');
 
   // On Linux with XDG variables set (AppImage, Flatpak, Snap), use XDG path
   if (process.platform === 'linux' && (process.env.XDG_DATA_HOME || process.env.APPIMAGE || process.env.SNAP || process.env.FLATPAK_ID)) {

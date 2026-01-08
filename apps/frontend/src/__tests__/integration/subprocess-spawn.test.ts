@@ -55,14 +55,14 @@ vi.mock('../../main/python-detector', async (importOriginal) => {
   };
 });
 
-// DEVAPEX source path (for getAutoBuildSourcePath to find)
-const AUTO_CLAUDE_SOURCE = path.join(TEST_DIR, 'DEVAPEX-source');
+// APEXDEV source path (for getAutoBuildSourcePath to find)
+const AUTO_CLAUDE_SOURCE = path.join(TEST_DIR, 'APEXDEV-source');
 
 // Setup test directories
 function setupTestDirs(): void {
   mkdirSync(TEST_PROJECT_PATH, { recursive: true });
 
-  // Create DEVAPEX source directory that getAutoBuildSourcePath looks for
+  // Create APEXDEV source directory that getAutoBuildSourcePath looks for
   mkdirSync(AUTO_CLAUDE_SOURCE, { recursive: true });
 
   // Create runners subdirectory with spec_runner.py marker (used by getAutoBuildSourcePath)
@@ -122,7 +122,7 @@ describe('Subprocess Spawn Integration', () => {
           'Test task description'
         ]),
         expect.objectContaining({
-          cwd: AUTO_CLAUDE_SOURCE,  // Process runs from DEVAPEX source directory
+          cwd: AUTO_CLAUDE_SOURCE,  // Process runs from APEXDEV source directory
           env: expect.objectContaining({
             PYTHONUNBUFFERED: '1'
           })
@@ -147,7 +147,7 @@ describe('Subprocess Spawn Integration', () => {
           'spec-001'
         ]),
         expect.objectContaining({
-          cwd: AUTO_CLAUDE_SOURCE  // Process runs from DEVAPEX source directory
+          cwd: AUTO_CLAUDE_SOURCE  // Process runs from APEXDEV source directory
         })
       );
     });
@@ -170,7 +170,7 @@ describe('Subprocess Spawn Integration', () => {
           '--qa'
         ]),
         expect.objectContaining({
-          cwd: AUTO_CLAUDE_SOURCE  // Process runs from DEVAPEX source directory
+          cwd: AUTO_CLAUDE_SOURCE  // Process runs from APEXDEV source directory
         })
       );
     });

@@ -12,8 +12,8 @@ import { app } from 'electron';
 
 const SOCKET_PATH =
   process.platform === 'win32'
-    ? `\\\\.\\pipe\\DEVAPEX-pty-${process.getuid?.() || 'default'}`
-    : `/tmp/DEVAPEX-pty-${process.getuid?.() || 'default'}.sock`;
+    ? `\\\\.\\pipe\\APEXDEV-pty-${process.getuid?.() || 'default'}`
+    : `/tmp/APEXDEV-pty-${process.getuid?.() || 'default'}.sock`;
 
 interface DaemonResponseData {
   exitCode?: number;

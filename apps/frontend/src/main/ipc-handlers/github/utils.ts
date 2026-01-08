@@ -101,7 +101,7 @@ export async function githubFetch(
     headers: {
       'Accept': 'application/vnd.github+json',
       'Authorization': `Bearer ${token}`,
-      'User-Agent': 'DEVAPEX-UI',
+      'User-Agent': 'APEXDEV-UI',
       ...options.headers
     }
   });

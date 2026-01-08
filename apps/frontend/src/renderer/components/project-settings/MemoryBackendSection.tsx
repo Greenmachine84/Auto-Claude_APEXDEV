@@ -478,7 +478,7 @@ export function MemoryBackendSection({
           <div className="space-y-2">
             <Label className="text-sm font-medium text-foreground">Database Name</Label>
             <p className="text-xs text-muted-foreground">
-              Name for the memory database (stored in ~/.DEVAPEX/memories/)
+              Name for the memory database (stored in ~/.APEXDEV/memories/)
             </p>
             <Input
               placeholder="auto_claude_memory"
@@ -490,10 +490,10 @@ export function MemoryBackendSection({
           <div className="space-y-2">
             <Label className="text-sm font-medium text-foreground">Database Path (Optional)</Label>
             <p className="text-xs text-muted-foreground">
-              Custom storage location. Default: ~/.DEVAPEX/memories/
+              Custom storage location. Default: ~/.APEXDEV/memories/
             </p>
             <Input
-              placeholder="~/.DEVAPEX/memories"
+              placeholder="~/.APEXDEV/memories"
               value={envConfig.graphitiDbPath || ''}
               onChange={(e) => onUpdateConfig({ graphitiDbPath: e.target.value || undefined })}
             />

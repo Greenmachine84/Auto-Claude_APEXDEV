@@ -229,7 +229,7 @@ export class AgentQueueManager {
   ): Promise<void> {
     debugLog('[Agent Queue] Spawning ideation process:', { projectId, projectPath });
 
-    // Run from DEVAPEX source directory so imports work correctly
+    // Run from APEXDEV source directory so imports work correctly
     const autoBuildSource = this.processManager.getAutoBuildSourcePath();
     const cwd = autoBuildSource || process.cwd();
 
@@ -280,7 +280,7 @@ export class AgentQueueManager {
     // Build final environment with proper precedence:
     // 1. process.env (system)
     // 2. pythonEnv (bundled packages environment)
-    // 3. combinedEnv (DEVAPEX/.env for CLI usage)
+    // 3. combinedEnv (APEXDEV/.env for CLI usage)
     // 4. oauthModeClearVars (clear stale ANTHROPIC_* vars when in OAuth mode)
     // 5. profileEnv (Electron app OAuth token)
     // 6. apiProfileEnv (Active API profile config - highest priority for ANTHROPIC_* vars)
@@ -300,7 +300,7 @@ export class AgentQueueManager {
     // Debug: Show OAuth token source (token values intentionally omitted for security - AC4)
     const tokenSource = profileEnv['CLAUDE_CODE_OAUTH_TOKEN']
       ? 'Electron app profile'
-      : (combinedEnv['CLAUDE_CODE_OAUTH_TOKEN'] ? 'DEVAPEX/.env' : 'not found');
+      : (combinedEnv['CLAUDE_CODE_OAUTH_TOKEN'] ? 'APEXDEV/.env' : 'not found');
     const hasToken = !!(finalEnv as Record<string, string | undefined>)['CLAUDE_CODE_OAUTH_TOKEN'];
     debugLog('[Agent Queue] OAuth token status:', {
       source: tokenSource,
@@ -367,7 +367,7 @@ export class AgentQueueManager {
 
         const typeFilePath = path.join(
           projectPath,
-          '.DEVAPEX',
+          '.APEXDEV',
           'ideation',
           `${ideationType}_ideas.json`
         );
@@ -493,7 +493,7 @@ export class AgentQueueManager {
           try {
             const ideationFilePath = path.join(
               storedProjectPath,
-              '.DEVAPEX',
+              '.APEXDEV',
               'ideation',
               'ideation.json'
             );
@@ -556,7 +556,7 @@ export class AgentQueueManager {
   ): Promise<void> {
     debugLog('[Agent Queue] Spawning roadmap process:', { projectId, projectPath });
 
-    // Run from DEVAPEX source directory so imports work correctly
+    // Run from APEXDEV source directory so imports work correctly
     const autoBuildSource = this.processManager.getAutoBuildSourcePath();
     const cwd = autoBuildSource || process.cwd();
 
@@ -607,7 +607,7 @@ export class AgentQueueManager {
     // Build final environment with proper precedence:
     // 1. process.env (system)
     // 2. pythonEnv (bundled packages environment)
-    // 3. combinedEnv (DEVAPEX/.env for CLI usage)
+    // 3. combinedEnv (APEXDEV/.env for CLI usage)
     // 4. oauthModeClearVars (clear stale ANTHROPIC_* vars when in OAuth mode)
     // 5. profileEnv (Electron app OAuth token)
     // 6. apiProfileEnv (Active API profile config - highest priority for ANTHROPIC_* vars)
@@ -627,7 +627,7 @@ export class AgentQueueManager {
     // Debug: Show OAuth token source (token values intentionally omitted for security - AC4)
     const tokenSource = profileEnv['CLAUDE_CODE_OAUTH_TOKEN']
       ? 'Electron app profile'
-      : (combinedEnv['CLAUDE_CODE_OAUTH_TOKEN'] ? 'DEVAPEX/.env' : 'not found');
+      : (combinedEnv['CLAUDE_CODE_OAUTH_TOKEN'] ? 'APEXDEV/.env' : 'not found');
     const hasToken = !!(finalEnv as Record<string, string | undefined>)['CLAUDE_CODE_OAUTH_TOKEN'];
     debugLog('[Agent Queue] OAuth token status:', {
       source: tokenSource,
@@ -748,7 +748,7 @@ export class AgentQueueManager {
           try {
             const roadmapFilePath = path.join(
               storedProjectPath,
-              '.DEVAPEX',
+              '.APEXDEV',
               'roadmap',
               'roadmap.json'
             );

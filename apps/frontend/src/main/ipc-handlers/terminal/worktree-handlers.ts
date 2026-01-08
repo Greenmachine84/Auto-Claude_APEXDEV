@@ -44,7 +44,7 @@ function getDefaultBranch(projectPath: string): string {
     return project.settings.mainBranch;
   }
 
-  const envPath = path.join(projectPath, '.DEVAPEX', '.env');
+  const envPath = path.join(projectPath, '.APEXDEV', '.env');
   if (existsSync(envPath)) {
     try {
       const content = readFileSync(envPath, 'utf-8');

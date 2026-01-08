@@ -108,15 +108,15 @@ describe('profile-manager', () => {
       expect(result).toEqual(mockData);
     });
 
-    it('should use DEVAPEX directory for profiles.json path', async () => {
+    it('should use APEXDEV directory for profiles.json path', async () => {
       vi.mocked(fsPromises.readFile).mockRejectedValue(new Error('ENOENT'));
 
       await loadProfilesFile();
 
-      // Verify the file path includes DEVAPEX
+      // Verify the file path includes APEXDEV
       const readFileCalls = vi.mocked(fsPromises.readFile).mock.calls;
       const filePath = readFileCalls[0]?.[0];
-      expect(filePath).toContain('DEVAPEX');
+      expect(filePath).toContain('APEXDEV');
       expect(filePath).toContain('profiles.json');
     });
   });
@@ -138,7 +138,7 @@ describe('profile-manager', () => {
       const filePath = writeFileCall?.[0];
       const content = writeFileCall?.[1];
 
-      expect(filePath).toContain('DEVAPEX');
+      expect(filePath).toContain('APEXDEV');
       expect(filePath).toContain('profiles.json');
       expect(content).toBe(JSON.stringify(mockData, null, 2));
     });

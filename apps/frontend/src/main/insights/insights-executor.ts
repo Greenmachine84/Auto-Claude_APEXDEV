@@ -70,12 +70,12 @@ export class InsightsExecutor extends EventEmitter {
 
     const autoBuildSource = this.config.getAutoBuildSourcePath();
     if (!autoBuildSource) {
-      throw new Error('DEVAPEX source not found');
+      throw new Error('APEXDEV source not found');
     }
 
     const runnerPath = path.join(autoBuildSource, 'runners', 'insights_runner.py');
     if (!existsSync(runnerPath)) {
-      throw new Error('insights_runner.py not found in DEVAPEX directory');
+      throw new Error('insights_runner.py not found in APEXDEV directory');
     }
 
     // Emit thinking status

@@ -69,7 +69,7 @@ function validatePathWithinProject(projectPath: string, resolvedPath: string): v
  * Get the GitLab directory for a project
  */
 function getGitLabDir(project: Project): string {
-  const gitlabDir = path.join(project.path, '.DEVAPEX', 'gitlab');
+  const gitlabDir = path.join(project.path, '.APEXDEV', 'gitlab');
   validatePathWithinProject(project.path, gitlabDir);
   return gitlabDir;
 }

@@ -20,7 +20,7 @@ export const DEFAULT_APP_SETTINGS = {
   theme: 'dark' as const,
   colorTheme: 'default' as const,
   defaultModel: 'opus',
-  agentFramework: 'DEVAPEX',
+  agentFramework: 'APEXDEV',
   pythonPath: undefined as string | undefined,
   gitPath: undefined as string | undefined,
   githubCLIPath: undefined as string | undefined,
@@ -79,11 +79,11 @@ export const DEFAULT_PROJECT_SETTINGS = {
 // ============================================
 
 // File paths relative to project
-// IMPORTANT: All paths use .DEVAPEX/ (the installed instance), NOT DEVAPEX/ (source code)
+// IMPORTANT: All paths use .APEXDEV/ (the installed instance), NOT APEXDEV/ (source code)
 export const AUTO_BUILD_PATHS = {
-  SPECS_DIR: '.DEVAPEX/specs',
-  ROADMAP_DIR: '.DEVAPEX/roadmap',
-  IDEATION_DIR: '.DEVAPEX/ideation',
+  SPECS_DIR: '.APEXDEV/specs',
+  ROADMAP_DIR: '.APEXDEV/roadmap',
+  IDEATION_DIR: '.APEXDEV/ideation',
   IMPLEMENTATION_PLAN: 'implementation_plan.json',
   SPEC_FILE: 'spec.md',
   QA_REPORT: 'qa_report.md',
@@ -95,16 +95,16 @@ export const AUTO_BUILD_PATHS = {
   COMPETITOR_ANALYSIS: 'competitor_analysis.json',
   IDEATION_FILE: 'ideation.json',
   IDEATION_CONTEXT: 'ideation_context.json',
-  PROJECT_INDEX: '.DEVAPEX/project_index.json',
+  PROJECT_INDEX: '.APEXDEV/project_index.json',
   GRAPHITI_STATE: '.graphiti_state.json'
 } as const;
 
 /**
  * Get the specs directory path.
- * All specs go to .DEVAPEX/specs/ (the project's data directory).
+ * All specs go to .APEXDEV/specs/ (the project's data directory).
  */
 export function getSpecsDir(autoBuildPath: string | undefined): string {
-  const basePath = autoBuildPath || '.DEVAPEX';
+  const basePath = autoBuildPath || '.APEXDEV';
   return `${basePath}/specs`;
 }
 
