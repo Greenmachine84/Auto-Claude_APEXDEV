@@ -677,5 +677,62 @@ export const createGitHubAPI = (): GitHubAPI => ({
   onPRReviewError: (
     callback: (projectId: string, error: { prNumber: number; error: string }) => void
   ): IpcListenerCleanup =>
-    createIpcListener(IPC_CHANNELS.GITHUB_PR_REVIEW_ERROR, callback)
+    createIpcListener(IPC_CHANNELS.GITHUB_PR_REVIEW_ERROR, callback),
+  // ============================================
+  // Virtual Repository Operations (no local clone)
+  // ============================================
+
+  /**
+   * List files in a directory of a virtual GitHub repo
+   */
+  virtualListFiles: (projectId: string, path?: string): Promise<IPCResult<Array<{
+    name: string;
+    path: string;
+    sha: string;
+    size: number;
+    type: 'file' | 'dir' | 'symlink' | 'submodule';
+    download_url?: string;
+  }>>> =>
+    invokeIpc(IPC_CHANNELS.GITHUB_VIRTUAL_LIST_FILES, projectId, path || ''),
+
+  /**
+   * Get file content from a virtual GitHub repo
+   */
+  virtualGetFile: (projectId: string, path: string): Promise<IPCResult<{
+    content: string;
+    sha: string;
+    encoding: string;
+  }>> =>
+    invokeIpc(IPC_CHANNELS.GITHUB_VIRTUAL_GET_FILE, projectId, path),
+
+  /**
+   * Create a new file in a virtual GitHub repo
+   */
+  virtualCreateFile: (projectId: string, path: string, content: string, message?: string): Promise<IPCResult<{ sha: string }>> =>
+    invokeIpc(IPC_CHANNELS.GITHUB_VIRTUAL_CREATE_FILE, projectId, path, content, message || `Create ${path}`),
+
+  /**
+   * Update an existing file in a virtual GitHub repo
+   */
+  virtualUpdateFile: (projectId: string, path: string, content: string, sha: string, message?: string): Promise<IPCResult<{ sha: string }>> =>
+    invokeIpc(IPC_CHANNELS.GITHUB_VIRTUAL_UPDATE_FILE, projectId, path, content, sha, message || `Update ${path}`),
+
+  /**
+   * Delete a file from a virtual GitHub repo
+   */
+  virtualDeleteFile: (projectId: string, path: string, sha: string, message?: string): Promise<IPCResult<void>> =>
+    invokeIpc(IPC_CHANNELS.GITHUB_VIRTUAL_DELETE_FILE, projectId, path, sha, message || `Delete ${path}`),
+
+  /**
+   * Get the full repository tree (recursive file list)
+   */
+  virtualGetTree: (projectId: string): Promise<IPCResult<Array<{
+    path: string;
+    mode: string;
+    type: 'blob' | 'tree';
+    sha: string;
+    size?: number;
+  }>>> =>
+    invokeIpc(IPC_CHANNELS.GITHUB_VIRTUAL_GET_TREE, projectId)
 });
+

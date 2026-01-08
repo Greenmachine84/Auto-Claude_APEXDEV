@@ -5,13 +5,35 @@
   },
   "actions": {
     "newProject": "New Project",
-    "openProject": "Open Project"
+    "openProject": "Open Project",
+    "connectGitHub": "Connect GitHub Repository"
   },
   "recentProjects": {
     "title": "Recent Projects",
     "empty": "No projects yet",
     "emptyDescription": "Create a new project or open an existing one to get started",
     "openFolder": "Open Folder",
-    "openProjectAriaLabel": "Open project {{name}}"
+    "openProjectAriaLabel": "Open project {{name}}",
+    "virtualProject": "GitHub"
+  },
+  "github": {
+    "connectTitle": "Connect to GitHub Repository",
+    "connectDescription": "Work directly with a GitHub repository without cloning locally",
+    "tokenLabel": "GitHub Personal Access Token",
+    "tokenPlaceholder": "ghp_xxxxxxxxxxxx",
+    "tokenHelp": "Create a token at github.com/settings/tokens with 'repo' scope",
+    "browseTab": "Browse Repositories",
+    "urlTab": "Enter URL",
+    "searchPlaceholder": "Search repositories...",
+    "loadingRepos": "Loading repositories...",
+    "noReposFound": "No repositories found",
+    "repoUrlLabel": "Repository URL",
+    "repoUrlPlaceholder": "https://github.com/owner/repo",
+    "connect": "Connect",
+    "cancel": "Cancel",
+    "validating": "Validating...",
+    "privateRepo": "Private",
+    "publicRepo": "Public",
+    "defaultBranch": "Default branch"
   }
 }

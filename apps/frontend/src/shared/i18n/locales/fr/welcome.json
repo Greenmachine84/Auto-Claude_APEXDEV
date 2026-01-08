@@ -5,13 +5,35 @@
   },
   "actions": {
     "newProject": "Nouveau projet",
-    "openProject": "Ouvrir un projet"
+    "openProject": "Ouvrir un projet",
+    "connectGitHub": "Connecter un dépôt GitHub"
   },
   "recentProjects": {
     "title": "Projets récents",
     "empty": "Aucun projet",
     "emptyDescription": "Créez un nouveau projet ou ouvrez-en un existant pour commencer",
     "openFolder": "Ouvrir le dossier",
-    "openProjectAriaLabel": "Ouvrir le projet {{name}}"
+    "openProjectAriaLabel": "Ouvrir le projet {{name}}",
+    "virtualProject": "GitHub"
+  },
+  "github": {
+    "connectTitle": "Connexion au dépôt GitHub",
+    "connectDescription": "Travaillez directement avec un dépôt GitHub sans clonage local",
+    "tokenLabel": "Jeton d'accès personnel GitHub",
+    "tokenPlaceholder": "ghp_xxxxxxxxxxxx",
+    "tokenHelp": "Créez un jeton sur github.com/settings/tokens avec la portée 'repo'",
+    "browseTab": "Parcourir les dépôts",
+    "urlTab": "Entrer l'URL",
+    "searchPlaceholder": "Rechercher des dépôts...",
+    "loadingRepos": "Chargement des dépôts...",
+    "noReposFound": "Aucun dépôt trouvé",
+    "repoUrlLabel": "URL du dépôt",
+    "repoUrlPlaceholder": "https://github.com/proprietaire/depot",
+    "connect": "Connecter",
+    "cancel": "Annuler",
+    "validating": "Validation...",
+    "privateRepo": "Privé",
+    "publicRepo": "Public",
+    "defaultBranch": "Branche par défaut"
   }
 }

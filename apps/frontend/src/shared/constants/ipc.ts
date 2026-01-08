@@ -225,6 +225,14 @@ export const IPC_CHANNELS = {
   GITHUB_ADD_REMOTE: 'github:addRemote',
   GITHUB_LIST_ORGS: 'github:listOrgs',
 
+  // Virtual GitHub Repository operations (no local clone)
+  GITHUB_VIRTUAL_LIST_FILES: 'github:virtual:listFiles',
+  GITHUB_VIRTUAL_GET_FILE: 'github:virtual:getFile',
+  GITHUB_VIRTUAL_CREATE_FILE: 'github:virtual:createFile',
+  GITHUB_VIRTUAL_UPDATE_FILE: 'github:virtual:updateFile',
+  GITHUB_VIRTUAL_DELETE_FILE: 'github:virtual:deleteFile',
+  GITHUB_VIRTUAL_GET_TREE: 'github:virtual:getTree',
+
   // GitHub OAuth events (main -> renderer) - for streaming device code during auth
   GITHUB_AUTH_DEVICE_CODE: 'github:authDeviceCode',
 
@@ -510,5 +518,7 @@ export const IPC_CHANNELS = {
   GET_SENTRY_DSN: 'sentry:get-dsn',              // Get DSN from main process (env var)
   GET_SENTRY_CONFIG: 'sentry:get-config'         // Get full Sentry config (DSN + sample rates)
 } as const;
+
+
 
 
