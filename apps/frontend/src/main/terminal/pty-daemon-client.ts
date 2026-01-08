@@ -12,8 +12,8 @@ import { app } from 'electron';
 
 const SOCKET_PATH =
   process.platform === 'win32'
-    ? `\\\\.\\pipe\\auto-claude-pty-${process.getuid?.() || 'default'}`
-    : `/tmp/auto-claude-pty-${process.getuid?.() || 'default'}.sock`;
+    ? `\\\\.\\pipe\\DEVAPEX-pty-${process.getuid?.() || 'default'}`
+    : `/tmp/DEVAPEX-pty-${process.getuid?.() || 'default'}.sock`;
 
 interface DaemonResponseData {
   exitCode?: number;
@@ -411,3 +411,4 @@ export const ptyDaemonClient = new PtyDaemonClient();
 app.on('before-quit', () => {
   ptyDaemonClient.shutdown();
 });
+

@@ -44,7 +44,7 @@ function getDefaultBranch(projectPath: string): string {
     return project.settings.mainBranch;
   }
 
-  const envPath = path.join(projectPath, '.auto-claude', '.env');
+  const envPath = path.join(projectPath, '.DEVAPEX', '.env');
   if (existsSync(envPath)) {
     try {
       const content = readFileSync(envPath, 'utf-8');
@@ -384,3 +384,4 @@ export function registerTerminalWorktreeHandlers(): void {
     }
   );
 }
+

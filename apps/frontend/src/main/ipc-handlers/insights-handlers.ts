@@ -94,7 +94,7 @@ export function registerInsightsHandlers(
       }
 
       if (!project.autoBuildPath) {
-        return { success: false, error: 'Auto Claude not initialized for this project' };
+        return { success: false, error: 'DEVAPEX not initialized for this project' };
       }
 
       try {
@@ -313,3 +313,6 @@ export function registerInsightsHandlers(
   });
 
 }
+
+
+

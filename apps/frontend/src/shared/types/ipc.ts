@@ -595,7 +595,7 @@ export interface ElectronAPI {
   openExternal: (url: string) => Promise<void>;
   openTerminal: (dirPath: string) => Promise<IPCResult<void>>;
 
-  // Auto Claude source environment operations
+  // DEVAPEX source environment operations
   getSourceEnv: () => Promise<IPCResult<SourceEnvConfig>>;
   updateSourceEnv: (config: { claudeOAuthToken?: string }) => Promise<IPCResult>;
   checkSourceToken: () => Promise<IPCResult<SourceEnvCheckResult>>;
@@ -783,3 +783,4 @@ declare global {
     DEBUG: boolean;
   }
 }
+

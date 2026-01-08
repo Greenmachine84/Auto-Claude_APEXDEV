@@ -1,6 +1,6 @@
-# Auto Claude Guides
+# DEVAPEX Guides
 
-Detailed documentation for Auto Claude setup and usage.
+Detailed documentation for DEVAPEX setup and usage.
 
 ## Available Guides
 
@@ -13,3 +13,4 @@ Detailed documentation for Auto Claude setup and usage.
 - [Main README](../README.md) - Getting started (download and install)
 - [Contributing](../CONTRIBUTING.md) - How to contribute and run from source
 - [Changelog](../CHANGELOG.md) - Release history
+

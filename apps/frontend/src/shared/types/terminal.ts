@@ -146,7 +146,7 @@ export interface RetryWithProfileRequest {
 export interface TerminalWorktreeConfig {
   /** Unique worktree name (used as directory name) */
   name: string;
-  /** Path to the worktree directory (.auto-claude/worktrees/terminal/{name}/) */
+  /** Path to the worktree directory (.DEVAPEX/worktrees/terminal/{name}/) */
   worktreePath: string;
   /** Git branch name (terminal/{name}) - empty if no branch created */
   branchName: string;
@@ -188,3 +188,4 @@ export interface TerminalWorktreeResult {
   config?: TerminalWorktreeConfig;
   error?: string;
 }
+

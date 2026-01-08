@@ -108,15 +108,15 @@ describe('profile-manager', () => {
       expect(result).toEqual(mockData);
     });
 
-    it('should use auto-claude directory for profiles.json path', async () => {
+    it('should use DEVAPEX directory for profiles.json path', async () => {
       vi.mocked(fsPromises.readFile).mockRejectedValue(new Error('ENOENT'));
 
       await loadProfilesFile();
 
-      // Verify the file path includes auto-claude
+      // Verify the file path includes DEVAPEX
       const readFileCalls = vi.mocked(fsPromises.readFile).mock.calls;
       const filePath = readFileCalls[0]?.[0];
-      expect(filePath).toContain('auto-claude');
+      expect(filePath).toContain('DEVAPEX');
       expect(filePath).toContain('profiles.json');
     });
   });
@@ -138,7 +138,7 @@ describe('profile-manager', () => {
       const filePath = writeFileCall?.[0];
       const content = writeFileCall?.[1];
 
-      expect(filePath).toContain('auto-claude');
+      expect(filePath).toContain('DEVAPEX');
       expect(filePath).toContain('profiles.json');
       expect(content).toBe(JSON.stringify(mockData, null, 2));
     });
@@ -197,3 +197,6 @@ describe('profile-manager', () => {
     });
   });
 });
+
+
+

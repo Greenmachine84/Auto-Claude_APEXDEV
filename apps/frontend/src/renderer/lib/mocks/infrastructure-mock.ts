@@ -10,7 +10,7 @@ export const infrastructureMock = {
     data: {
       memory: {
         kuzuInstalled: true,
-        databasePath: '~/.auto-claude/graphs',
+        databasePath: '~/.DEVAPEX/graphs',
         databaseExists: true,
         databases: ['auto_claude_memory']
       },
@@ -185,3 +185,6 @@ export const infrastructureMock = {
     return { success: true };
   }
 };
+
+
+

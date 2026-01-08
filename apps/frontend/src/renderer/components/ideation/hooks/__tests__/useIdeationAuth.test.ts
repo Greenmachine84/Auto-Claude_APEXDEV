@@ -44,7 +44,7 @@ describe('useIdeationAuth', () => {
     // Default mock implementation - has source token
     mockCheckSourceToken.mockResolvedValue({
       success: true,
-      data: { hasToken: true, sourcePath: '/mock/auto-claude' }
+      data: { hasToken: true, sourcePath: '/mock/DEVAPEX' }
     });
 
     mockGetApiProfiles.mockResolvedValue({
@@ -91,7 +91,7 @@ describe('useIdeationAuth', () => {
     it('should return hasToken true when source OAuth token exists', async () => {
       mockCheckSourceToken.mockResolvedValue({
         success: true,
-        data: { hasToken: true, sourcePath: '/mock/auto-claude' }
+        data: { hasToken: true, sourcePath: '/mock/DEVAPEX' }
       });
 
       // No API profile active
@@ -306,7 +306,7 @@ describe('useIdeationAuth', () => {
     it('should return hasToken true when both source token and API profile exist', async () => {
       mockCheckSourceToken.mockResolvedValue({
         success: true,
-        data: { hasToken: true, sourcePath: '/mock/auto-claude' }
+        data: { hasToken: true, sourcePath: '/mock/DEVAPEX' }
       });
 
       useSettingsStore.setState({
@@ -333,7 +333,7 @@ describe('useIdeationAuth', () => {
     it('should return hasToken true when only source token exists (no API profile)', async () => {
       mockCheckSourceToken.mockResolvedValue({
         success: true,
-        data: { hasToken: true, sourcePath: '/mock/auto-claude' }
+        data: { hasToken: true, sourcePath: '/mock/DEVAPEX' }
       });
 
       useSettingsStore.setState({
@@ -681,3 +681,6 @@ describe('useIdeationAuth', () => {
     });
   });
 });
+
+
+

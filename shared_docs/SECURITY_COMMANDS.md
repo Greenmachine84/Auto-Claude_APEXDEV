@@ -1,6 +1,6 @@
 # Security Commands Configuration
 
-Auto Claude uses a dynamic security system that controls which shell commands the AI agent can execute. This prevents potentially dangerous operations while allowing legitimate development commands.
+DEVAPEX uses a dynamic security system that controls which shell commands the AI agent can execute. This prevents potentially dangerous operations while allowing legitimate development commands.
 
 ## How It Works
 
@@ -16,13 +16,13 @@ Auto Claude uses a dynamic security system that controls which shell commands th
 │     └── Analyzer detects package.json → adds npm, node      │
 │                                                              │
 │  3. Custom Allowlist (manual additions)                     │
-│     └── .auto-claude-allowlist file                         │
+│     └── .DEVAPEX-allowlist file                         │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ## Automatic Detection
 
-When you start a task, Auto Claude analyzes your project and automatically allows commands based on detected technologies:
+When you start a task, DEVAPEX analyzes your project and automatically allows commands based on detected technologies:
 
 | Detected File | Commands Added |
 |---------------|----------------|
@@ -42,7 +42,7 @@ The full detection logic is in `apps/backend/project/stack_detector.py`.
 
 ### Generated Profile
 
-The analyzer saves its results to `.auto-claude-security.json` in your project root:
+The analyzer saves its results to `.DEVAPEX-security.json` in your project root:
 
 ```json
 {
@@ -63,10 +63,10 @@ This file is auto-generated. Don't edit it manually - it will be overwritten.
 
 ## Custom Allowlist
 
-For commands that aren't auto-detected, create a `.auto-claude-allowlist` file in your project root:
+For commands that aren't auto-detected, create a `.DEVAPEX-allowlist` file in your project root:
 
 ```text
-# .auto-claude-allowlist
+# .DEVAPEX-allowlist
 # One command per line, no comments on same line
 
 # Custom build tools
@@ -83,7 +83,7 @@ terraform
 
 ### When to Use the Allowlist
 
-Use `.auto-claude-allowlist` when:
+Use `.DEVAPEX-allowlist` when:
 
 - Your project uses uncommon build tools (Bazel, Buck, Pants, etc.)
 - You have custom scripts that need to be executable
@@ -108,18 +108,18 @@ Use `.auto-claude-allowlist` when:
 2. **Add to allowlist:**
 
    ```bash
-   echo "your-command" >> .auto-claude-allowlist
+   echo "your-command" >> .DEVAPEX-allowlist
    ```
 
 3. **Force re-analysis** (if detection seems wrong):
-   - Delete `.auto-claude-security.json`
+   - Delete `.DEVAPEX-security.json`
    - Restart the task
 
 ### Allowlist Changes Not Taking Effect
 
 The security profile cache updates automatically when:
-- `.auto-claude-allowlist` is modified (mtime changes)
-- `.auto-claude-security.json` is modified
+- `.DEVAPEX-allowlist` is modified (mtime changes)
+- `.DEVAPEX-security.json` is modified
 
 No restart required - changes apply on the next command.
 
@@ -152,3 +152,4 @@ If you're using a technology that should be auto-detected, consider contributing
 3. Submit a PR!
 
 See existing detectors for examples.
+

@@ -81,7 +81,7 @@ function loadSettingsSync(): AppSettings {
 function cleanupStaleUpdateMetadata(): void {
   const userData = app.getPath('userData');
   const stalePaths = [
-    join(userData, 'auto-claude-source'),
+    join(userData, 'DEVAPEX-source'),
     join(userData, 'backend-source'),
   ];
 
@@ -230,7 +230,7 @@ if (process.platform === 'win32') {
 // Initialize the application
 app.whenReady().then(() => {
   // Set app user model id for Windows
-  electronApp.setAppUserModelId('com.autoclaude.ui');
+  electronApp.setAppUserModelId('com.DEVAPEX.ui');
 
   // Clear cache on Windows to prevent permission errors from stale cache
   if (process.platform === 'win32') {
@@ -265,7 +265,7 @@ app.whenReady().then(() => {
   // Initialize agent manager
   agentManager = new AgentManager();
 
-  // Load settings and configure agent manager with Python and auto-claude paths
+  // Load settings and configure agent manager with Python and DEVAPEX paths
   // Uses EAFP pattern (try/catch) instead of LBYL (existsSync) to avoid TOCTOU race conditions
   const settingsPath = join(app.getPath('userData'), 'settings.json');
   try {
@@ -286,11 +286,11 @@ app.whenReady().then(() => {
 
       if (!specRunnerExists) {
         // Migration: Try to fix stale paths from old project structure
-        // Old structure: /path/to/project/auto-claude
+        // Old structure: /path/to/project/DEVAPEX
         // New structure: /path/to/project/apps/backend
         let migrated = false;
-        if (validAutoBuildPath.endsWith('/auto-claude') || validAutoBuildPath.endsWith('\\auto-claude')) {
-          const basePath = validAutoBuildPath.replace(/[/\\]auto-claude$/, '');
+        if (validAutoBuildPath.endsWith('/DEVAPEX') || validAutoBuildPath.endsWith('\\DEVAPEX')) {
+          const basePath = validAutoBuildPath.replace(/[/\\]DEVAPEX$/, '');
           const correctedPath = join(basePath, 'apps', 'backend');
           const correctedSpecRunnerPath = join(correctedPath, 'runners', 'spec_runner.py');
 
@@ -442,4 +442,5 @@ app.on('before-quit', async () => {
 
 // Note: Uncaught exceptions and unhandled rejections are now
 // logged by setupErrorLogging() in app-logger.ts
+
 

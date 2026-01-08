@@ -140,7 +140,7 @@ export function AppUpdateNotification() {
             App Update Available
           </DialogTitle>
           <DialogDescription>
-            A new version of Auto Claude is ready to download
+            A new version of DEVAPEX is ready to download
           </DialogDescription>
         </DialogHeader>
 
@@ -248,3 +248,4 @@ export function AppUpdateNotification() {
     </Dialog>
   );
 }
+

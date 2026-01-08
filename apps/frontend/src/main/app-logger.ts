@@ -3,9 +3,9 @@
  *
  * Provides persistent, always-on logging for the main process using electron-log.
  * Logs are stored in the standard OS log directory:
- * - macOS: ~/Library/Logs/Auto-Claude/
- * - Windows: %USERPROFILE%\AppData\Roaming\Auto-Claude\logs\
- * - Linux: ~/.config/Auto-Claude/logs/
+ * - macOS: ~/Library/Logs/DEVAPEX/
+ * - Windows: %USERPROFILE%\AppData\Roaming\DEVAPEX\logs\
+ * - Linux: ~/.config/DEVAPEX/logs/
  *
  * Features:
  * - Automatic file rotation (7 days, max 10MB per file)
@@ -137,7 +137,7 @@ export function generateDebugReport(): string {
   const recentErrors = getRecentErrors(10);
 
   const lines = [
-    '=== Auto Claude Debug Report ===',
+    '=== DEVAPEX Debug Report ===',
     `Generated: ${new Date().toISOString()}`,
     '',
     '--- System Information ---',
@@ -216,3 +216,6 @@ export function setupErrorLogging(): void {
 
   log.info('Error logging initialized');
 }
+
+
+

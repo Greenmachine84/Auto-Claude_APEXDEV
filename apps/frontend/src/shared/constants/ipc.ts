@@ -412,7 +412,7 @@ export const IPC_CHANNELS = {
   OLLAMA_PULL_MODEL: 'ollama:pullModel',
   OLLAMA_PULL_PROGRESS: 'ollama:pullProgress',
 
-  // Auto Claude source environment configuration
+  // DEVAPEX source environment configuration
   AUTOBUILD_SOURCE_ENV_GET: 'autobuild:source:env:get',
   AUTOBUILD_SOURCE_ENV_UPDATE: 'autobuild:source:env:update',
   AUTOBUILD_SOURCE_ENV_CHECK_TOKEN: 'autobuild:source:env:checkToken',
@@ -509,3 +509,4 @@ export const IPC_CHANNELS = {
   GET_SENTRY_DSN: 'sentry:get-dsn',              // Get DSN from main process (env var)
   GET_SENTRY_CONFIG: 'sentry:get-config'         // Get full Sentry config (DSN + sample rates)
 } as const;
+

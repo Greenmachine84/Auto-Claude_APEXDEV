@@ -155,7 +155,7 @@ export function initializeGit(projectPath: string): InitializationResult {
 /**
  * Entries to add to .gitignore when initializing a project
  */
-const GITIGNORE_ENTRIES = ['.auto-claude/'];
+const GITIGNORE_ENTRIES = ['.DEVAPEX/'];
 
 /**
  * Ensure entries exist in the project's .gitignore file.
@@ -199,7 +199,7 @@ function ensureGitignoreEntries(projectPath: string, entries: string[]): void {
     appendContent += '\n';
   }
 
-  appendContent += '\n# Auto Claude data directory\n';
+  appendContent += '\n# DEVAPEX data directory\n';
   for (const entry of entriesToAdd) {
     appendContent += entry + '\n';
   }
@@ -207,14 +207,14 @@ function ensureGitignoreEntries(projectPath: string, entries: string[]): void {
   if (existsSync(gitignorePath)) {
     appendFileSync(gitignorePath, appendContent);
   } else {
-    writeFileSync(gitignorePath, '# Auto Claude data directory\n' + entriesToAdd.join('\n') + '\n');
+    writeFileSync(gitignorePath, '# DEVAPEX data directory\n' + entriesToAdd.join('\n') + '\n');
   }
 
   debug('Added entries to .gitignore', { entries: entriesToAdd });
 }
 
 /**
- * Data directories created in .auto-claude for each project
+ * Data directories created in .DEVAPEX for each project
  */
 const DATA_DIRECTORIES = [
   'specs',
@@ -254,17 +254,17 @@ export function getLocalSourcePath(projectPath: string): string | null {
 }
 
 /**
- * Check if project is initialized (has .auto-claude directory)
+ * Check if project is initialized (has .DEVAPEX directory)
  */
 export function isInitialized(projectPath: string): boolean {
-  const dotAutoBuildPath = path.join(projectPath, '.auto-claude');
+  const dotAutoBuildPath = path.join(projectPath, '.DEVAPEX');
   return existsSync(dotAutoBuildPath);
 }
 
 /**
- * Initialize auto-claude data directory in a project.
+ * Initialize DEVAPEX data directory in a project.
  *
- * Creates .auto-claude/ with data directories (specs, ideation, insights, roadmap).
+ * Creates .DEVAPEX/ with data directories (specs, ideation, insights, roadmap).
  * The framework code runs from the source repo - only data is stored here.
  *
  * Requires:
@@ -283,31 +283,31 @@ export function initializeProject(projectPath: string): InitializationResult {
     };
   }
 
-  // Check git status - Auto Claude requires git for worktree-based builds
+  // Check git status - DEVAPEX requires git for worktree-based builds
   const gitStatus = checkGitStatus(projectPath);
   if (!gitStatus.isGitRepo || !gitStatus.hasCommits) {
     debug('Git check failed', { gitStatus });
     return {
       success: false,
-      error: gitStatus.error || 'Git repository required. Auto Claude uses git worktrees for isolated builds.'
+      error: gitStatus.error || 'Git repository required. DEVAPEX uses git worktrees for isolated builds.'
     };
   }
 
   // Check if already initialized
-  const dotAutoBuildPath = path.join(projectPath, '.auto-claude');
+  const dotAutoBuildPath = path.join(projectPath, '.DEVAPEX');
 
   if (existsSync(dotAutoBuildPath)) {
-    debug('Already initialized - .auto-claude exists');
+    debug('Already initialized - .DEVAPEX exists');
     return {
       success: false,
-      error: 'Project already has auto-claude initialized (.auto-claude exists)'
+      error: 'Project already has DEVAPEX initialized (.DEVAPEX exists)'
     };
   }
 
   try {
-    debug('Creating .auto-claude data directory', { dotAutoBuildPath });
+    debug('Creating .DEVAPEX data directory', { dotAutoBuildPath });
 
-    // Create the .auto-claude directory
+    // Create the .DEVAPEX directory
     mkdirSync(dotAutoBuildPath, { recursive: true });
 
     // Create data directories
@@ -318,7 +318,7 @@ export function initializeProject(projectPath: string): InitializationResult {
       writeFileSync(path.join(dirPath, '.gitkeep'), '');
     }
 
-    // Update .gitignore to exclude .auto-claude/
+    // Update .gitignore to exclude .DEVAPEX/
     ensureGitignoreEntries(projectPath, GITIGNORE_ENTRIES);
 
     debug('Initialization complete');
@@ -334,11 +334,11 @@ export function initializeProject(projectPath: string): InitializationResult {
 }
 
 /**
- * Ensure all data directories exist in .auto-claude.
+ * Ensure all data directories exist in .DEVAPEX.
  * Useful if new directories are added in future versions.
  */
 export function ensureDataDirectories(projectPath: string): InitializationResult {
-  const dotAutoBuildPath = path.join(projectPath, '.auto-claude');
+  const dotAutoBuildPath = path.join(projectPath, '.DEVAPEX');
 
   if (!existsSync(dotAutoBuildPath)) {
     return {
@@ -366,22 +366,25 @@ export function ensureDataDirectories(projectPath: string): InitializationResult
 }
 
 /**
- * Get the auto-claude folder path for a project.
+ * Get the DEVAPEX folder path for a project.
  *
- * IMPORTANT: Only .auto-claude/ is considered a valid "installed" auto-claude.
- * The auto-claude/ folder (if it exists) is the SOURCE CODE being developed,
- * not an installation. This allows Auto Claude to be used to develop itself.
+ * IMPORTANT: Only .DEVAPEX/ is considered a valid "installed" DEVAPEX.
+ * The DEVAPEX/ folder (if it exists) is the SOURCE CODE being developed,
+ * not an installation. This allows DEVAPEX to be used to develop itself.
  */
 export function getAutoBuildPath(projectPath: string): string | null {
-  const dotAutoBuildPath = path.join(projectPath, '.auto-claude');
+  const dotAutoBuildPath = path.join(projectPath, '.DEVAPEX');
 
   debug('getAutoBuildPath called', { projectPath, dotAutoBuildPath });
 
   if (existsSync(dotAutoBuildPath)) {
-    debug('Returning .auto-claude (installed version)');
-    return '.auto-claude';
+    debug('Returning .DEVAPEX (installed version)');
+    return '.DEVAPEX';
   }
 
-  debug('No .auto-claude folder found - project not initialized');
+  debug('No .DEVAPEX folder found - project not initialized');
   return null;
 }
+
+
+

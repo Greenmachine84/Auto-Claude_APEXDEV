@@ -65,7 +65,7 @@ function getReviewKey(projectId: string, mrIid: number): string {
  * Get the GitLab directory for a project
  */
 function getGitLabDir(project: Project): string {
-  return path.join(project.path, '.auto-claude', 'gitlab');
+  return path.join(project.path, '.DEVAPEX', 'gitlab');
 }
 
 async function waitForRebaseCompletion(
@@ -691,7 +691,7 @@ export function registerMRReviewHandlers(
       debugLog('checkNewCommits handler called', { projectId, mrIid });
 
       const result = await withProjectOrNull(projectId, async (project) => {
-        const gitlabDir = path.join(project.path, '.auto-claude', 'gitlab');
+        const gitlabDir = path.join(project.path, '.DEVAPEX', 'gitlab');
         const reviewPath = path.join(gitlabDir, 'mr', `review_${mrIid}.json`);
 
         if (!fs.existsSync(reviewPath)) {
@@ -889,4 +889,5 @@ export function registerMRReviewHandlers(
 
   debugLog('MR review handlers registered');
 }
+
 

@@ -404,7 +404,7 @@ export async function updateProjectSettings(
 }
 
 /**
- * Check auto-claude version status for a project
+ * Check DEVAPEX version status for a project
  */
 export async function checkProjectVersion(
   projectId: string
@@ -421,7 +421,7 @@ export async function checkProjectVersion(
 }
 
 /**
- * Initialize auto-claude in a project
+ * Initialize DEVAPEX in a project
  */
 export async function initializeProject(
   projectId: string
@@ -437,8 +437,8 @@ export async function initializeProject(
       console.log('[ProjectStore] IPC succeeded, result.data:', result.data);
       // Update the project's autoBuildPath in local state
       if (result.data.success) {
-        console.log('[ProjectStore] Updating project autoBuildPath to .auto-claude');
-        store.updateProject(projectId, { autoBuildPath: '.auto-claude' });
+        console.log('[ProjectStore] Updating project autoBuildPath to .DEVAPEX');
+        store.updateProject(projectId, { autoBuildPath: '.DEVAPEX' });
       } else {
         console.log('[ProjectStore] result.data.success is false, not updating project');
       }
@@ -453,3 +453,4 @@ export async function initializeProject(
     return null;
   }
 }
+

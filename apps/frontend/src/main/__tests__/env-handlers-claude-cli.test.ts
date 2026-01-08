@@ -217,3 +217,6 @@ describe('env-handlers Claude CLI usage', () => {
     expect(result.error).toContain('Claude CLI not found');
   });
 });
+
+
+

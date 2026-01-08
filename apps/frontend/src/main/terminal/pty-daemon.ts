@@ -14,8 +14,8 @@ import * as pty from '@lydell/node-pty';
 
 const SOCKET_PATH =
   process.platform === 'win32'
-    ? `\\\\.\\pipe\\auto-claude-pty-${process.getuid?.() || 'default'}`
-    : `/tmp/auto-claude-pty-${process.getuid?.() || 'default'}.sock`;
+    ? `\\\\.\\pipe\\DEVAPEX-pty-${process.getuid?.() || 'default'}`
+    : `/tmp/DEVAPEX-pty-${process.getuid?.() || 'default'}.sock`;
 
 // Maximum buffer size per PTY (100KB)
 const MAX_BUFFER_SIZE = 100_000;
@@ -497,3 +497,4 @@ if (require.main === module) {
 }
 
 export { PtyDaemon };
+

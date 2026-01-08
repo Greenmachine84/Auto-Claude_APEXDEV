@@ -407,3 +407,6 @@ describe('claude-integration-handler', () => {
     expect(mockPersistSession).not.toHaveBeenCalled();
   });
 });
+
+
+
