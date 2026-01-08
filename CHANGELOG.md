@@ -1,5 +1,56 @@
 # Changelog
 
+## 3.7.3 - DEVAPEX Branding Completion
+
+### Branding Update
+- Updated all EN/FR locale files with DEVAPEX branding
+- Onboarding wizard now shows Welcome to DEVAPEX
+
+### Dashboard Improvements
+- Removed Phase 2-7 labels from Platform Features cards
+- Updated subtitle to AI-powered autonomous development platform
+
+### Documentation
+- ADR-059: DEVAPEX Branding Completion
+
+## 3.7.3 - DEVAPEX Branding Completion & UI Polish
+
+### Branding Update
+
+- **Locale Files Rebranded**
+  - Updated all EN/FR locale files (dialogs, navigation, onboarding, settings, welcome)
+  - Replaced all Auto Claude references with DEVAPEX
+  - Onboarding wizard now shows Welcome to DEVAPEX
+
+### Dashboard Improvements
+
+- **Removed Phase Badges**
+  - Removed Phase 2-7 labels from Platform Features cards
+  - Updated subtitle to AI-powered autonomous development platform
+  - Cleaner, more professional dashboard appearance
+
+### Documentation
+- ADR-059: DEVAPEX Branding Completion
+
+## 3.7.3 - DEVAPEX Branding Completion & UI Polish
+
+### 🎨 Complete Branding Update
+
+- **Locale Files Rebranded**
+  - Updated all EN/FR locale files (dialogs, navigation, onboarding, settings, welcome)
+  - Replaced all "Auto Claude" references with "DEVAPEX"
+  - Onboarding wizard now shows "Welcome to DEVAPEX"
+
+### 🖥️ Dashboard Improvements
+
+- **Removed Phase Badges**
+  - Removed Phase 2-7 labels from Platform Features cards
+  - Updated subtitle to "AI-powered autonomous development platform"
+  - Cleaner, more professional dashboard appearance
+
+### 📄 Documentation
+- ADR-059: DEVAPEX Branding Completion
+
 ## 3.7.2 - API Provider Updates
 
 ### 🔧 API Configuration
