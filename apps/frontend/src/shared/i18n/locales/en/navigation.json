@@ -16,6 +16,10 @@
     "gitlabIssues": "GitLab Issues",
     "gitlabMRs": "GitLab MRs",
     "worktrees": "Worktrees",
+    "analytics": "Analytics",
+    "memory": "Memory",
+    "workflow": "Workflow",
+    "agents": "Agents",
     "agentTools": "MCP Overview"
   },
   "actions": {

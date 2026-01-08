@@ -43,6 +43,10 @@ import { GitLabMergeRequests } from './components/gitlab-merge-requests';
 import { Changelog } from './components/Changelog';
 import { Worktrees } from './components/Worktrees';
 import { AgentTools } from './components/AgentTools';
+import { AnalyticsView } from './components/analytics';
+import { MemoryView } from './components/memory';
+import { WorkflowView } from './components/workflow';
+import { AgentView } from './components/agents';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { RateLimitModal } from './components/RateLimitModal';
 import { SDKRateLimitModal } from './components/SDKRateLimitModal';
@@ -808,6 +812,18 @@ export function App() {
                   <Worktrees projectId={activeProjectId || selectedProjectId!} />
                 )}
                 {activeView === 'agent-tools' && <AgentTools />}
+                {activeView === 'analytics' && (activeProjectId || selectedProjectId) && (
+                  <AnalyticsView />
+                )}
+                {activeView === 'memory' && (activeProjectId || selectedProjectId) && (
+                  <MemoryView />
+                )}
+                {activeView === 'workflow' && (activeProjectId || selectedProjectId) && (
+                  <WorkflowView />
+                )}
+                {activeView === 'agents' && (activeProjectId || selectedProjectId) && (
+                  <AgentView />
+                )}
               </>
             ) : (
               <WelcomeScreen
