@@ -35,7 +35,7 @@
     "help": "Help & Feedback"
   },
   "messages": {
-    "initializeToCreateTasks": "Initialize Auto Claude to create tasks"
+    "initializeToCreateTasks": "Initialize DEVAPEX to create tasks"
   },
   "claudeCode": {
     "checking": "Checking Claude Code...",
