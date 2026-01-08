@@ -33,7 +33,7 @@ export default defineConfig({
         },
         output: {
           // Output as .js (CommonJS) to match window-manager.ts expectation
-          entryFileNames: '[name].js',
+          entryFileNames: '[name].cjs',
           format: 'cjs'
         }
       }

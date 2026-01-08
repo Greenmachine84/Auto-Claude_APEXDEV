@@ -1,148 +1,89 @@
 /**
- * APEX Development Platform - Agent API (Preload)
- * Phase 4: UI, Integrations & Analytics
+ * Agent API - Aggregates all agent-related API modules
  *
- * Agent management API exposed to renderer.
+ * This file serves as the main entry point for agent APIs, combining:
+ * - Roadmap operations
+ * - Ideation operations
+ * - Insights operations
+ * - Changelog operations
+ * - Linear integration
+ * - GitHub integration
+ * - Shell operations
  */
 
-import { ipcRenderer } from 'electron';
-
-/** Agent type */
-export type AgentType = 'coder' | 'reviewer' | 'fixer' | 'planner' | 'analyst';
-
-/** Agent status */
-export type AgentStatus = 'idle' | 'running' | 'paused' | 'error' | 'stopped';
-
-/** Agent data */
-export interface Agent {
-  id: string;
-  type: AgentType;
-  status: AgentStatus;
-  taskId?: string;
-  startedAt?: string;
-  lastActiveAt?: string;
-  metrics?: AgentMetrics;
-}
-
-/** Agent metrics */
-export interface AgentMetrics {
-  tasksCompleted: number;
-  tasksFailed: number;
-  avgTaskDuration: number;
-  tokenUsage: number;
-  costEstimate: number;
-}
-
-/** Agent pool status */
-export interface AgentPoolStatus {
-  totalAgents: number;
-  runningAgents: number;
-  idleAgents: number;
-  queuedTasks: number;
-  agentsByType: Record<AgentType, number>;
-}
-
-/** Agent start options */
-export interface AgentStartOptions {
-  taskId?: string;
-  config?: Record<string, unknown>;
-  priority?: number;
-}
+import { createRoadmapAPI, RoadmapAPI } from './modules/roadmap-api';
+import { createIdeationAPI, IdeationAPI } from './modules/ideation-api';
+import { createInsightsAPI, InsightsAPI } from './modules/insights-api';
+import { createChangelogAPI, ChangelogAPI } from './modules/changelog-api';
+import { createLinearAPI, LinearAPI } from './modules/linear-api';
+import { createGitHubAPI, GitHubAPI } from './modules/github-api';
+import { createGitLabAPI, GitLabAPI } from './modules/gitlab-api';
+import { createShellAPI, ShellAPI } from './modules/shell-api';
 
 /**
- * Agent API
+ * Combined Agent API interface
+ * Includes all operations from individual API modules
  */
-export const agentAPI = {
-  /**
-   * Start an agent
-   */
-  start: (type: AgentType, options?: AgentStartOptions): Promise<Agent> =>
-    ipcRenderer.invoke('agent:start', type, options),
+export interface AgentAPI extends
+  RoadmapAPI,
+  IdeationAPI,
+  InsightsAPI,
+  ChangelogAPI,
+  LinearAPI,
+  GitHubAPI,
+  GitLabAPI,
+  ShellAPI {}
 
-  /**
-   * Stop an agent
-   */
-  stop: (id: string): Promise<boolean> =>
-    ipcRenderer.invoke('agent:stop', id),
+/**
+ * Creates the complete Agent API by combining all module APIs
+ *
+ * @returns Complete AgentAPI with all operations available
+ */
+export const createAgentAPI = (): AgentAPI => {
+  const roadmapAPI = createRoadmapAPI();
+  const ideationAPI = createIdeationAPI();
+  const insightsAPI = createInsightsAPI();
+  const changelogAPI = createChangelogAPI();
+  const linearAPI = createLinearAPI();
+  const githubAPI = createGitHubAPI();
+  const gitlabAPI = createGitLabAPI();
+  const shellAPI = createShellAPI();
 
-  /**
-   * Pause an agent
-   */
-  pause: (id: string): Promise<boolean> =>
-    ipcRenderer.invoke('agent:pause', id),
+  return {
+    // Roadmap API
+    ...roadmapAPI,
 
-  /**
-   * Resume a paused agent
-   */
-  resume: (id: string): Promise<boolean> =>
-    ipcRenderer.invoke('agent:resume', id),
+    // Ideation API
+    ...ideationAPI,
 
-  /**
-   * Get agent status
-   */
-  status: (id: string): Promise<Agent | null> =>
-    ipcRenderer.invoke('agent:status', id),
+    // Insights API
+    ...insightsAPI,
 
-  /**
-   * List all agents
-   */
-  list: (): Promise<Agent[]> =>
-    ipcRenderer.invoke('agent:list'),
+    // Changelog API
+    ...changelogAPI,
 
-  /**
-   * Get agent logs
-   */
-  logs: (id: string, limit?: number): Promise<string[]> =>
-    ipcRenderer.invoke('agent:logs', id, limit),
+    // Linear Integration API
+    ...linearAPI,
 
-  /**
-   * Get agent pool status
-   */
-  poolStatus: (): Promise<AgentPoolStatus> =>
-    ipcRenderer.invoke('agent:poolStatus'),
+    // GitHub Integration API
+    ...githubAPI,
 
-  /**
-   * Get agent metrics
-   */
-  getMetrics: (id: string): Promise<AgentMetrics | null> =>
-    ipcRenderer.invoke('agent:getMetrics', id),
+    // GitLab Integration API
+    ...gitlabAPI,
 
-  /**
-   * Subscribe to agent status changes
-   */
-  onAgentUpdate: (callback: (agent: Agent) => void) => {
-    const listener = (_event: Electron.IpcRendererEvent, agent: Agent) => callback(agent);
-    ipcRenderer.on('agent:updated', listener);
-    return () => ipcRenderer.removeListener('agent:updated', listener);
-  },
+    // Shell Operations API
+    ...shellAPI
+  };
+};
 
-  /**
-   * Subscribe to agent logs
-   */
-  onAgentLog: (callback: (agentId: string, log: string) => void) => {
-    const listener = (_event: Electron.IpcRendererEvent, agentId: string, log: string) =>
-      callback(agentId, log);
-    ipcRenderer.on('agent:log', listener);
-    return () => ipcRenderer.removeListener('agent:log', listener);
-  },
-
-  /**
-   * Subscribe to agent errors
-   */
-  onAgentError: (callback: (agentId: string, error: string) => void) => {
-    const listener = (_event: Electron.IpcRendererEvent, agentId: string, error: string) =>
-      callback(agentId, error);
-    ipcRenderer.on('agent:error', listener);
-    return () => ipcRenderer.removeListener('agent:error', listener);
-  },
-
-  /**
-   * Subscribe to pool status updates
-   */
-  onPoolUpdate: (callback: (status: AgentPoolStatus) => void) => {
-    const listener = (_event: Electron.IpcRendererEvent, status: AgentPoolStatus) =>
-      callback(status);
-    ipcRenderer.on('agent:poolUpdated', listener);
-    return () => ipcRenderer.removeListener('agent:poolUpdated', listener);
-  },
+// Re-export individual API interfaces for consumers who need them
+export type {
+  RoadmapAPI,
+  IdeationAPI,
+  InsightsAPI,
+  ChangelogAPI,
+  LinearAPI,
+  GitHubAPI,
+  GitLabAPI,
+  ShellAPI
 };
