@@ -2,6 +2,50 @@
 
 All notable changes to this project will be documented in this file.
 
+## 3.7.0 - DEVAPEX Rebranding
+
+### 🎨 Branding Update
+
+Complete rebrand from "Auto-Claude" to "DEVAPEX" (Development Apex Platform)
+
+- **Application Identity**
+  - Window title: "DEVAPEX - Autonomous Coding Platform"
+  - App name: "DEVAPEX"
+  - Package name: `devapex-ui`
+  - New sidebar logo with "D" icon and DEVAPEX text
+
+- **Color Theme Update**
+  - Primary color: Yellow (#D6D876) → Indigo (#6366F1)
+  - Accent color: Olive → Dark Indigo (#1E1B4B)
+  - Updated dark mode, light mode, and dusk theme variants
+  - Professional blue/purple aesthetic
+
+- **Service Branding**
+  - GitHub PR review comments now branded "DEVAPEX Review"
+  - GitLab MR review comments now branded "DEVAPEX MR Review"
+  - User-Agent header updated to "DEVAPEX-UI"
+  - Error messages updated across all handlers
+
+### 📂 Files Modified
+
+| File | Change |
+|------|--------|
+| `src/renderer/index.html` | Window title |
+| `src/main/index.ts` | App name |
+| `package.json` | Package metadata |
+| `src/renderer/components/Sidebar.tsx` | Logo component |
+| `src/renderer/styles/globals.css` | Color theme |
+| `src/main/ipc-handlers/github/pr-handlers.ts` | PR branding |
+| `src/main/ipc-handlers/gitlab/mr-review-handlers.ts` | MR branding |
+| `src/main/ipc-handlers/github/utils.ts` | User-Agent |
+| `src/main/ipc-handlers/task/*.ts` | Error messages |
+| `src/main/insights/insights-executor.ts` | Error messages |
+
+### 🏗️ Architecture Decision
+
+See [ADR-049: DEVAPEX Rebranding](shared_docs/decisions/ADR-049-devapex-rebranding.md)
+
+---
 ## 3.6.0 - Phase 10: Testing & Documentation Infrastructure
 
 ### ✨ New Features
@@ -946,3 +990,5 @@ apps/backend/agents/enterprise/
 
 - ADR-045: Phase 1 Agent System Complete
 - Reference: `docs/architecture/PHASE1_AGENT_SYSTEM_ARCHITECTURE.md`
+
+

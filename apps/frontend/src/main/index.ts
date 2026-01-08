@@ -214,10 +214,10 @@ function createWindow(): void {
 }
 
 // Set app name before ready (for dock tooltip on macOS in dev mode)
-app.setName('Auto Claude');
+app.setName('DEVAPEX');
 if (process.platform === 'darwin') {
   // Force the name to appear in dock on macOS
-  app.name = 'Auto Claude';
+  app.name = 'DEVAPEX';
 }
 
 // Fix Windows GPU cache permission errors (0x5 Access Denied)
@@ -442,3 +442,4 @@ app.on('before-quit', async () => {
 
 // Note: Uncaught exceptions and unhandled rejections are now
 // logged by setupErrorLogging() in app-logger.ts
+

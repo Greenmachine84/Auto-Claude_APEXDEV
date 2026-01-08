@@ -1,8 +1,8 @@
 {
-  "name": "auto-claude-ui",
+  "name": "devapex-ui",
   "version": "2.7.2",
   "type": "module",
-  "description": "Desktop UI for Auto Claude autonomous coding framework",
+  "description": "DEVAPEX - Autonomous Coding Platform",
   "homepage": "https://github.com/AndyMik90/Auto-Claude",
   "repository": {
     "type": "git",
@@ -10,7 +10,7 @@
   },
   "main": "./out/main/index.js",
   "author": {
-    "name": "Auto Claude Team",
+    "name": "DEVAPEX Team",
     "email": "119136210+AndyMik90@users.noreply.github.com"
   },
   "license": "AGPL-3.0",
@@ -245,3 +245,4 @@
     ]
   }
 }
+

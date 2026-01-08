@@ -101,7 +101,7 @@ export async function githubFetch(
     headers: {
       'Accept': 'application/vnd.github+json',
       'Authorization': `Bearer ${token}`,
-      'User-Agent': 'Auto-Claude-UI',
+      'User-Agent': 'DEVAPEX-UI',
       ...options.headers
     }
   });
@@ -113,3 +113,4 @@ export async function githubFetch(
 
   return response.json();
 }
+
