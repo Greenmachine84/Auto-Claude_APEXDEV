@@ -4,6 +4,83 @@
 > All notable changes to this project will be documented in this file.
 > Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+
+---
+
+## [2026-01-08] - Upstream Integration (TIER 1-5) ✅ COMPLETE
+
+### Context
+Integrated 32 upstream commits from AndyMik90/Auto-Claude develop branch into APEXDEV_MERGE using a 5-tier risk-based strategy. This approach preserved all Phase components while incorporating valuable bug fixes and enhancements.
+
+### Added
+
+**TIER 4 - Implemented from Scratch**:
+- `fix(startup)`: CLI tool detection with pre-warming to prevent app freeze
+- `feat(windows)`: Git executable finder for cross-platform support
+- `fix(terminal)`: Worktree creation crash prevention
+- `feat(terminal)`: Copy/paste keyboard shortcuts for Windows/Linux
+
+**TIER 5 - Safe Enhancements Extracted**:
+- Binary file extension list expanded (git_utils.py)
+- Line ending normalization fix (file_merger.py)
+- MergeReadiness interface and IPC handler (pr-handlers.ts)
+- checkMergeReadiness() preload API (github-api.ts)
+- PR creation IPC channels: GITHUB_PR_CHECK_MERGE_READINESS, TASK_WORKTREE_CREATE_PR (ipc.ts)
+- pr_created task status with labels/colors (task.ts)
+- PR creation backend: push_branch(), create_pull_request(), push_and_create_pr() (worktree.py)
+- TextBlock type checking + improved error handling (insight_extractor.py)
+- Cache invalidation on agent exit (agent-events-handlers.ts)
+- Dual-location status persistence for worktrees (agent-events-handlers.ts)
+
+### Cherry-Picked (TIER 1-3)
+
+**TIER 1 - Safe (7 commits)**:
+- Documentation, configs, version bumps
+
+**TIER 2 - Low Risk (8 commits)**:
+- Bug fixes, accessibility improvements
+- Isolated changes with no Phase impact
+
+**TIER 3 - Medium Risk (8/11 commits)**:
+- 8 cherry-picked successfully
+- 3 skipped due to conflicts (handled in TIER 4/5)
+
+### Not Applied (Risk Assessment)
+
+| File | Decision | Reason |
+|------|----------|--------|
+| memory.py | ⚠️ SKIP | Async conversion could break sync Phase callers |
+| KanbanBoard.tsx | ⚠️ PARTIAL | PR UI requires missing backend infrastructure |
+| TaskCard.tsx | ⚠️ PARTIAL | Type guards safe, but PR button needs full stack |
+| TaskDetailModal.tsx | ⚠️ PARTIAL | PR creation dialog needs additional components |
+
+### Integration Statistics
+| Metric | Value |
+|--------|-------|
+| Upstream Commits Analyzed | 32 |
+| Files in Upstream Changes | 847 |
+| Lines Delta | +15,723/-130,832 |
+| Files Marked for Deletion | 636 |
+| Commits Successfully Integrated | 27 |
+| Phase Components Preserved | ✅ All |
+
+### Branch
+- **Source**: AndyMik90/Auto-Claude develop
+- **Target**: Greenmachine84/Auto-Claude_APEXDEV upstream-integration
+- **Strategy**: 5-tier risk-based cherry-pick
+
+### Files Modified (12 files)
+- apps/backend/core/git_utils.py
+- apps/backend/merge/file_merger.py
+- apps/frontend/src/main/ipc-handlers/github/pr-handlers.ts
+- apps/frontend/src/preload/github-api.ts
+- apps/frontend/src/shared/ipc.ts
+- apps/frontend/src/shared/task.ts
+- apps/backend/core/worktree.py
+- apps/backend/analysis/insight_extractor.py
+- apps/frontend/src/main/ipc-handlers/agent-events-handlers.ts
+- docs/Decision.md (ADR-056)
+- docs/DEVAPEX_CHANGELOG.md
 ---
 
 ## [2026-01-08] - Phase Integration Audit & Fixes ✅ COMPLETE

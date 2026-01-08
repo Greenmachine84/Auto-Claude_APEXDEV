@@ -62,6 +62,10 @@
 | ADR-050 | Phase 6 Security Infrastructure Complete | ✅ Accepted | 6-Impl | 2026-01-07 |
 | ADR-051 | Phase 7 Enterprise Agents Complete | ✅ Accepted | 7-Impl | 2026-01-07 |
 | ADR-052 | Phase 8 Analytics & Tools Complete | ✅ Accepted | 8-Impl | 2026-01-07 |
+| ADR-053 | Phase 9 Governance Implementation | ✅ Accepted | 9-Impl | 2026-01-07 |
+| ADR-054 | Phase 10 Testing and Documentation Framework | ✅ Accepted | 10-Impl | 2026-01-07 |
+| ADR-055 | Frontend Dashboard and Phase View Integration | ✅ Accepted | Frontend | 2026-01-08 |
+| ADR-056 | Upstream Integration Strategy (TIER 1-5) | ✅ Accepted | Integration | 2026-01-08 |
 
 ---
 
@@ -1141,3 +1145,155 @@ All Phase components rewritten with shadcn/ui styling:
 | Navigation i18n | 1 | Updated |
 | Config | 1 | Updated |
 | **Total** | **10** | Frontend integration |
+
+---
+
+### ADR-056: Upstream Integration Strategy (TIER 1-5)
+**Status**: ✅ Accepted
+**Date**: 2026-01-08
+**Phase**: Integration
+
+#### Context
+The APEXDEV_MERGE branch diverged 32 commits behind upstream Auto-Claude develop branch. Analysis revealed 847 files changed with +15,723/-130,832 lines delta. 636 files marked for deletion would have removed all Phase components, roadmap views, and DEVAPEX enhancements.
+
+#### Decision
+Implement a 5-tier risk-based cherry-pick strategy:
+
+**TIER 1 - SAFE (7 commits)**: Direct cherry-picks
+- Documentation, configs, version bumps
+- No code changes, no conflicts
+
+**TIER 2 - LOW RISK (8 commits)**: Direct cherry-picks
+- Bug fixes, accessibility improvements
+- Isolated changes with no Phase impact
+
+**TIER 3 - MEDIUM RISK (11 commits)**: Selective cherry-picks
+- 8 cherry-picked successfully
+- 3 skipped due to conflicts (handled in TIER 4/5)
+
+**TIER 4 - HIGH RISK (4 commits)**: Implement from scratch
+- CLI tool detection with warming
+- Git executable finder
+- Terminal crash prevention
+- Worktree creation fixes
+
+**TIER 5 - SAFE ENHANCEMENTS**: Extract valuable code
+- Binary file extension list expansion
+- Line ending normalization fixes
+- MergeReadiness interface and handler
+- PR creation backend methods
+- TextBlock type checking in insight_extractor
+- Cache invalidation in agent-events-handlers
+- Dual-location status persistence
+
+#### Rationale
+- **Phase Preservation**: All Phase folders, components, and workflows remain intact
+- **Cherry-Pick Discipline**: Only integrate verified-safe changes
+- **Risk Containment**: High-risk changes reimplemented with local testing
+- **Value Extraction**: TIER 5 extracts useful enhancements without mass deletions
+
+#### Implementation Summary
+| Tier | Commits | Strategy | Status |
+|------|---------|----------|--------|
+| TIER 1 | 7 | Cherry-pick | ✅ Complete |
+| TIER 2 | 8 | Cherry-pick | ✅ Complete |
+| TIER 3 | 8/11 | Selective cherry-pick | ✅ Complete |
+| TIER 4 | 4 | Implement from scratch | ✅ Complete |
+| TIER 5 | 2 | Extract enhancements | ✅ Complete |
+| **Total** | **27** | Mixed strategy | **upstream-integration branch** |
+
+#### Files Modified (TIER 4/5)
+| File | Enhancement |
+|------|-------------|
+| apps/backend/core/git_utils.py | Binary extensions + get_binary_file_content_from_ref() |
+| apps/backend/merge/file_merger.py | Line ending normalization |
+| apps/frontend/src/main/ipc-handlers/github/pr-handlers.ts | MergeReadiness interface |
+| apps/frontend/src/preload/github-api.ts | checkMergeReadiness() API |
+| apps/frontend/src/shared/ipc.ts | PR creation IPC channels |
+| apps/frontend/src/shared/task.ts | pr_created status |
+| apps/backend/core/worktree.py | PR creation methods with retry |
+| apps/backend/analysis/insight_extractor.py | TextBlock type checking |
+| apps/frontend/src/main/ipc-handlers/agent-events-handlers.ts | Cache invalidation + dual persist |
+
+#### Rejected Changes
+| File | Reason |
+|------|--------|
+| memory.py | Async conversion would break sync Phase callers |
+| KanbanBoard/TaskCard/TaskDetailModal | PR UI requires missing backend infrastructure |
+
+
+---
+
+### ADR-056: Upstream Integration Strategy (TIER 1-5)
+**Status**: ✅ Accepted
+**Date**: 2026-01-08
+**Phase**: Integration
+
+#### Context
+The APEXDEV_MERGE branch diverged 32 commits behind upstream Auto-Claude develop branch. Analysis revealed 847 files changed with +15,723/-130,832 lines delta. 636 files marked for deletion would have removed all Phase components, roadmap views, and DEVAPEX enhancements.
+
+#### Decision
+Implement a 5-tier risk-based cherry-pick strategy:
+
+**TIER 1 - SAFE (7 commits)**: Direct cherry-picks
+- Documentation, configs, version bumps
+- No code changes, no conflicts
+
+**TIER 2 - LOW RISK (8 commits)**: Direct cherry-picks
+- Bug fixes, accessibility improvements
+- Isolated changes with no Phase impact
+
+**TIER 3 - MEDIUM RISK (11 commits)**: Selective cherry-picks
+- 8 cherry-picked successfully
+- 3 skipped due to conflicts (handled in TIER 4/5)
+
+**TIER 4 - HIGH RISK (4 commits)**: Implement from scratch
+- CLI tool detection with warming
+- Git executable finder
+- Terminal crash prevention
+- Worktree creation fixes
+
+**TIER 5 - SAFE ENHANCEMENTS**: Extract valuable code
+- Binary file extension list expansion
+- Line ending normalization fixes
+- MergeReadiness interface and handler
+- PR creation backend methods
+- TextBlock type checking in insight_extractor
+- Cache invalidation in agent-events-handlers
+- Dual-location status persistence
+
+#### Rationale
+- **Phase Preservation**: All Phase folders, components, and workflows remain intact
+- **Cherry-Pick Discipline**: Only integrate verified-safe changes
+- **Risk Containment**: High-risk changes reimplemented with local testing
+- **Value Extraction**: TIER 5 extracts useful enhancements without mass deletions
+
+#### Implementation Summary
+| Tier | Commits | Strategy | Status |
+|------|---------|----------|--------|
+| TIER 1 | 7 | Cherry-pick | ✅ Complete |
+| TIER 2 | 8 | Cherry-pick | ✅ Complete |
+| TIER 3 | 8/11 | Selective cherry-pick | ✅ Complete |
+| TIER 4 | 4 | Implement from scratch | ✅ Complete |
+| TIER 5 | 2 | Extract enhancements | ✅ Complete |
+| **Total** | **27** | Mixed strategy | **upstream-integration branch** |
+
+#### Files Modified (TIER 4/5)
+| File | Enhancement |
+|------|-------------|
+| apps/backend/core/git_utils.py | Binary extensions + get_binary_file_content_from_ref() |
+| apps/backend/merge/file_merger.py | Line ending normalization |
+| apps/frontend/src/main/ipc-handlers/github/pr-handlers.ts | MergeReadiness interface |
+| apps/frontend/src/preload/github-api.ts | checkMergeReadiness() API |
+| apps/frontend/src/shared/ipc.ts | PR creation IPC channels |
+| apps/frontend/src/shared/task.ts | pr_created status |
+| apps/backend/core/worktree.py | PR creation methods with retry |
+| apps/backend/analysis/insight_extractor.py | TextBlock type checking |
+| apps/frontend/src/main/ipc-handlers/agent-events-handlers.ts | Cache invalidation + dual persist |
+
+#### Rejected Changes
+| File | Reason |
+|------|--------|
+| memory.py | Async conversion would break sync Phase callers |
+| KanbanBoard/TaskCard/TaskDetailModal | PR UI requires missing backend infrastructure |
+
