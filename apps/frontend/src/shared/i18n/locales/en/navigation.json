@@ -20,6 +20,8 @@
     "memory": "Memory",
     "workflow": "Workflow",
     "agents": "Agents",
+    "security": "Security",
+    "governance": "Governance",
     "agentTools": "MCP Overview"
   },
   "actions": {

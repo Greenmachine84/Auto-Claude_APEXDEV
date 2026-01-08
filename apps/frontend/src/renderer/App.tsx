@@ -47,6 +47,8 @@ import { AnalyticsView } from './components/analytics';
 import { MemoryView } from './components/memory';
 import { WorkflowView } from './components/workflow';
 import { AgentView } from './components/agents';
+import { SecurityView } from './components/security';
+import { GovernanceView } from './components/governance';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { RateLimitModal } from './components/RateLimitModal';
 import { SDKRateLimitModal } from './components/SDKRateLimitModal';
@@ -823,6 +825,12 @@ export function App() {
                 )}
                 {activeView === 'agents' && (activeProjectId || selectedProjectId) && (
                   <AgentView />
+                )}
+                {activeView === 'security' && (activeProjectId || selectedProjectId) && (
+                  <SecurityView />
+                )}
+                {activeView === 'governance' && (activeProjectId || selectedProjectId) && (
+                  <GovernanceView />
                 )}
               </>
             ) : (

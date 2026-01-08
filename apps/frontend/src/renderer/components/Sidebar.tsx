@@ -24,7 +24,9 @@ import {
   BarChart3,
   Brain,
   Workflow,
-  Users
+  Users,
+  Shield,
+  Scale
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
@@ -56,7 +58,7 @@ import { RateLimitIndicator } from './RateLimitIndicator';
 import { ClaudeCodeStatusBadge } from './ClaudeCodeStatusBadge';
 import type { Project, AutoBuildVersionInfo, GitStatus, ProjectEnvConfig } from '../../shared/types';
 
-export type SidebarView = 'kanban' | 'terminals' | 'roadmap' | 'context' | 'ideation' | 'github-issues' | 'gitlab-issues' | 'github-prs' | 'gitlab-merge-requests' | 'changelog' | 'insights' | 'worktrees' | 'agent-tools' | 'analytics' | 'memory' | 'workflow' | 'agents';
+export type SidebarView = 'kanban' | 'terminals' | 'roadmap' | 'context' | 'ideation' | 'github-issues' | 'gitlab-issues' | 'github-prs' | 'gitlab-merge-requests' | 'changelog' | 'insights' | 'worktrees' | 'agent-tools' | 'analytics' | 'memory' | 'workflow' | 'agents' | 'security' | 'governance';
 
 interface SidebarProps {
   onSettingsClick: () => void;
@@ -86,7 +88,9 @@ const baseNavItems: NavItem[] = [
   { id: 'analytics', labelKey: 'navigation:items.analytics', icon: BarChart3, shortcut: 'Y' },
   { id: 'memory', labelKey: 'navigation:items.memory', icon: Brain, shortcut: 'E' },
   { id: 'workflow', labelKey: 'navigation:items.workflow', icon: Workflow, shortcut: 'F' },
-  { id: 'agents', labelKey: 'navigation:items.agents', icon: Users, shortcut: 'J' }
+  { id: 'agents', labelKey: 'navigation:items.agents', icon: Users, shortcut: 'J' },
+  { id: 'security', labelKey: 'navigation:items.security', icon: Shield, shortcut: 'S' },
+  { id: 'governance', labelKey: 'navigation:items.governance', icon: Scale }
 ];
 
 // GitHub nav items shown when GitHub is enabled
