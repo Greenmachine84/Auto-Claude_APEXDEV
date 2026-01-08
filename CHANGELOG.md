@@ -1,5 +1,24 @@
 # Changelog
 
+## 3.7.2 - API Provider Updates
+
+### 🔧 API Configuration
+
+- **Updated API Provider Presets**
+  - Added Google Gemini (https://generativelanguage.googleapis.com/v1beta)
+  - Added GitHub Copilot (https://api.githubcopilot.com)
+  - Removed GLM Global and GLM China providers
+  - Retained Anthropic, OpenRouter, and Groq presets
+
+- **Locale Updates**
+  - Updated English and French locale files with new preset labels
+  - Test coverage updated for new presets
+
+### 📄 Documentation
+- ADR-058: API Provider Updates
+
+
+
 All notable changes to this project will be documented in this file.
 
 ## 3.7.1 - Complete DEVAPEX Rebranding (Production Release)
@@ -262,6 +281,25 @@ apps/backend/
 
 ---
 # Changelog
+
+## 3.7.2 - API Provider Updates
+
+### 🔧 API Configuration
+
+- **Updated API Provider Presets**
+  - Added Google Gemini (https://generativelanguage.googleapis.com/v1beta)
+  - Added GitHub Copilot (https://api.githubcopilot.com)
+  - Removed GLM Global and GLM China providers
+  - Retained Anthropic, OpenRouter, and Groq presets
+
+- **Locale Updates**
+  - Updated English and French locale files with new preset labels
+  - Test coverage updated for new presets
+
+### 📄 Documentation
+- ADR-058: API Provider Updates
+
+
 
 All notable changes to this project will be documented in this file.
 
@@ -1002,6 +1040,7 @@ apps/backend/agents/enterprise/
 
 - ADR-045: Phase 1 Agent System Complete
 - Reference: `docs/architecture/PHASE1_AGENT_SYSTEM_ARCHITECTURE.md`
+
 
 
 
