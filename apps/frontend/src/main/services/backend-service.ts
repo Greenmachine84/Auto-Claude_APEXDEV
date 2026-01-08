@@ -85,8 +85,9 @@ export class BackendService extends EventEmitter {
       console.log('[Backend] Connected successfully');
     } catch (error) {
       this.isStarting = false;
-      console.error('[Backend] Failed to start:', error);
-      throw error;
+      console.warn('[Backend] Backend unavailable (app continues without it):', error);
+      this.emit('backend-unavailable');
+      // Don't throw - app works without backend
     }
   }
 
@@ -179,8 +180,9 @@ export class BackendService extends EventEmitter {
     });
 
     this.process.on('error', (error) => {
-      console.error('[Backend] Process error:', error);
-      this.emit('error', error);
+      console.warn('[Backend] Process error (non-fatal):', error.message);
+      this.isConnected = false;
+      this.emit('backend-unavailable');
     });
 
     this.process.on('exit', (code) => {
@@ -254,3 +256,6 @@ export class BackendService extends EventEmitter {
     BackendService.instance = null;
   }
 }
+
+
+
