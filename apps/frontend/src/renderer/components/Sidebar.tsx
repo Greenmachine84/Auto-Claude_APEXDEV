@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Plus,
@@ -368,7 +368,7 @@ export function Sidebar({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => window.open('https://github.com/AndyMik90/APEXDEV/issues', '_blank')}
+                  onClick={() => window.open('https://github.com/Greenmachine84/Auto-Claude_APEXDEV/issues', '_blank')}
                   aria-label={t('tooltips.help')}
                 >
                   <HelpCircle className="h-4 w-4" />
