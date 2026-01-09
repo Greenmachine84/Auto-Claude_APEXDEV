@@ -19,6 +19,7 @@ import type { ProfilesFile } from '../../shared/types/profile';
 // Mock Electron app.getPath
 vi.mock('electron', () => ({
   app: {
+    getName: vi.fn(() => 'APEXDEV'),
     getPath: vi.fn((name: string) => {
       if (name === 'userData') {
         return '/mock/userdata';

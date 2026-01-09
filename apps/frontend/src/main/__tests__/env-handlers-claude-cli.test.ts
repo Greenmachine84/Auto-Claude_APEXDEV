@@ -44,6 +44,7 @@ vi.mock('child_process', () => ({
 
 vi.mock('electron', () => ({
   app: {
+    getName: vi.fn(() => 'APEXDEV'),
     getPath: vi.fn((name: string) => {
       if (name === 'userData') return path.join('/tmp', 'userData');
       return '/tmp';

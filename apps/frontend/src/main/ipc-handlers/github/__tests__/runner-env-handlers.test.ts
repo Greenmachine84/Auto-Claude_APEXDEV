@@ -66,6 +66,7 @@ vi.mock('electron', () => ({
   ipcMain: mockIpcMain,
   BrowserWindow: class {},
   app: {
+    getName: vi.fn(() => 'APEXDEV'),
     getPath: vi.fn(() => '/tmp'),
     on: vi.fn(),
   },

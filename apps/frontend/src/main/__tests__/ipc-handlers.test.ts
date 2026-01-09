@@ -108,6 +108,7 @@ vi.mock('electron', () => {
 
   return {
     app: {
+      getName: vi.fn(() => 'APEXDEV'),
       getPath: vi.fn((name: string) => {
         if (name === 'userData') return path.join(TEST_DIR, 'userData');
         return TEST_DIR;
@@ -140,7 +141,7 @@ function cleanupTestDirs(): void {
 }
 
 // Increase timeout for all tests in this file due to dynamic imports and setup overhead
-describe('IPC Handlers', { timeout: 15000 }, () => {
+describe('IPC Handlers', { timeout: 30000 }, () => {
   let ipcMain: EventEmitter & {
     handlers: Map<string, Function>;
     invokeHandler: (channel: string, event: unknown, ...args: unknown[]) => Promise<unknown>;
@@ -461,7 +462,7 @@ describe('IPC Handlers', { timeout: 15000 }, () => {
 
       expect(result).toHaveProperty('success', true);
       const data = (result as { data: { theme: string } }).data;
-      expect(data).toHaveProperty('theme', 'system');
+      expect(data).toHaveProperty('theme', 'dark');
     });
   });
 

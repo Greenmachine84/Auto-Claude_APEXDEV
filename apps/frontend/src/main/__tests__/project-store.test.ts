@@ -14,6 +14,7 @@ const TEST_PROJECT_PATH = path.join(TEST_DIR, 'test-project');
 // Mock Electron before importing the store
 vi.mock('electron', () => ({
   app: {
+    getName: vi.fn(() => 'APEXDEV'),
     getPath: vi.fn((name: string) => {
       if (name === 'userData') return USER_DATA_PATH;
       return TEST_DIR;
@@ -91,7 +92,7 @@ describe('ProjectStore', () => {
 
       const project = store.addProject(TEST_PROJECT_PATH);
 
-      expect(project.autoBuildPath).toBe('.APEXDEV');
+      expect(project.autoBuildPath).toBe('.apexdev');
     });
 
     it('should set empty autoBuildPath if not present', async () => {

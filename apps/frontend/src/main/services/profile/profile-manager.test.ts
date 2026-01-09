@@ -27,6 +27,7 @@ const { fsMocks } = vi.hoisted(() => ({
 // Mock Electron app.getPath
 vi.mock('electron', () => ({
   app: {
+    getName: vi.fn(() => 'APEXDEV'),
     getPath: vi.fn((name: string) => {
       if (name === 'userData') {
         return '/mock/userdata';

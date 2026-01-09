@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Unit tests for Application Logger Service
  * Tests logging functionality, debug info collection, and cross-platform compatibility
  */
@@ -44,6 +44,7 @@ vi.mock('electron-log/main.js', () => ({
 // Mock electron app
 vi.mock('electron', () => ({
   app: {
+    getName: vi.fn(() => 'APEXDEV'),
     getVersion: vi.fn(() => '2.7.2-beta.10'),
     getLocale: vi.fn(() => 'en-US'),
     isPackaged: false,

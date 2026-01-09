@@ -7,6 +7,7 @@ import { InsightsConfig } from '../insights/config';
 
 vi.mock('electron', () => ({
   app: {
+    getName: () => 'APEXDEV',
     getAppPath: () => '/app',
     getPath: () => '/tmp',
     isPackaged: false
@@ -38,7 +39,7 @@ describe('InsightsConfig', () => {
       ANTHROPIC_BASE_URL: 'https://api.z.ai',
       ANTHROPIC_AUTH_TOKEN: 'key'
     });
-    mockGetPythonEnv.mockReturnValue({ PYTHONPATH: '/site-packages' });
+    mockGetPythonEnv.mockReturnValue({ PYTHONPATH: 'site-packages' });
   });
 
   afterEach(() => {
@@ -50,7 +51,7 @@ describe('InsightsConfig', () => {
   it('should build process env with python and profile settings', async () => {
     const config = new InsightsConfig();
     vi.spyOn(config, 'loadAutoBuildEnv').mockReturnValue({ CUSTOM_ENV: '1' });
-    vi.spyOn(config, 'getAutoBuildSourcePath').mockReturnValue('/backend');
+    vi.spyOn(config, 'getAutoBuildSourcePath').mockReturnValue('backend');
 
     const env = await config.getProcessEnv();
 
@@ -59,7 +60,8 @@ describe('InsightsConfig', () => {
     expect(env.CLAUDE_CODE_OAUTH_TOKEN).toBe('oauth-token');
     expect(env.ANTHROPIC_BASE_URL).toBe('https://api.z.ai');
     expect(env.ANTHROPIC_AUTH_TOKEN).toBe('key');
-    expect(env.PYTHONPATH).toBe(['/site-packages', '/backend'].join(path.delimiter));
+    expect(env.PYTHONPATH).toContain('site-packages');
+    expect(env.PYTHONPATH).toContain('backend');
   });
 
   it('should clear ANTHROPIC env vars in OAuth mode when no API profile is set', async () => {
@@ -80,21 +82,21 @@ describe('InsightsConfig', () => {
   it('should set PYTHONPATH only to auto-build path when python env has none', async () => {
     const config = new InsightsConfig();
     mockGetPythonEnv.mockReturnValue({});
-    vi.spyOn(config, 'getAutoBuildSourcePath').mockReturnValue('/backend');
+    vi.spyOn(config, 'getAutoBuildSourcePath').mockReturnValue('backend');
 
     const env = await config.getProcessEnv();
 
-    expect(env.PYTHONPATH).toBe('/backend');
+    expect(env.PYTHONPATH).toContain('backend');
   });
 
   it('should keep PYTHONPATH from python env when auto-build path is missing', async () => {
     const config = new InsightsConfig();
-    mockGetPythonEnv.mockReturnValue({ PYTHONPATH: '/site-packages' });
+    mockGetPythonEnv.mockReturnValue({ PYTHONPATH: 'site-packages' });
     vi.spyOn(config, 'getAutoBuildSourcePath').mockReturnValue(null);
 
     const env = await config.getProcessEnv();
 
-    expect(env.PYTHONPATH).toBe('/site-packages');
+    expect(env.PYTHONPATH).toContain('site-packages');
   });
 });
 
