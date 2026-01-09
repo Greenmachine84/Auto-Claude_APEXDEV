@@ -3,15 +3,15 @@
   "version": "2.7.2",
   "type": "module",
   "description": "APEXDEV - Autonomous Coding Platform",
-  "homepage": "https://github.com/AndyMik90/Auto-Claude",
+  "homepage": "https://github.com/Greenmachine84/Auto-Claude_APEXDEV",
   "repository": {
     "type": "git",
-    "url": "https://github.com/AndyMik90/Auto-Claude.git"
+    "url": "https://github.com/Greenmachine84/Auto-Claude_APEXDEV.git"
   },
   "main": "./out/main/index.js",
   "author": {
     "name": "APEXDEV Team",
-    "email": "119136210+AndyMik90@users.noreply.github.com"
+    "email": "Greenmachine84@users.noreply.github.com"
   },
   "license": "AGPL-3.0",
   "engines": {
@@ -146,8 +146,8 @@
     "publish": [
       {
         "provider": "github",
-        "owner": "AndyMik90",
-        "repo": "Auto-Claude"
+        "owner": "Greenmachine84",
+        "repo": "Auto-Claude_APEXDEV"
       }
     ],
     "directories": {

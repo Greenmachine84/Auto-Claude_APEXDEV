@@ -131,9 +131,9 @@ Once the PR is approved and merged to `main`, GitHub Actions will automatically:
 ### Step 5: Verify
 
 After merging, check:
-- [GitHub Actions](https://github.com/AndyMik90/DEVAPEX/actions) - ensure all workflows pass
-- [Releases](https://github.com/AndyMik90/DEVAPEX/releases) - verify release was created
-- [README](https://github.com/AndyMik90/DEVAPEX#download) - confirm version updated
+- [GitHub Actions](https://github.com/Greenmachine84/Auto-Claude_APEXDEV/actions) - ensure all workflows pass
+- [Releases](https://github.com/Greenmachine84/Auto-Claude_APEXDEV/releases) - verify release was created
+- [README](https://github.com/Greenmachine84/Auto-Claude_APEXDEV#download) - confirm version updated
 
 ## Version Numbering
 
