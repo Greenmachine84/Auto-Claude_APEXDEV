@@ -231,17 +231,24 @@ export function registerProjectHandlers(
       repoInfo: VirtualRepoInfo,
       githubToken: string
     ): Promise<IPCResult<Project>> => {
-      try {
-        const project = projectStore.addVirtualProject(repoInfo, githubToken);
-        return { success: true, data: project };
-      } catch (error) {
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : 'Unknown error'
-        };
+        console.log('[IPC:PROJECT_ADD_VIRTUAL] Handler called', {
+          repoFullName: repoInfo?.fullName,
+          hasToken: !!githubToken,
+          tokenLength: githubToken?.length
+        });
+        try {
+          const project = projectStore.addVirtualProject(repoInfo, githubToken);
+          console.log('[IPC:PROJECT_ADD_VIRTUAL] Success', { projectId: project.id });
+          return { success: true, data: project };
+        } catch (error) {
+          console.error('[IPC:PROJECT_ADD_VIRTUAL] Error', error);
+          return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error'
+          };
+        }
       }
-    }
-  );
+    );
 
   ipcMain.handle(
     IPC_CHANNELS.PROJECT_REMOVE,

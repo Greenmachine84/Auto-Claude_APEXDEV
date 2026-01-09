@@ -592,16 +592,35 @@ export function App() {
   };
 
   const handleGitHubRepoConnected = async (repoInfo: VirtualRepoInfo, githubToken: string) => {
+    console.log('[App] handleGitHubRepoConnected called', {
+      repoFullName: repoInfo.fullName,
+      repoName: repoInfo.name,
+      hasToken: !!githubToken,
+      tokenLength: githubToken?.length
+    });
+
     try {
+      console.log('[App] Calling addVirtualProject via IPC...');
       const result = await window.api.project.addVirtualProject(repoInfo, githubToken);
+      console.log('[App] addVirtualProject result:', {
+        success: result.success,
+        projectId: result.data?.id,
+        error: result.error
+      });
+
       if (result.success && result.data) {
+        // Refresh projects list to include the new virtual project
+        await loadProjects();
         openProjectTab(result.data.id);
         setShowConnectGitHubModal(false);
+        console.log('[App] Virtual project added successfully:', result.data.id);
       } else {
-        console.error('Failed to add virtual project:', result.error);
+        console.error('[App] Failed to add virtual project:', result.error);
+        // TODO: Show error toast to user
       }
     } catch (error) {
-      console.error('Error connecting GitHub repo:', error);
+      console.error('[App] Error connecting GitHub repo:', error);
+      // TODO: Show error toast to user
     }
   };
 
