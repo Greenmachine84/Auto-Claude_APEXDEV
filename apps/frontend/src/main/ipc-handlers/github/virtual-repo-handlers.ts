@@ -331,6 +331,130 @@ export function registerVirtualGetTree(): void {
   );
 }
 
+
+/**
+ * Validate a GitHub PAT token
+ */
+export function registerValidatePat(): void {
+  ipcMain.handle(
+    IPC_CHANNELS.GITHUB_VALIDATE_PAT,
+    async (
+      _,
+      token: string
+    ): Promise<IPCResult<{ login: string; name: string; avatar_url: string }>> => {
+      try {
+        if (!token || !token.trim()) {
+          return { success: false, error: 'Token is required' };
+        }
+
+        const user = await githubApiFetch<{ login: string; name: string; avatar_url: string }>(token, '/user');
+        return { success: true, data: user };
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Invalid token'
+        };
+      }
+    }
+  );
+}
+
+/**
+ * List repositories using a PAT token
+ */
+export function registerListReposWithPat(): void {
+  ipcMain.handle(
+    IPC_CHANNELS.GITHUB_LIST_REPOS_WITH_PAT,
+    async (
+      _,
+      token: string
+    ): Promise<IPCResult<Array<{
+      id: number;
+      name: string;
+      full_name: string;
+      description: string | null;
+      private: boolean;
+      default_branch: string;
+      clone_url: string;
+      html_url: string;
+      updated_at: string;
+    }>>> => {
+      try {
+        if (!token || !token.trim()) {
+          return { success: false, error: 'Token is required' };
+        }
+
+        const repos = await githubApiFetch<Array<{
+          id: number;
+          name: string;
+          full_name: string;
+          description: string | null;
+          private: boolean;
+          default_branch: string;
+          clone_url: string;
+          html_url: string;
+          updated_at: string;
+        }>>(token, '/user/repos?per_page=100&sort=updated');
+
+        return { success: true, data: repos };
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to list repositories'
+        };
+      }
+    }
+  );
+}
+
+/**
+ * Get a specific repository using a PAT token
+ */
+export function registerGetRepoWithPat(): void {
+  ipcMain.handle(
+    IPC_CHANNELS.GITHUB_GET_REPO_WITH_PAT,
+    async (
+      _,
+      { token, owner, repo }: { token: string; owner: string; repo: string }
+    ): Promise<IPCResult<{
+      id: number;
+      name: string;
+      full_name: string;
+      description: string | null;
+      private: boolean;
+      default_branch: string;
+      clone_url: string;
+      html_url: string;
+      updated_at: string;
+    }>> => {
+      try {
+        if (!token || !token.trim()) {
+          return { success: false, error: 'Token is required' };
+        }
+
+        const repoData = await githubApiFetch<{
+          id: number;
+          name: string;
+          full_name: string;
+          description: string | null;
+          private: boolean;
+          default_branch: string;
+          clone_url: string;
+          html_url: string;
+          updated_at: string;
+        }>(token, `/repos/${owner}/${repo}`);
+
+        return { success: true, data: repoData };
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to get repository'
+        };
+      }
+    }
+  );
+}
+
 /**
  * Register all virtual repo handlers
  */
@@ -342,5 +466,8 @@ export function registerVirtualRepoHandlers(): void {
   registerVirtualUpdateFile();
   registerVirtualDeleteFile();
   registerVirtualGetTree();
+  registerValidatePat();
+  registerListReposWithPat();
+  registerGetRepoWithPat();
   console.log('[GitHub Virtual] Virtual repo handlers registered');
 }

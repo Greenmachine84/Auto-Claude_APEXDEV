@@ -733,6 +733,44 @@ export const createGitHubAPI = (): GitHubAPI => ({
     sha: string;
     size?: number;
   }>>> =>
-    invokeIpc(IPC_CHANNELS.GITHUB_VIRTUAL_GET_TREE, projectId)
+    invokeIpc(IPC_CHANNELS.GITHUB_VIRTUAL_GET_TREE, projectId),
+
+  /**
+   * Validate a GitHub PAT token
+   */
+  validatePat: (token: string): Promise<IPCResult<{ login: string; name: string; avatar_url: string }>> =>
+    invokeIpc(IPC_CHANNELS.GITHUB_VALIDATE_PAT, token),
+
+  /**
+   * List repositories using a PAT token
+   */
+  listReposWithPat: (token: string): Promise<IPCResult<Array<{
+    id: number;
+    name: string;
+    full_name: string;
+    description: string | null;
+    private: boolean;
+    default_branch: string;
+    clone_url: string;
+    html_url: string;
+    updated_at: string;
+  }>>> =>
+    invokeIpc(IPC_CHANNELS.GITHUB_LIST_REPOS_WITH_PAT, token),
+
+  /**
+   * Get a specific repository using a PAT token
+   */
+  getRepoWithPat: (token: string, owner: string, repo: string): Promise<IPCResult<{
+    id: number;
+    name: string;
+    full_name: string;
+    description: string | null;
+    private: boolean;
+    default_branch: string;
+    clone_url: string;
+    html_url: string;
+    updated_at: string;
+  }>> =>
+    invokeIpc(IPC_CHANNELS.GITHUB_GET_REPO_WITH_PAT, { token, owner, repo })
 });
 

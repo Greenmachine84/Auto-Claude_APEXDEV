@@ -14,7 +14,7 @@ import { Label } from './ui/label';
 import { ScrollArea } from './ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Alert, AlertDescription } from './ui/alert';
-import type { GitHubRepository, VirtualRepoInfo } from '../../shared/types';
+import type { VirtualRepoInfo } from '../../shared/types';
 
 interface ConnectGitHubRepoModalProps {
   open: boolean;
@@ -57,7 +57,7 @@ export function ConnectGitHubRepoModal({
     (repo.description?.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  // Validate token and fetch repos
+  // Validate token and fetch repos via IPC (main process handles API calls)
   const validateAndFetchRepos = async () => {
     if (!token.trim()) {
       setError('Please enter a GitHub Personal Access Token');
@@ -68,32 +68,21 @@ export function ConnectGitHubRepoModal({
     setError(null);
 
     try {
-      // Validate token by fetching user info
-      const userResponse = await fetch('https://api.github.com/user', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/vnd.github.v3+json',
-        },
-      });
+      // Validate token via IPC
+      const validateResult = await window.api.github.validatePat(token);
 
-      if (!userResponse.ok) {
-        throw new Error('Invalid token or token lacks required permissions');
+      if (!validateResult.success) {
+        throw new Error(validateResult.error || 'Invalid token or token lacks required permissions');
       }
 
       setIsAuthenticated(true);
       setIsLoadingRepos(true);
 
-      // Fetch user's repos
-      const reposResponse = await fetch('https://api.github.com/user/repos?per_page=100&sort=updated', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/vnd.github.v3+json',
-        },
-      });
+      // Fetch repos via IPC
+      const reposResult = await window.api.github.listReposWithPat(token);
 
-      if (reposResponse.ok) {
-        const reposData = await reposResponse.json();
-        setRepos(reposData);
+      if (reposResult.success && reposResult.data) {
+        setRepos(reposResult.data);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to authenticate');
@@ -104,7 +93,7 @@ export function ConnectGitHubRepoModal({
     }
   };
 
-  // Fetch repo from URL
+  // Fetch repo from URL via IPC
   const fetchRepoFromUrl = async () => {
     if (!token.trim()) {
       setError('Please enter a GitHub Personal Access Token first');
@@ -127,21 +116,13 @@ export function ConnectGitHubRepoModal({
     setError(null);
 
     try {
-      const response = await fetch(`https://api.github.com/repos/${owner}/${repoName}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/vnd.github.v3+json',
-        },
-      });
+      const result = await window.api.github.getRepoWithPat(token, owner, repoName);
 
-      if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error('Repository not found or you do not have access');
-        }
-        throw new Error('Failed to fetch repository');
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch repository');
       }
 
-      const repoData = await response.json();
+      const repoData = result.data!;
 
       // Connect directly
       handleConnect({
@@ -250,9 +231,9 @@ export function ConnectGitHubRepoModal({
           {/* Authenticated State */}
           {isAuthenticated && (
             <>
-              <Alert className="border-success/50 bg-success/10">
-                <CheckCircle2 className="h-4 w-4 text-success" />
-                <AlertDescription className="text-success">
+              <Alert className="border-green-500/50 bg-green-500/10">
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                <AlertDescription className="text-green-500">
                   Connected to GitHub. Select a repository below.
                 </AlertDescription>
               </Alert>
@@ -296,7 +277,7 @@ export function ConnectGitHubRepoModal({
                           >
                             <div className="mt-0.5">
                               {repo.private ? (
-                                <Lock className="h-4 w-4 text-warning" />
+                                <Lock className="h-4 w-4 text-yellow-500" />
                               ) : (
                                 <Globe className="h-4 w-4 text-muted-foreground" />
                               )}

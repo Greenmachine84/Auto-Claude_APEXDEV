@@ -232,6 +232,9 @@ export const IPC_CHANNELS = {
   GITHUB_VIRTUAL_UPDATE_FILE: 'github:virtual:updateFile',
   GITHUB_VIRTUAL_DELETE_FILE: 'github:virtual:deleteFile',
   GITHUB_VIRTUAL_GET_TREE: 'github:virtual:getTree',
+  GITHUB_VALIDATE_PAT: 'github:validatePat',
+  GITHUB_LIST_REPOS_WITH_PAT: 'github:listReposWithPat',
+  GITHUB_GET_REPO_WITH_PAT: 'github:getRepoWithPat',
 
   // GitHub OAuth events (main -> renderer) - for streaming device code during auth
   GITHUB_AUTH_DEVICE_CODE: 'github:authDeviceCode',
