@@ -1,4 +1,11 @@
 import { ipcRenderer } from 'electron';
+
+// Re-export types for consumers
+export type { Task, TaskStatus, TaskMetadata } from '../../shared/types';
+export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
+export type TaskFilter = { status?: TaskStatus; priority?: TaskPriority; assignee?: string; labels?: string[] };
+export type TaskUpdate = { title?: string; description?: string; status?: TaskStatus; priority?: TaskPriority };
+export type CreateTaskInput = { title: string; description: string; priority?: TaskPriority; metadata?: TaskMetadata };
 import { IPC_CHANNELS } from '../../shared/constants';
 import type {
   Task,

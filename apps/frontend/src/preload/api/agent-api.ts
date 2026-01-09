@@ -36,6 +36,13 @@ export type {
  * Combined Agent API interface
  * Includes all operations from individual API modules
  */
+// Additional types for consumers
+export type CreateAgentInput = {
+  name: string;
+  type: 'coder' | 'reviewer' | 'fixer' | 'planner';
+  config?: Record<string, unknown>;
+};
+
 export interface AgentAPI extends
   RoadmapAPI,
   IdeationAPI,

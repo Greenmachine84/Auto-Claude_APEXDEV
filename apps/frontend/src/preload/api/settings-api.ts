@@ -1,4 +1,10 @@
 import { ipcRenderer } from 'electron';
+
+// Re-export types for consumers
+export type { AppSettings } from '../../shared/types';
+export type Settings = import('../../shared/types').AppSettings;
+export type LLMProviderId = 'copilot' | 'openrouter' | 'ollama' | 'lmstudio' | 'gemini' | 'openai' | 'anthropic' | 'azure';
+export interface LLMProviderConfig { enabled: boolean; apiKey?: string; baseUrl?: string; model?: string; deploymentName?: string; }
 import { IPC_CHANNELS } from '../../shared/constants';
 import type {
   AppSettings,

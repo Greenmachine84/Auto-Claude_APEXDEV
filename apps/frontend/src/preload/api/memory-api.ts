@@ -6,6 +6,9 @@
  */
 
 /** Episode type */
+// Episode metadata type for consumers
+export type EpisodeMetadata = Episode['metadata'];
+
 export interface Episode {
   id: string;
   content: string;
