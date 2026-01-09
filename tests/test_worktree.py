@@ -27,7 +27,7 @@ class TestWorktreeManagerInitialization:
         manager = WorktreeManager(temp_git_repo)
 
         assert manager.project_dir == temp_git_repo
-        assert manager.worktrees_dir == temp_git_repo / ".auto-claude" / "worktrees" / "tasks"
+        assert manager.worktrees_dir == temp_git_repo / ".apexdev" / "worktrees" / "tasks"
         assert manager.base_branch is not None
 
     def test_init_prefers_main_over_current_branch(self, temp_git_repo: Path):

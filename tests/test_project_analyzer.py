@@ -50,7 +50,7 @@ class TestProjectAnalyzerInitialization:
 
         path = analyzer.get_profile_path()
         # Use resolve() to handle /var -> /private/var symlinks on macOS
-        assert path.resolve() == (temp_dir / ".auto-claude-security.json").resolve()
+        assert path.resolve() == (temp_dir / ".apexdev-security.json").resolve()
 
     def test_get_profile_path_with_spec(self, temp_dir: Path, spec_dir: Path):
         """Profile path is in spec dir when provided."""
@@ -58,7 +58,7 @@ class TestProjectAnalyzerInitialization:
 
         path = analyzer.get_profile_path()
         # Use resolve() to handle /var -> /private/var symlinks on macOS
-        assert path.resolve() == (spec_dir / ".auto-claude-security.json").resolve()
+        assert path.resolve() == (spec_dir / ".apexdev-security.json").resolve()
 
 
 class TestLanguageDetection:
@@ -435,12 +435,12 @@ class TestCustomAllowlist:
     """Tests for custom allowlist loading."""
 
     def test_loads_custom_allowlist(self, temp_dir: Path):
-        """Loads commands from .auto-claude-allowlist."""
+        """Loads commands from .apexdev-allowlist."""
         allowlist = """# Custom commands
 my-custom-tool
 another-command
 """
-        (temp_dir / ".auto-claude-allowlist").write_text(allowlist)
+        (temp_dir / ".apexdev-allowlist").write_text(allowlist)
 
         analyzer = ProjectAnalyzer(temp_dir)
         analyzer._load_custom_allowlist()
@@ -469,7 +469,7 @@ class TestSecurityProfileGeneration:
         """Profile is cached after first analysis."""
         # First analysis
         profile1 = get_or_create_profile(python_project)
-        profile_path = python_project / ".auto-claude-security.json"
+        profile_path = python_project / ".apexdev-security.json"
 
         assert profile_path.exists()
 
