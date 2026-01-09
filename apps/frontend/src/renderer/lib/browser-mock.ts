@@ -344,8 +344,22 @@ const browserMockAPI: ElectronAPI = {
     approveBatches: async () => ({ success: true, batches: [] }),
     onAnalyzePreviewProgress: () => () => {},
     onAnalyzePreviewComplete: () => () => {},
-    onAnalyzePreviewError: () => () => {}
+    onAnalyzePreviewError: () => () => {},
+    // Virtual repository operations
+    virtualListFiles: async () => ({ success: true, data: [] }),
+    virtualGetFile: async () => ({ success: true, data: { content: '', sha: '', encoding: 'base64' } }),
+    virtualCreateFile: async () => ({ success: true, data: { sha: '' } }),
+    virtualUpdateFile: async () => ({ success: true, data: { sha: '' } }),
+    virtualDeleteFile: async () => ({ success: true, data: undefined }),
+    virtualGetTree: async () => ({ success: true, data: [] }),
+    // PAT validation operations
+    validatePat: async () => ({ success: true, data: { login: 'mock-user', name: 'Mock User', avatar_url: '' } }),
+    listReposWithPat: async () => ({ success: true, data: [] }),
+    getRepoWithPat: async () => ({ success: true, data: { id: 0, name: '', full_name: '', description: null, private: false, default_branch: 'main', clone_url: '', html_url: '', updated_at: '' } })
   },
+
+  // Virtual Project Operations
+  addVirtualProject: async () => ({}),
 
   // Claude Code Operations
   checkClaudeCodeVersion: async () => ({

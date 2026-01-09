@@ -601,7 +601,7 @@ export function App() {
 
     try {
       console.log('[App] Calling addVirtualProject via IPC...');
-      const result = await window.api.project.addVirtualProject(repoInfo, githubToken);
+      const result = await window.electronAPI.addVirtualProject(repoInfo, githubToken);
       console.log('[App] addVirtualProject result:', {
         success: result.success,
         projectId: result.data?.id,
