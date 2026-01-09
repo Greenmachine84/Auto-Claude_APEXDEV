@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import type { ViewType } from '../../App';
+import type { ViewType } from '../../store/appStore';
 
 /** Sidebar props */
 export interface SidebarProps {

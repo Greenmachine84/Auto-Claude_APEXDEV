@@ -20,6 +20,18 @@ import { createGitHubAPI, GitHubAPI } from './modules/github-api';
 import { createGitLabAPI, GitLabAPI } from './modules/gitlab-api';
 import { createShellAPI, ShellAPI } from './modules/shell-api';
 
+// Re-export agent types from IPC for components that need them
+export type {
+  Agent,
+  AgentType,
+  AgentStatus,
+  AgentConfig,
+  AgentPoolStatus,
+  AgentLog,
+  StartAgentParams,
+  AgentLogsParams
+} from '../../main/ipc/agent-ipc';
+
 /**
  * Combined Agent API interface
  * Includes all operations from individual API modules
