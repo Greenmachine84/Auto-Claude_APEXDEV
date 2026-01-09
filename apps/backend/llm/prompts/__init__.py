@@ -9,10 +9,10 @@ Provides prompt engineering infrastructure:
 Part of Phase 2: LLM Architecture
 """
 
-from .prompt_template import PromptTemplate, TemplateVariable
 from .prompt_builder import PromptBuilder
 from .prompt_registry import PromptRegistry
-from .variables import VariableResolver, VariableContext
+from .prompt_template import PromptTemplate, TemplateVariable
+from .variables import VariableContext, VariableResolver
 
 __all__ = [
     "PromptTemplate",

@@ -8,9 +8,9 @@ World-Class Standards:
 Phase 7 Implementation: Enterprise Agents Architecture
 Reference: PHASE7_ENTERPRISE_AGENTS_ARCHITECTURE.md
 """
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Set
+
 import re
+from dataclasses import dataclass, field
 
 from ..types import Severity
 
@@ -18,17 +18,18 @@ from ..types import Severity
 @dataclass
 class ClassificationResult:
     """Result of severity classification."""
+
     severity: Severity
     confidence: float  # 0.0 - 1.0
-    matched_patterns: List[str] = field(default_factory=list)
+    matched_patterns: list[str] = field(default_factory=list)
     reasoning: str = ""
 
 
 class SeverityClassifier:
     """Classifies finding severity based on content and category.
-    
+
     Uses pattern matching and heuristics to determine severity.
-    
+
     Severity Levels:
         - CRITICAL: Security vulnerabilities, data loss risks
         - HIGH: Bugs, logic errors, major issues
@@ -36,9 +37,9 @@ class SeverityClassifier:
         - LOW: Style, documentation, minor issues
         - INFO: Suggestions, informational only
     """
-    
+
     # Patterns for critical issues
-    CRITICAL_PATTERNS: Set[str] = {
+    CRITICAL_PATTERNS: set[str] = {
         r"sql\s*injection",
         r"command\s*injection",
         r"xss|cross[\-\s]*site\s*scripting",
@@ -53,9 +54,9 @@ class SeverityClassifier:
         r"deserialization",
         r"buffer\s*overflow",
     }
-    
+
     # Patterns for high severity
-    HIGH_PATTERNS: Set[str] = {
+    HIGH_PATTERNS: set[str] = {
         r"null\s*pointer|nullptr|nullreference",
         r"race\s*condition",
         r"deadlock",
@@ -69,9 +70,9 @@ class SeverityClassifier:
         r"unchecked\s*(input|user\s*input)",
         r"insecure\s*(random|crypto)",
     }
-    
+
     # Patterns for medium severity
-    MEDIUM_PATTERNS: Set[str] = {
+    MEDIUM_PATTERNS: set[str] = {
         r"code\s*smell",
         r"complexity",
         r"duplicate\s*code",
@@ -83,9 +84,9 @@ class SeverityClassifier:
         r"missing\s*error\s*handling",
         r"incomplete\s*implementation",
     }
-    
+
     # Patterns for low severity
-    LOW_PATTERNS: Set[str] = {
+    LOW_PATTERNS: set[str] = {
         r"naming\s*convention",
         r"formatting",
         r"whitespace",
@@ -96,9 +97,9 @@ class SeverityClassifier:
         r"spelling",
         r"typo",
     }
-    
+
     # Category mappings to default severity
-    CATEGORY_SEVERITY: Dict[str, Severity] = {
+    CATEGORY_SEVERITY: dict[str, Severity] = {
         "security": Severity.CRITICAL,
         "vulnerability": Severity.CRITICAL,
         "bug": Severity.HIGH,
@@ -114,52 +115,52 @@ class SeverityClassifier:
         "improvement": Severity.INFO,
         "info": Severity.INFO,
     }
-    
+
     def __init__(self):
         """Initialize the classifier with compiled patterns."""
         self._compiled_critical = self._compile_patterns(self.CRITICAL_PATTERNS)
         self._compiled_high = self._compile_patterns(self.HIGH_PATTERNS)
         self._compiled_medium = self._compile_patterns(self.MEDIUM_PATTERNS)
         self._compiled_low = self._compile_patterns(self.LOW_PATTERNS)
-    
-    def _compile_patterns(self, patterns: Set[str]) -> List[re.Pattern]:
+
+    def _compile_patterns(self, patterns: set[str]) -> list[re.Pattern]:
         """Compile pattern set to regex objects."""
         return [re.compile(p, re.IGNORECASE) for p in patterns]
-    
+
     def classify(
         self,
         message: str,
         category: str = "",
     ) -> Severity:
         """Classify severity based on message and category.
-        
+
         Args:
             message: The finding message
             category: Optional category hint
-            
+
         Returns:
             Classified severity level
         """
         result = self.classify_detailed(message, category)
         return result.severity
-    
+
     def classify_detailed(
         self,
         message: str,
         category: str = "",
     ) -> ClassificationResult:
         """Classify with detailed results.
-        
+
         Args:
             message: The finding message
             category: Optional category hint
-            
+
         Returns:
             Detailed classification result
         """
         text = f"{message} {category}".lower()
-        matched_patterns: List[str] = []
-        
+        matched_patterns: list[str] = []
+
         # Check critical patterns
         for pattern in self._compiled_critical:
             if pattern.search(text):
@@ -171,7 +172,7 @@ class SeverityClassifier:
                 matched_patterns=matched_patterns,
                 reasoning="Matched critical security patterns",
             )
-        
+
         # Check high patterns
         for pattern in self._compiled_high:
             if pattern.search(text):
@@ -183,7 +184,7 @@ class SeverityClassifier:
                 matched_patterns=matched_patterns,
                 reasoning="Matched high severity patterns",
             )
-        
+
         # Check medium patterns
         for pattern in self._compiled_medium:
             if pattern.search(text):
@@ -195,7 +196,7 @@ class SeverityClassifier:
                 matched_patterns=matched_patterns,
                 reasoning="Matched medium severity patterns",
             )
-        
+
         # Check low patterns
         for pattern in self._compiled_low:
             if pattern.search(text):
@@ -207,7 +208,7 @@ class SeverityClassifier:
                 matched_patterns=matched_patterns,
                 reasoning="Matched low severity patterns",
             )
-        
+
         # Fall back to category-based classification
         category_lower = category.lower()
         for cat, severity in self.CATEGORY_SEVERITY.items():
@@ -218,7 +219,7 @@ class SeverityClassifier:
                     matched_patterns=[],
                     reasoning=f"Classified by category: {cat}",
                 )
-        
+
         # Default to INFO
         return ClassificationResult(
             severity=Severity.INFO,

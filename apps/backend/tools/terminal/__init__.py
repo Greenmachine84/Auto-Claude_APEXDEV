@@ -7,9 +7,9 @@ Provides tools for terminal operations:
 """
 
 from tools.terminal.command_execute import CommandExecuteTool
-from tools.terminal.process_spawn import ProcessSpawnTool
-from tools.terminal.process_kill import ProcessKillTool
 from tools.terminal.output_capture import OutputCaptureTool
+from tools.terminal.process_kill import ProcessKillTool
+from tools.terminal.process_spawn import ProcessSpawnTool
 
 __all__ = [
     "CommandExecuteTool",

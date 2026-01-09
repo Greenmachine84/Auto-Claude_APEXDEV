@@ -16,47 +16,47 @@ Supported Providers (Equal Treatment):
 - anthropic
 - azure (Azure OpenAI)
 """
-from enum import Enum
-from typing import Set, Optional
+
 from dataclasses import dataclass, field
+from enum import Enum
 
 from ..models import SUPPORTED_PROVIDERS
 
 
 class Permission(Enum):
     """System permissions."""
-    
+
     # Credential permissions
     CREDENTIAL_READ = "credential:read"
     CREDENTIAL_WRITE = "credential:write"
     CREDENTIAL_DELETE = "credential:delete"
     CREDENTIAL_ROTATE = "credential:rotate"
-    
+
     # LLM permissions
     LLM_EXECUTE = "llm:execute"
     LLM_CONFIGURE = "llm:configure"
     LLM_MONITOR = "llm:monitor"
-    
+
     # Security permissions
     SECURITY_SCAN = "security:scan"
     SECURITY_CONFIGURE = "security:configure"
     SECURITY_BYPASS = "security:bypass"  # For emergency use only
-    
+
     # Audit permissions
     AUDIT_READ = "audit:read"
     AUDIT_EXPORT = "audit:export"
     AUDIT_MANAGE = "audit:manage"
-    
+
     # Role permissions
     ROLE_READ = "role:read"
     ROLE_WRITE = "role:write"
     ROLE_ASSIGN = "role:assign"
-    
+
     # System permissions
     SYSTEM_CONFIGURE = "system:configure"
     SYSTEM_MONITOR = "system:monitor"
     SYSTEM_ADMIN = "system:admin"
-    
+
     # Data permissions
     DATA_READ = "data:read"
     DATA_WRITE = "data:write"
@@ -66,7 +66,7 @@ class Permission(Enum):
 
 class DefaultRoles(Enum):
     """Default role identifiers."""
-    
+
     ADMIN = "admin"
     DEVELOPER = "developer"
     VIEWER = "viewer"
@@ -121,14 +121,15 @@ PROVIDER_PERMISSIONS = {
 @dataclass
 class RoleDefinition:
     """Definition of a role with permissions."""
+
     id: str
     name: str
     description: str
-    permissions: Set[Permission]
-    provider_access: Set[str] = field(default_factory=set)
-    inherits_from: Optional[str] = None
+    permissions: set[Permission]
+    provider_access: set[str] = field(default_factory=set)
+    inherits_from: str | None = None
     is_system: bool = False
-    
+
     @classmethod
     def from_default(cls, default_role: DefaultRoles) -> "RoleDefinition":
         """Create role definition from default role."""
@@ -205,13 +206,13 @@ class RoleDefinition:
                 is_system=True,
             ),
         }
-        
+
         return definitions[default_role]
-    
+
     def has_permission(self, permission: Permission) -> bool:
         """Check if role has a specific permission."""
         return permission in self.permissions
-    
+
     def can_access_provider(self, provider: str) -> bool:
         """Check if role can access a provider."""
         return provider in self.provider_access or "*" in self.provider_access

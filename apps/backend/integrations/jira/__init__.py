@@ -7,16 +7,16 @@ JIRA API integration for issue and project tracking.
 
 from .client import JiraClient
 from .models import (
+    IssuePriority,
+    IssueType,
+    JiraComment,
     JiraConfig,
     JiraIssue,
     JiraProject,
-    JiraUser,
-    JiraComment,
     JiraSprint,
     JiraStatus,
     JiraTransition,
-    IssueType,
-    IssuePriority,
+    JiraUser,
 )
 from .service import JiraService
 from .webhooks import JiraWebhookHandler, WebhookEvent

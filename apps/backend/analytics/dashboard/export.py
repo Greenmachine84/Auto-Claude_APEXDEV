@@ -10,22 +10,22 @@ World-Class Standards:
 - Async processing
 """
 
-from typing import Dict, Any, Optional, List, BinaryIO
+import io
+import json
+import logging
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from dataclasses import dataclass
-import logging
-import json
-import csv
-import io
+from typing import BinaryIO
 
-from ..models import DashboardData, SUPPORTED_PROVIDERS
+from ..models import SUPPORTED_PROVIDERS, DashboardData
 
 logger = logging.getLogger(__name__)
 
 
 class ExportFormat(Enum):
     """Supported export formats."""
+
     JSON = "json"
     CSV = "csv"
     MARKDOWN = "markdown"
@@ -35,6 +35,7 @@ class ExportFormat(Enum):
 @dataclass
 class ExportResult:
     """Result of an export operation."""
+
     format: ExportFormat
     filename: str
     content: str
@@ -46,18 +47,18 @@ class ExportResult:
 class DashboardExporter:
     """
     Export dashboard data in multiple formats.
-    
+
     Features:
     - Multiple output formats
     - Streaming for large exports
     - Template support
     - Async processing
     """
-    
+
     def __init__(self) -> None:
         """Initialize exporter."""
         logger.info("DashboardExporter initialized")
-    
+
     def export(
         self,
         data: DashboardData,
@@ -66,17 +67,17 @@ class DashboardExporter:
     ) -> ExportResult:
         """
         Export dashboard data.
-        
+
         Args:
             data: Dashboard data to export
             format: Output format
             filename_prefix: Prefix for filename
-            
+
         Returns:
             ExportResult with content
         """
         timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-        
+
         if format == ExportFormat.JSON:
             content = self._export_json(data)
             ext = "json"
@@ -95,9 +96,9 @@ class DashboardExporter:
             content_type = "text/html"
         else:
             raise ValueError(f"Unsupported format: {format}")
-        
+
         filename = f"{filename_prefix}_{timestamp}.{ext}"
-        
+
         return ExportResult(
             format=format,
             filename=filename,
@@ -106,7 +107,7 @@ class DashboardExporter:
             size_bytes=len(content.encode("utf-8")),
             generated_at=datetime.utcnow().isoformat(),
         )
-    
+
     def _export_json(self, data: DashboardData) -> str:
         """Export as JSON."""
         export_data = {
@@ -147,20 +148,20 @@ class DashboardExporter:
                 for tp in data.cost_time_series
             ],
         }
-        
+
         return json.dumps(export_data, indent=2)
-    
+
     def _export_csv(self, data: DashboardData) -> str:
         """Export as CSV."""
         output = io.StringIO()
-        
+
         # Summary section
         output.write("Dashboard Export\n")
         output.write(f"User ID,{data.user_id}\n")
         output.write(f"Time Range,{data.time_range_hours} hours\n")
         output.write(f"Generated,{data.last_updated}\n")
         output.write("\n")
-        
+
         # Summary metrics
         output.write("Summary Metrics\n")
         output.write("Metric,Value\n")
@@ -168,7 +169,7 @@ class DashboardExporter:
         output.write(f"Total Requests,{data.total_requests}\n")
         output.write(f"Total Tokens,{data.total_tokens}\n")
         output.write("\n")
-        
+
         # Budget status
         output.write("Budget Status\n")
         output.write("Metric,Value\n")
@@ -178,10 +179,12 @@ class DashboardExporter:
         output.write(f"Usage %,{data.budget_status.percentage_used:.1f}%\n")
         output.write(f"Status,{data.budget_status.status}\n")
         output.write("\n")
-        
+
         # Provider breakdown
         output.write("Provider Breakdown\n")
-        output.write("Provider,Requests,Cost,Prompt Tokens,Completion Tokens,% of Total\n")
+        output.write(
+            "Provider,Requests,Cost,Prompt Tokens,Completion Tokens,% of Total\n"
+        )
         for pm in data.provider_metrics:
             if pm.request_count > 0:
                 output.write(
@@ -190,19 +193,19 @@ class DashboardExporter:
                     f"{pm.cost_percentage:.1f}%\n"
                 )
         output.write("\n")
-        
+
         # Time series
         output.write("Hourly Cost Data\n")
         output.write("Timestamp,Cost\n")
         for tp in data.cost_time_series:
             output.write(f"{tp.timestamp},${tp.value:.4f}\n")
-        
+
         return output.getvalue()
-    
+
     def _export_markdown(self, data: DashboardData) -> str:
         """Export as Markdown."""
         lines = [
-            f"# Analytics Dashboard Export",
+            "# Analytics Dashboard Export",
             "",
             f"**User:** {data.user_id}",
             f"**Period:** Last {data.time_range_hours} hours",
@@ -228,7 +231,7 @@ class DashboardExporter:
             "| Provider | Requests | Cost | Tokens | % of Total |",
             "|----------|----------|------|--------|------------|",
         ]
-        
+
         for pm in data.provider_metrics:
             if pm.request_count > 0:
                 total_tokens = pm.total_prompt_tokens + pm.total_completion_tokens
@@ -236,20 +239,22 @@ class DashboardExporter:
                     f"| {pm.provider} | {pm.request_count:,} | ${pm.total_cost:.4f} | "
                     f"{total_tokens:,} | {pm.cost_percentage:.1f}% |"
                 )
-        
-        lines.extend([
-            "",
-            "## Supported Providers",
-            "",
-            "All 8 LLM providers are supported with equal treatment:",
-            "",
-        ])
-        
+
+        lines.extend(
+            [
+                "",
+                "## Supported Providers",
+                "",
+                "All 8 LLM providers are supported with equal treatment:",
+                "",
+            ]
+        )
+
         for provider in SUPPORTED_PROVIDERS:
             lines.append(f"- {provider}")
-        
+
         return "\n".join(lines)
-    
+
     def _export_html(self, data: DashboardData) -> str:
         """Export as HTML."""
         html = f"""<!DOCTYPE html>
@@ -313,7 +318,7 @@ class DashboardExporter:
                 <th>% of Total</th>
             </tr>
 """
-        
+
         for pm in data.provider_metrics:
             if pm.request_count > 0:
                 html += f"""            <tr>
@@ -325,24 +330,24 @@ class DashboardExporter:
                 <td>{pm.cost_percentage:.1f}%</td>
             </tr>
 """
-        
+
         html += """        </table>
         
         <h2>Supported Providers</h2>
         <p>All 8 LLM providers are supported with equal treatment:</p>
         <ul>
 """
-        
+
         for provider in SUPPORTED_PROVIDERS:
             html += f"            <li>{provider}</li>\n"
-        
+
         html += """        </ul>
     </div>
 </body>
 </html>"""
-        
+
         return html
-    
+
     def export_to_file(
         self,
         data: DashboardData,

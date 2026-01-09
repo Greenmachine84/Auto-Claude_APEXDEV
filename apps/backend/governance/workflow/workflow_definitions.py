@@ -9,19 +9,17 @@ World-Class Standards:
 - Provider-aware templates
 """
 
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, field
-from enum import Enum
 import logging
+from enum import Enum
 
-from ..models import WorkflowDefinition, SUPPORTED_PROVIDERS
-
+from ..models import WorkflowDefinition
 
 logger = logging.getLogger(__name__)
 
 
 class WorkflowType(Enum):
     """Types of approval workflows."""
+
     SINGLE_APPROVER = "single_approver"
     MULTI_APPROVER = "multi_approver"
     CHAIN_APPROVAL = "chain_approval"
@@ -36,9 +34,7 @@ SINGLE_APPROVER_WORKFLOW = WorkflowDefinition(
     id="single_approver",
     name="Single Approver",
     description="Requires approval from one authorized approver",
-    steps=[
-        {"order": 1, "role": "approver", "required": True}
-    ],
+    steps=[{"order": 1, "role": "approver", "required": True}],
     require_all=False,  # Any one approver is sufficient
     timeout_hours=24,
     escalation_path=["manager", "admin"],
@@ -126,7 +122,7 @@ HIGH_COST_APPROVAL_WORKFLOW = WorkflowDefinition(
 # WORKFLOW REGISTRY
 # =============================================================================
 
-DEFAULT_WORKFLOWS: Dict[str, WorkflowDefinition] = {
+DEFAULT_WORKFLOWS: dict[str, WorkflowDefinition] = {
     "single_approver": SINGLE_APPROVER_WORKFLOW,
     "multi_approver": MULTI_APPROVER_WORKFLOW,
     "chain_approval": CHAIN_APPROVAL_WORKFLOW,
@@ -140,47 +136,47 @@ class WorkflowRegistry:
     """
     Registry of available workflow definitions.
     """
-    
+
     def __init__(self) -> None:
-        self._workflows: Dict[str, WorkflowDefinition] = {}
+        self._workflows: dict[str, WorkflowDefinition] = {}
         self._load_defaults()
-    
+
     def _load_defaults(self) -> None:
         """Load default workflow definitions."""
         for workflow_id, workflow in DEFAULT_WORKFLOWS.items():
             self._workflows[workflow_id] = workflow
         logger.info(f"Loaded {len(self._workflows)} default workflows")
-    
+
     def register(self, workflow: WorkflowDefinition) -> None:
         """Register a workflow definition."""
         self._workflows[workflow.id] = workflow
         logger.info(f"Registered workflow: {workflow.id}")
-    
+
     def unregister(self, workflow_id: str) -> bool:
         """Unregister a workflow definition."""
         if workflow_id in self._workflows:
             del self._workflows[workflow_id]
             return True
         return False
-    
-    def get(self, workflow_id: str) -> Optional[WorkflowDefinition]:
+
+    def get(self, workflow_id: str) -> WorkflowDefinition | None:
         """Get a workflow by ID."""
         return self._workflows.get(workflow_id)
-    
-    def list_all(self) -> List[WorkflowDefinition]:
+
+    def list_all(self) -> list[WorkflowDefinition]:
         """List all registered workflows."""
         return list(self._workflows.values())
-    
-    def list_enabled(self) -> List[WorkflowDefinition]:
+
+    def list_enabled(self) -> list[WorkflowDefinition]:
         """List only enabled workflows."""
         return [w for w in self._workflows.values() if w.enabled]
-    
-    def get_for_provider(self, provider: str) -> Optional[WorkflowDefinition]:
+
+    def get_for_provider(self, provider: str) -> WorkflowDefinition | None:
         """Get workflow specific to a provider."""
         # Check for provider-specific workflow
         workflow_id = f"{provider}_provider_access"
         if workflow_id in self._workflows:
             return self._workflows[workflow_id]
-        
+
         # Default to single approver
         return self._workflows.get("single_approver")

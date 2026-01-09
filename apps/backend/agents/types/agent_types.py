@@ -8,7 +8,7 @@ Follows PHASE1_AGENT_SYSTEM_ARCHITECTURE.md specification:
 Naming follows NAMING_ALIGNMENT_STANDARDS.md conventions.
 """
 
-from enum import Enum, auto
+from enum import Enum
 from typing import Final
 
 
@@ -115,9 +115,7 @@ class AgentType(Enum):
     @classmethod
     def get_enterprise_agents(cls) -> list["AgentType"]:
         """Get all enterprise agent types."""
-        return [
-            agent for agent in cls if agent not in cls.get_core_agents()
-        ]
+        return [agent for agent in cls if agent not in cls.get_core_agents()]
 
     @classmethod
     def get_agents_by_category(cls, category: AgentCategory) -> list["AgentType"]:
@@ -129,9 +127,7 @@ class AgentType(Enum):
         Returns:
             List of agent types in the category
         """
-        return [
-            agent for agent, cat in AGENT_CATEGORY_MAP.items() if cat == category
-        ]
+        return [agent for agent, cat in AGENT_CATEGORY_MAP.items() if cat == category]
 
     def is_core(self) -> bool:
         """Check if this is a core agent type."""

@@ -3,6 +3,7 @@
 Phase 7 Implementation: Enterprise Agents Architecture
 Reference: PHASE7_ENTERPRISE_AGENTS_ARCHITECTURE.md
 """
+
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
@@ -10,6 +11,7 @@ from typing import Dict, List, Optional
 @dataclass
 class TestTemplate:
     """Template for a test framework."""
+
     framework: str
     language: str
     file_extension: str
@@ -20,7 +22,7 @@ class TestTemplate:
     example: str
     setup_code: str = ""
     teardown_code: str = ""
-    
+
     def get_test_file_name(self, source_file: str) -> str:
         """Generate test file name from source file."""
         base = source_file.rsplit(".", 1)[0]
@@ -34,12 +36,12 @@ class TestTemplate:
 
 class TestTemplates:
     """Collection of test templates for different frameworks."""
-    
+
     def __init__(self):
         """Initialize with default templates."""
-        self._templates: Dict[str, TestTemplate] = {}
+        self._templates: dict[str, TestTemplate] = {}
         self._load_templates()
-    
+
     def _load_templates(self):
         """Load default test templates."""
         # Python - pytest
@@ -86,7 +88,7 @@ def sample_data():
     return {"key": "value"}
 """,
         )
-        
+
         # Python - unittest
         self._templates["unittest"] = TestTemplate(
             framework="unittest",
@@ -125,7 +127,7 @@ if __name__ == "__main__":
     unittest.main()
 """,
         )
-        
+
         # JavaScript - Jest
         self._templates["jest"] = TestTemplate(
             framework="jest",
@@ -168,7 +170,7 @@ describe('functionToTest', () => {
 });
 """,
         )
-        
+
         # TypeScript - Vitest
         self._templates["vitest"] = TestTemplate(
             framework="vitest",
@@ -206,7 +208,7 @@ describe('functionToTest', () => {
 });
 """,
         )
-        
+
         # JavaScript - Mocha
         self._templates["mocha"] = TestTemplate(
             framework="mocha",
@@ -238,7 +240,7 @@ describe('functionToTest', () => {
 });
 """,
         )
-        
+
         # Go - testing
         self._templates["testing"] = TestTemplate(
             framework="testing",
@@ -287,23 +289,23 @@ func TestFunctionToTestSubtests(t *testing.T) {
 }
 """,
         )
-    
-    def get_template(self, framework: str) -> Optional[TestTemplate]:
+
+    def get_template(self, framework: str) -> TestTemplate | None:
         """Get template for a framework.
-        
+
         Args:
             framework: Test framework name
-            
+
         Returns:
             Template or None if not found
         """
         return self._templates.get(framework)
-    
-    def get_available_frameworks(self) -> List[str]:
+
+    def get_available_frameworks(self) -> list[str]:
         """Get list of available frameworks."""
         return list(self._templates.keys())
-    
-    def get_framework_for_language(self, language: str) -> Optional[str]:
+
+    def get_framework_for_language(self, language: str) -> str | None:
         """Get default framework for a language."""
         defaults = {
             "python": "pytest",
@@ -312,7 +314,7 @@ func TestFunctionToTestSubtests(t *testing.T) {
             "go": "testing",
         }
         return defaults.get(language)
-    
+
     def add_template(self, template: TestTemplate) -> None:
         """Add a custom template."""
         self._templates[template.framework] = template

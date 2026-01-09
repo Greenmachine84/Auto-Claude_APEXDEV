@@ -9,9 +9,10 @@ import hashlib
 import hmac
 import logging
 import time
+from collections.abc import Callable, Coroutine
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Coroutine, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -35,11 +36,11 @@ class EventPayload:
 
     type: EventType
     event_ts: str
-    user: Optional[str]
-    channel: Optional[str]
+    user: str | None
+    channel: str | None
     data: dict
-    team_id: Optional[str] = None
-    api_app_id: Optional[str] = None
+    team_id: str | None = None
+    api_app_id: str | None = None
 
 
 EventHandler = Callable[[EventPayload], Coroutine[Any, Any, None]]
@@ -49,7 +50,7 @@ EventHandler = Callable[[EventPayload], Coroutine[Any, Any, None]]
 class SlackWebhookHandler:
     """Slack event and webhook handler."""
 
-    signing_secret: Optional[str] = None
+    signing_secret: str | None = None
     handlers: dict[str, list[EventHandler]] = field(default_factory=dict)
 
     def verify_signature(
@@ -73,11 +74,14 @@ class SlackWebhookHandler:
 
         # Compute signature
         sig_basestring = f"v0:{timestamp}:{body.decode()}"
-        computed = "v0=" + hmac.new(
-            self.signing_secret.encode(),
-            sig_basestring.encode(),
-            hashlib.sha256,
-        ).hexdigest()
+        computed = (
+            "v0="
+            + hmac.new(
+                self.signing_secret.encode(),
+                sig_basestring.encode(),
+                hashlib.sha256,
+            ).hexdigest()
+        )
 
         return hmac.compare_digest(computed, signature)
 
@@ -108,10 +112,10 @@ class SlackWebhookHandler:
     async def handle(
         self,
         payload: dict,
-        body: Optional[bytes] = None,
-        timestamp: Optional[str] = None,
-        signature: Optional[str] = None,
-    ) -> Optional[dict]:
+        body: bytes | None = None,
+        timestamp: str | None = None,
+        signature: str | None = None,
+    ) -> dict | None:
         """Handle incoming Slack event."""
         # Handle URL verification challenge
         if payload.get("type") == "url_verification":

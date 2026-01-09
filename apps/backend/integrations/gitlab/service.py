@@ -6,7 +6,6 @@ High-level service for GitLab operations.
 """
 
 import logging
-from typing import Optional
 
 from .client import GitLabClient
 from .models import (
@@ -31,7 +30,7 @@ class GitLabService:
         self.client = GitLabClient(config)
         self._project_id = config.default_project_id
 
-    def _project_path(self, project_id: Optional[int | str] = None) -> str:
+    def _project_path(self, project_id: int | str | None = None) -> str:
         """Build project path."""
         pid = project_id or self._project_id
         if not pid:
@@ -50,7 +49,9 @@ class GitLabService:
         return GitLabUser(**data)
 
     # Project methods
-    async def get_project(self, project_id: Optional[int | str] = None) -> GitLabProject:
+    async def get_project(
+        self, project_id: int | str | None = None
+    ) -> GitLabProject:
         """Get project details."""
         path = self._project_path(project_id)
         data = await self.client.get(path)
@@ -73,7 +74,7 @@ class GitLabService:
     # Merge request methods
     async def list_merge_requests(
         self,
-        project_id: Optional[int | str] = None,
+        project_id: int | str | None = None,
         state: MergeRequestState = MergeRequestState.OPENED,
     ) -> list[GitLabMergeRequest]:
         """List merge requests."""
@@ -84,7 +85,7 @@ class GitLabService:
     async def get_merge_request(
         self,
         iid: int,
-        project_id: Optional[int | str] = None,
+        project_id: int | str | None = None,
     ) -> GitLabMergeRequest:
         """Get merge request details."""
         path = f"{self._project_path(project_id)}/merge_requests/{iid}"
@@ -96,9 +97,9 @@ class GitLabService:
         title: str,
         source_branch: str,
         target_branch: str,
-        description: Optional[str] = None,
+        description: str | None = None,
         draft: bool = False,
-        project_id: Optional[int | str] = None,
+        project_id: int | str | None = None,
     ) -> GitLabMergeRequest:
         """Create merge request."""
         path = f"{self._project_path(project_id)}/merge_requests"
@@ -115,10 +116,10 @@ class GitLabService:
     async def update_merge_request(
         self,
         iid: int,
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        state_event: Optional[str] = None,  # 'close' or 'reopen'
-        project_id: Optional[int | str] = None,
+        title: str | None = None,
+        description: str | None = None,
+        state_event: str | None = None,  # 'close' or 'reopen'
+        project_id: int | str | None = None,
     ) -> GitLabMergeRequest:
         """Update merge request."""
         path = f"{self._project_path(project_id)}/merge_requests/{iid}"
@@ -135,10 +136,10 @@ class GitLabService:
     async def merge_merge_request(
         self,
         iid: int,
-        merge_commit_message: Optional[str] = None,
+        merge_commit_message: str | None = None,
         squash: bool = False,
         should_remove_source_branch: bool = False,
-        project_id: Optional[int | str] = None,
+        project_id: int | str | None = None,
     ) -> GitLabMergeRequest:
         """Accept and merge a merge request."""
         path = f"{self._project_path(project_id)}/merge_requests/{iid}/merge"
@@ -154,9 +155,9 @@ class GitLabService:
     # Issue methods
     async def list_issues(
         self,
-        project_id: Optional[int | str] = None,
+        project_id: int | str | None = None,
         state: IssueState = IssueState.OPENED,
-        labels: Optional[list[str]] = None,
+        labels: list[str] | None = None,
     ) -> list[GitLabIssue]:
         """List issues."""
         path = f"{self._project_path(project_id)}/issues"
@@ -169,7 +170,7 @@ class GitLabService:
     async def get_issue(
         self,
         iid: int,
-        project_id: Optional[int | str] = None,
+        project_id: int | str | None = None,
     ) -> GitLabIssue:
         """Get issue details."""
         path = f"{self._project_path(project_id)}/issues/{iid}"
@@ -179,10 +180,10 @@ class GitLabService:
     async def create_issue(
         self,
         title: str,
-        description: Optional[str] = None,
-        labels: Optional[list[str]] = None,
-        assignee_ids: Optional[list[int]] = None,
-        project_id: Optional[int | str] = None,
+        description: str | None = None,
+        labels: list[str] | None = None,
+        assignee_ids: list[int] | None = None,
+        project_id: int | str | None = None,
     ) -> GitLabIssue:
         """Create issue."""
         path = f"{self._project_path(project_id)}/issues"
@@ -199,11 +200,11 @@ class GitLabService:
     async def update_issue(
         self,
         iid: int,
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        state_event: Optional[str] = None,  # 'close' or 'reopen'
-        labels: Optional[list[str]] = None,
-        project_id: Optional[int | str] = None,
+        title: str | None = None,
+        description: str | None = None,
+        state_event: str | None = None,  # 'close' or 'reopen'
+        labels: list[str] | None = None,
+        project_id: int | str | None = None,
     ) -> GitLabIssue:
         """Update issue."""
         path = f"{self._project_path(project_id)}/issues/{iid}"
@@ -223,7 +224,7 @@ class GitLabService:
     async def list_merge_request_notes(
         self,
         iid: int,
-        project_id: Optional[int | str] = None,
+        project_id: int | str | None = None,
     ) -> list[GitLabNote]:
         """List merge request notes."""
         path = f"{self._project_path(project_id)}/merge_requests/{iid}/notes"
@@ -234,7 +235,7 @@ class GitLabService:
         self,
         iid: int,
         body: str,
-        project_id: Optional[int | str] = None,
+        project_id: int | str | None = None,
     ) -> GitLabNote:
         """Create merge request note."""
         path = f"{self._project_path(project_id)}/merge_requests/{iid}/notes"
@@ -244,7 +245,7 @@ class GitLabService:
     async def list_issue_notes(
         self,
         iid: int,
-        project_id: Optional[int | str] = None,
+        project_id: int | str | None = None,
     ) -> list[GitLabNote]:
         """List issue notes."""
         path = f"{self._project_path(project_id)}/issues/{iid}/notes"
@@ -255,7 +256,7 @@ class GitLabService:
         self,
         iid: int,
         body: str,
-        project_id: Optional[int | str] = None,
+        project_id: int | str | None = None,
     ) -> GitLabNote:
         """Create issue note."""
         path = f"{self._project_path(project_id)}/issues/{iid}/notes"

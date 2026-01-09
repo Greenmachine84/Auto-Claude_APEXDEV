@@ -11,7 +11,7 @@ The lifecycle module manages:
 """
 
 from .agent_pool import AgentPool, PoolConfig
-from .lifecycle_manager import LifecycleManager, LifecycleEvent
+from .lifecycle_manager import LifecycleEvent, LifecycleManager
 from .supervisor import AgentSupervisor, SupervisorConfig
 
 __all__ = [

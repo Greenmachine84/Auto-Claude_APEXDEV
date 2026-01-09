@@ -8,9 +8,10 @@ Webhook handler for Linear events.
 import hashlib
 import hmac
 import logging
+from collections.abc import Callable, Coroutine
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Coroutine, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -39,9 +40,9 @@ class WebhookPayload:
     event: WebhookEvent
     data: dict
     created_at: str
-    url: Optional[str] = None
-    organization_id: Optional[str] = None
-    webhook_id: Optional[str] = None
+    url: str | None = None
+    organization_id: str | None = None
+    webhook_id: str | None = None
 
 
 EventHandler = Callable[[WebhookPayload], Coroutine[Any, Any, None]]
@@ -51,7 +52,7 @@ EventHandler = Callable[[WebhookPayload], Coroutine[Any, Any, None]]
 class LinearWebhookHandler:
     """Linear webhook handler."""
 
-    secret: Optional[str] = None
+    secret: str | None = None
     handlers: dict[str, list[EventHandler]] = field(default_factory=dict)
 
     def verify_signature(self, payload: bytes, signature: str) -> bool:
@@ -97,8 +98,8 @@ class LinearWebhookHandler:
     async def handle(
         self,
         payload: dict,
-        signature: Optional[str] = None,
-        raw_payload: Optional[bytes] = None,
+        signature: str | None = None,
+        raw_payload: bytes | None = None,
     ) -> bool:
         """Handle incoming webhook."""
         # Verify signature if provided

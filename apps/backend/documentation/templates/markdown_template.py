@@ -4,8 +4,6 @@ Markdown template.
 Renders documentation entries in Markdown format.
 """
 
-from typing import Any
-
 from ..config import TemplateConfig
 from ..models import (
     CodeExample,
@@ -239,11 +237,7 @@ class MarkdownTemplate(BaseTemplate):
 
         return "\n".join(lines)
 
-    def render_table(
-        self,
-        headers: list[str],
-        rows: list[list[str]]
-    ) -> str:
+    def render_table(self, headers: list[str], rows: list[list[str]]) -> str:
         """
         Render a Markdown table.
 
@@ -269,10 +263,7 @@ class MarkdownTemplate(BaseTemplate):
         return "\n".join(lines)
 
     def render_admonition(
-        self,
-        content: str,
-        admonition_type: str = "note",
-        title: str = ""
+        self, content: str, admonition_type: str = "note", title: str = ""
     ) -> str:
         """
         Render an admonition (callout).

@@ -6,11 +6,12 @@ Provides enterprise-grade scanning for:
 - Code vulnerability scanning
 - Pattern-based threat detection
 """
-from .secrets_scanner import SecretsScanner
-from .prompt_injection import PromptInjectionGuard, PromptInjectionScanner
+
 from .code_scanner import CodeScanner
 from .pattern_registry import PatternRegistry
+from .prompt_injection import PromptInjectionGuard, PromptInjectionScanner
 from .sanitizer import InputSanitizer
+from .secrets_scanner import SecretsScanner
 
 __all__ = [
     "SecretsScanner",

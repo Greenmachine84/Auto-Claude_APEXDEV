@@ -8,15 +8,15 @@ Provides lifecycle management, hook integration, and APEX compliance.
 """
 
 import logging
+import uuid
 from abc import ABC, abstractmethod
 from typing import Any, ClassVar
-import uuid
 
-from ..types import AgentType, AgentStatus, AgentResult
+from ..types import AgentResult, AgentStatus, AgentType
 from .agent_config import AgentConfig
-from .agent_state import AgentStateManager, StateSnapshot
 from .agent_context import ExecutionContext
-from .agent_hooks import AgentHooks, HookType, HookContext
+from .agent_hooks import AgentHooks, HookType
+from .agent_state import AgentStateManager, StateSnapshot
 
 
 class BaseAgent(ABC):
@@ -279,7 +279,8 @@ class BaseAgent(ABC):
 
         except Exception as e:
             self.handle_error(e, context)
-            from ..types import ErrorResult, ErrorCode
+            from ..types import ErrorCode, ErrorResult
+
             return ErrorResult(
                 message=str(e),
                 code=ErrorCode.EXECUTION_ERROR,
@@ -340,7 +341,9 @@ class BaseAgent(ABC):
             HookType.ON_STATE_CHANGE,
             metadata={
                 "status": snapshot.status.value,
-                "previous": snapshot.previous_status.value if snapshot.previous_status else None,
+                "previous": snapshot.previous_status.value
+                if snapshot.previous_status
+                else None,
                 "reason": snapshot.transition_reason,
             },
         )
@@ -370,4 +373,6 @@ class BaseAgent(ABC):
         }
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(id={self._id!r}, status={self.status.value!r})"
+        return (
+            f"{self.__class__.__name__}(id={self._id!r}, status={self.status.value!r})"
+        )

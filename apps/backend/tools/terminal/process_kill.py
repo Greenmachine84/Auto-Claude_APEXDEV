@@ -8,7 +8,6 @@ Capabilities:
 - Force termination
 """
 
-from typing import Any, Dict, List, Optional
 import os
 import signal
 
@@ -16,11 +15,10 @@ from tools.core.base_tool import (
     BaseTool,
     ToolCategory,
     ToolContext,
+    ToolParameter,
     ToolResult,
     ToolStatus,
-    ToolParameter,
 )
-
 
 # Import tracked processes
 from tools.terminal.process_spawn import _spawned_processes
@@ -28,7 +26,7 @@ from tools.terminal.process_spawn import _spawned_processes
 
 class ProcessKillTool(BaseTool):
     """Terminate processes.
-    
+
     Example:
         tool = ProcessKillTool()
         result = await tool.run(ToolContext(
@@ -38,14 +36,14 @@ class ProcessKillTool(BaseTool):
             }
         ))
     """
-    
+
     name = "process_kill"
     description = "Terminate processes"
     category = ToolCategory.TERMINAL
     required_permissions = {"spawn_processes"}
     version = "1.0.0"
-    
-    def get_parameters(self) -> List[ToolParameter]:
+
+    def get_parameters(self) -> list[ToolParameter]:
         """Get parameter definitions."""
         return [
             ToolParameter(
@@ -69,20 +67,20 @@ class ProcessKillTool(BaseTool):
                 default=False,
             ),
         ]
-    
+
     async def execute(self, context: ToolContext) -> ToolResult:
         """Kill process."""
         pid = context.parameters.get("pid")
         sig = context.parameters.get("signal", "SIGTERM")
         force = context.parameters.get("force", False)
-        
+
         try:
             # Determine signal
             if force:
                 sig_num = signal.SIGKILL
             else:
                 sig_num = getattr(signal, sig, signal.SIGTERM)
-            
+
             # Check if we're tracking this process
             if pid in _spawned_processes:
                 process = _spawned_processes[pid]
@@ -94,7 +92,7 @@ class ProcessKillTool(BaseTool):
             else:
                 # Kill external process
                 os.kill(pid, sig_num)
-            
+
             return ToolResult(
                 tool_name=self.name,
                 status=ToolStatus.COMPLETED,
@@ -104,7 +102,7 @@ class ProcessKillTool(BaseTool):
                     "terminated": True,
                 },
             )
-            
+
         except ProcessLookupError:
             return ToolResult(
                 tool_name=self.name,

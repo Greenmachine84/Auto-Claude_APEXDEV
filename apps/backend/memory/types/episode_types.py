@@ -7,22 +7,23 @@ and metadata.
 Part of Phase 2: Memory System Architecture
 """
 
-from enum import Enum
-from typing import Any, Dict, List, Optional
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-import uuid
+from enum import Enum
+from typing import Any
 
 
 class EpisodeOutcome(Enum):
     """Outcome classification for episodes."""
-    SUCCESS = "success"           # Task completed successfully
-    PARTIAL_SUCCESS = "partial"   # Some objectives achieved
-    FAILURE = "failure"           # Task failed
-    ERROR = "error"               # Exception/error occurred
-    CANCELLED = "cancelled"       # Task was cancelled
-    TIMEOUT = "timeout"           # Task exceeded time limit
-    
+
+    SUCCESS = "success"  # Task completed successfully
+    PARTIAL_SUCCESS = "partial"  # Some objectives achieved
+    FAILURE = "failure"  # Task failed
+    ERROR = "error"  # Exception/error occurred
+    CANCELLED = "cancelled"  # Task was cancelled
+    TIMEOUT = "timeout"  # Task exceeded time limit
+
     @property
     def is_positive(self) -> bool:
         """Check if outcome is considered positive."""
@@ -31,28 +32,30 @@ class EpisodeOutcome(Enum):
 
 class EpisodeSeverity(Enum):
     """Severity level for episode categorization.
-    
+
     Used for retention decisions and priority retrieval.
     """
-    CRITICAL = 0    # Critical learnings, must retain
-    HIGH = 1        # Important patterns
-    MEDIUM = 2      # Standard episodes
-    LOW = 3         # Routine, can be summarized
-    DEBUG = 4       # Verbose, short retention
+
+    CRITICAL = 0  # Critical learnings, must retain
+    HIGH = 1  # Important patterns
+    MEDIUM = 2  # Standard episodes
+    LOW = 3  # Routine, can be summarized
+    DEBUG = 4  # Verbose, short retention
 
 
 @dataclass
 class ToolInvocation:
     """Record of a tool invocation within an episode."""
+
     tool_name: str
-    tool_input: Dict[str, Any]
+    tool_input: dict[str, Any]
     tool_output: Any
     duration_ms: int
     success: bool
-    error_message: Optional[str] = None
+    error_message: str | None = None
     timestamp: datetime = field(default_factory=datetime.utcnow)
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for storage."""
         return {
             "tool_name": self.tool_name,
@@ -63,9 +66,9 @@ class ToolInvocation:
             "error_message": self.error_message,
             "timestamp": self.timestamp.isoformat(),
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "ToolInvocation":
+    def from_dict(cls, data: dict[str, Any]) -> "ToolInvocation":
         """Create from dictionary."""
         return cls(
             tool_name=data["tool_name"],
@@ -81,33 +84,34 @@ class ToolInvocation:
 @dataclass
 class EpisodeMetadata:
     """Metadata associated with an episode."""
+
     # Context information
-    project_path: Optional[str] = None
-    file_paths: List[str] = field(default_factory=list)
-    git_branch: Optional[str] = None
-    git_commit: Optional[str] = None
-    
+    project_path: str | None = None
+    file_paths: list[str] = field(default_factory=list)
+    git_branch: str | None = None
+    git_commit: str | None = None
+
     # Agent context
-    parent_task_id: Optional[str] = None
-    child_task_ids: List[str] = field(default_factory=list)
-    
+    parent_task_id: str | None = None
+    child_task_ids: list[str] = field(default_factory=list)
+
     # Quality metrics
-    confidence_score: Optional[float] = None
-    quality_score: Optional[float] = None
-    user_feedback: Optional[str] = None
-    
+    confidence_score: float | None = None
+    quality_score: float | None = None
+    user_feedback: str | None = None
+
     # LLM details
-    llm_provider: Optional[str] = None
-    llm_model: Optional[str] = None
+    llm_provider: str | None = None
+    llm_model: str | None = None
     input_tokens: int = 0
     output_tokens: int = 0
     cost_usd: float = 0.0
-    
+
     # Tags and labels
-    tags: List[str] = field(default_factory=list)
-    labels: Dict[str, str] = field(default_factory=dict)
-    
-    def to_dict(self) -> Dict[str, Any]:
+    tags: list[str] = field(default_factory=list)
+    labels: dict[str, str] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for storage."""
         return {
             "project_path": self.project_path,
@@ -127,9 +131,9 @@ class EpisodeMetadata:
             "tags": self.tags,
             "labels": self.labels,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "EpisodeMetadata":
+    def from_dict(cls, data: dict[str, Any]) -> "EpisodeMetadata":
         """Create from dictionary."""
         return cls(**data)
 
@@ -137,11 +141,11 @@ class EpisodeMetadata:
 @dataclass
 class EpisodeRecord:
     """Complete record of an agent execution episode.
-    
+
     Episodes capture the full context of task execution
     for learning and retrieval. Core data structure for
     episodic memory.
-    
+
     Attributes:
         id: Unique episode identifier
         agent_id: ID of the executing agent
@@ -158,47 +162,48 @@ class EpisodeRecord:
         updated_at: Timestamp of last update
         metadata: Additional context
     """
+
     # Identifiers
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     agent_id: str = ""
     agent_type: str = ""
-    task_id: Optional[str] = None
-    
+    task_id: str | None = None
+
     # Content
     input_text: str = ""
     output_text: str = ""
-    reasoning: Optional[str] = None  # Chain of thought
-    
+    reasoning: str | None = None  # Chain of thought
+
     # Classification
     outcome: EpisodeOutcome = EpisodeOutcome.SUCCESS
     severity: EpisodeSeverity = EpisodeSeverity.MEDIUM
-    
+
     # Tool usage
-    tools_used: List[str] = field(default_factory=list)
-    tool_invocations: List[ToolInvocation] = field(default_factory=list)
-    
+    tools_used: list[str] = field(default_factory=list)
+    tool_invocations: list[ToolInvocation] = field(default_factory=list)
+
     # Timing
     duration_ms: int = 0
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
-    
+
     # Extended metadata
     metadata: EpisodeMetadata = field(default_factory=EpisodeMetadata)
-    
+
     # Embedding for semantic search
-    embedding: Optional[List[float]] = None
-    
+    embedding: list[float] | None = None
+
     @property
     def success(self) -> bool:
         """Check if episode was successful."""
         return self.outcome.is_positive
-    
+
     @property
     def total_tokens(self) -> int:
         """Get total token count."""
         return self.metadata.input_tokens + self.metadata.output_tokens
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for storage."""
         return {
             "id": self.id,
@@ -218,9 +223,9 @@ class EpisodeRecord:
             "metadata": self.metadata.to_dict(),
             "embedding": self.embedding,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "EpisodeRecord":
+    def from_dict(cls, data: dict[str, Any]) -> "EpisodeRecord":
         """Create from dictionary."""
         return cls(
             id=data["id"],
@@ -234,16 +239,17 @@ class EpisodeRecord:
             severity=EpisodeSeverity(data.get("severity", 2)),
             tools_used=data.get("tools_used", []),
             tool_invocations=[
-                ToolInvocation.from_dict(t) 
-                for t in data.get("tool_invocations", [])
+                ToolInvocation.from_dict(t) for t in data.get("tool_invocations", [])
             ],
             duration_ms=data.get("duration_ms", 0),
             created_at=datetime.fromisoformat(data["created_at"]),
-            updated_at=datetime.fromisoformat(data.get("updated_at", data["created_at"])),
+            updated_at=datetime.fromisoformat(
+                data.get("updated_at", data["created_at"])
+            ),
             metadata=EpisodeMetadata.from_dict(data.get("metadata", {})),
             embedding=data.get("embedding"),
         )
-    
+
     def get_searchable_text(self) -> str:
         """Get combined text for full-text search indexing."""
         parts = [

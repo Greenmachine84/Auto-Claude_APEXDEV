@@ -9,23 +9,22 @@ Capabilities:
 - Stat summaries
 """
 
-from typing import Any, Dict, List, Optional
-import subprocess
 import os
+import subprocess
 
 from tools.core.base_tool import (
     BaseTool,
     ToolCategory,
     ToolContext,
+    ToolParameter,
     ToolResult,
     ToolStatus,
-    ToolParameter,
 )
 
 
 class GitDiffTool(BaseTool):
     """Show git diffs.
-    
+
     Example:
         tool = GitDiffTool()
         result = await tool.run(ToolContext(
@@ -33,14 +32,14 @@ class GitDiffTool(BaseTool):
             parameters={"staged": True}
         ))
     """
-    
+
     name = "git_diff"
     description = "Show git diffs"
     category = ToolCategory.GIT
     required_permissions = {"git_read"}
     version = "1.0.0"
-    
-    def get_parameters(self) -> List[ToolParameter]:
+
+    def get_parameters(self) -> list[ToolParameter]:
         """Get parameter definitions."""
         return [
             ToolParameter(
@@ -79,7 +78,7 @@ class GitDiffTool(BaseTool):
                 default=False,
             ),
         ]
-    
+
     async def execute(self, context: ToolContext) -> ToolResult:
         """Execute git diff."""
         path = context.parameters.get("path", context.working_directory)
@@ -87,13 +86,13 @@ class GitDiffTool(BaseTool):
         commit = context.parameters.get("commit")
         file = context.parameters.get("file")
         stat = context.parameters.get("stat", False)
-        
+
         if not os.path.isabs(path):
             path = os.path.join(context.working_directory, path)
-        
+
         try:
             cmd = ["git", "diff"]
-            
+
             if staged:
                 cmd.append("--cached")
             if commit:
@@ -102,7 +101,7 @@ class GitDiffTool(BaseTool):
                 cmd.append("--stat")
             if file:
                 cmd.extend(["--", file])
-            
+
             result = subprocess.run(
                 cmd,
                 cwd=path,
@@ -110,7 +109,7 @@ class GitDiffTool(BaseTool):
                 text=True,
                 timeout=30,
             )
-            
+
             if result.returncode != 0:
                 return ToolResult(
                     tool_name=self.name,
@@ -118,7 +117,7 @@ class GitDiffTool(BaseTool):
                     output=None,
                     error=result.stderr,
                 )
-            
+
             return ToolResult(
                 tool_name=self.name,
                 status=ToolStatus.COMPLETED,
@@ -129,7 +128,7 @@ class GitDiffTool(BaseTool):
                     "file": file,
                 },
             )
-            
+
         except Exception as e:
             return ToolResult(
                 tool_name=self.name,

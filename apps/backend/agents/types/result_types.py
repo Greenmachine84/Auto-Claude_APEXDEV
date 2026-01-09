@@ -10,14 +10,13 @@ Result types provide:
 - APEX compliance metadata
 """
 
+import json
+import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Generic, TypeVar, Final
-import json
-import uuid
-
+from typing import Any, Final, Generic, TypeVar
 
 T = TypeVar("T")  # Generic type for result data
 
@@ -41,9 +40,7 @@ class ResultMetadata:
     """
 
     result_id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    timestamp: datetime = field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     agent_id: str | None = None
     task_id: str | None = None
     session_id: str | None = None
@@ -206,13 +203,15 @@ class ErrorResult(AgentResult[T]):
 
     def to_dict(self) -> dict[str, Any]:
         base = super().to_dict()
-        base.update({
-            "error_code": self.error_code,
-            "error_type": self.error_type,
-            "stack_trace": self.stack_trace,
-            "recoverable": self.recoverable,
-            "recovery_hint": self.recovery_hint,
-        })
+        base.update(
+            {
+                "error_code": self.error_code,
+                "error_type": self.error_type,
+                "stack_trace": self.stack_trace,
+                "recoverable": self.recoverable,
+                "recovery_hint": self.recovery_hint,
+            }
+        )
         return base
 
     @classmethod
@@ -286,13 +285,15 @@ class PartialResult(AgentResult[T]):
 
     def to_dict(self) -> dict[str, Any]:
         base = super().to_dict()
-        base.update({
-            "data": self.data,
-            "completed_items": self.completed_items,
-            "total_items": self.total_items,
-            "completion_percentage": self.completion_percentage,
-            "errors": self.errors,
-        })
+        base.update(
+            {
+                "data": self.data,
+                "completed_items": self.completed_items,
+                "total_items": self.total_items,
+                "completion_percentage": self.completion_percentage,
+                "errors": self.errors,
+            }
+        )
         return base
 
 

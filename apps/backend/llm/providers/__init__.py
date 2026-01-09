@@ -13,15 +13,15 @@ Implements 8 canonical LLM providers:
 Part of Phase 2: LLM Architecture
 """
 
-from .base import BaseLLMProvider, ProviderCapabilities
-from .copilot_provider import CopilotProvider
-from .openrouter_provider import OpenRouterProvider
-from .ollama_provider import OllamaProvider
-from .lmstudio_provider import LMStudioProvider
-from .gemini_provider import GeminiProvider
-from .openai_provider import OpenAIProvider
 from .anthropic_provider import AnthropicProvider
 from .azure_provider import AzureOpenAIProvider
+from .base import BaseLLMProvider, ProviderCapabilities
+from .copilot_provider import CopilotProvider
+from .gemini_provider import GeminiProvider
+from .lmstudio_provider import LMStudioProvider
+from .ollama_provider import OllamaProvider
+from .openai_provider import OpenAIProvider
+from .openrouter_provider import OpenRouterProvider
 
 __all__ = [
     "BaseLLMProvider",

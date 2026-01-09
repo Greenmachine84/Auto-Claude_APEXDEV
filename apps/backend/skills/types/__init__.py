@@ -3,16 +3,16 @@
 Type enums and definitions for the skills framework.
 """
 
-from skills.types.skill_types import (
-    SkillCategory,
-    SkillStatus,
-    SkillPriority,
-    SkillCapability,
-)
 from skills.types.result_types import (
-    SkillResult,
     SkillError,
+    SkillResult,
     ValidationResult,
+)
+from skills.types.skill_types import (
+    SkillCapability,
+    SkillCategory,
+    SkillPriority,
+    SkillStatus,
 )
 
 __all__ = [

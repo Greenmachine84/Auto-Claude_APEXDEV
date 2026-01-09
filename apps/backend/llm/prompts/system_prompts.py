@@ -4,7 +4,6 @@ Part of Phase 2: LLM Architecture
 """
 
 import logging
-from typing import Dict, Optional
 from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
@@ -13,6 +12,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SystemPromptConfig:
     """Configuration for a system prompt."""
+
     name: str
     description: str
     prompt: str
@@ -196,71 +196,71 @@ Coordinate efficiently to minimize latency while ensuring quality."""
 
 
 # Prompt Registry
-SYSTEM_PROMPTS: Dict[str, SystemPromptConfig] = {
+SYSTEM_PROMPTS: dict[str, SystemPromptConfig] = {
     "coder": SystemPromptConfig(
         name="coder",
         description="Expert software engineer for code implementation",
         prompt=CODER_SYSTEM_PROMPT,
-        category="core"
+        category="core",
     ),
     "reviewer": SystemPromptConfig(
         name="reviewer",
         description="Senior code reviewer for quality and security",
         prompt=REVIEWER_SYSTEM_PROMPT,
-        category="core"
+        category="core",
     ),
     "fixer": SystemPromptConfig(
         name="fixer",
         description="Bug fixer and issue resolver",
         prompt=FIXER_SYSTEM_PROMPT,
-        category="core"
+        category="core",
     ),
     "planner": SystemPromptConfig(
         name="planner",
         description="Technical planner for complex tasks",
         prompt=PLANNER_SYSTEM_PROMPT,
-        category="core"
+        category="core",
     ),
     "security": SystemPromptConfig(
         name="security",
         description="Security vulnerability analyst",
         prompt=SECURITY_SYSTEM_PROMPT,
-        category="enterprise"
+        category="enterprise",
     ),
     "documentation": SystemPromptConfig(
         name="documentation",
         description="Technical documentation writer",
         prompt=DOCUMENTATION_SYSTEM_PROMPT,
-        category="enterprise"
+        category="enterprise",
     ),
     "quality": SystemPromptConfig(
         name="quality",
         description="Quality assurance analyst",
         prompt=QUALITY_SYSTEM_PROMPT,
-        category="enterprise"
+        category="enterprise",
     ),
     "architect": SystemPromptConfig(
         name="architect",
         description="Software architect for system design",
         prompt=ARCHITECT_SYSTEM_PROMPT,
-        category="enterprise"
+        category="enterprise",
     ),
     "orchestrator": SystemPromptConfig(
         name="orchestrator",
         description="Task orchestrator for multi-agent coordination",
         prompt=ORCHESTRATOR_SYSTEM_PROMPT,
-        category="core"
-    )
+        category="core",
+    ),
 }
 
 
-def get_system_prompt(agent_type: str) -> Optional[str]:
+def get_system_prompt(agent_type: str) -> str | None:
     """Get system prompt for an agent type."""
     config = SYSTEM_PROMPTS.get(agent_type.lower())
     return config.prompt if config else None
 
 
-def list_available_prompts(category: Optional[str] = None) -> Dict[str, str]:
+def list_available_prompts(category: str | None = None) -> dict[str, str]:
     """List available system prompts."""
     prompts = {}
     for name, config in SYSTEM_PROMPTS.items():

@@ -4,50 +4,50 @@ Configuration for agent pool.
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 @dataclass
 class PoolConfig:
     """Configuration for agent pool.
-    
+
     Attributes:
         min_agents: Minimum number of agents
         max_agents: Maximum number of agents
         acquire_timeout: Timeout for acquiring agent
         health_check_interval: Health check interval in seconds
     """
-    
+
     # Pool size
     min_agents: int = 2
     max_agents: int = 10
-    
+
     # Timeouts
     acquire_timeout: float = 30.0
     max_idle_time: float = 300.0  # 5 minutes
-    
+
     # Health checks
     health_check_interval: float = 60.0
     health_check_timeout: float = 5.0
-    
+
     # Scaling
     scale_up_threshold: float = 0.8
     scale_down_threshold: float = 0.2
     scale_cooldown: float = 60.0
-    
+
     # Agent defaults
     default_max_concurrent: int = 1
-    default_capabilities: Dict[str, bool] = field(default_factory=dict)
-    
+    default_capabilities: dict[str, bool] = field(default_factory=dict)
+
     def __post_init__(self) -> None:
         """Validate configuration."""
         if self.min_agents < 0:
             raise ValueError("min_agents must be >= 0")
         if self.max_agents < self.min_agents:
             raise ValueError("max_agents must be >= min_agents")
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "PoolConfig":
+    def from_dict(cls, data: dict[str, Any]) -> "PoolConfig":
         """Create config from dictionary."""
         return cls(
             min_agents=data.get("min_agents", 2),
@@ -62,8 +62,8 @@ class PoolConfig:
             default_max_concurrent=data.get("default_max_concurrent", 1),
             default_capabilities=data.get("default_capabilities", {}),
         )
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "min_agents": self.min_agents,

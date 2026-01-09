@@ -6,9 +6,10 @@ Webhook handler for GitLab events.
 """
 
 import logging
+from collections.abc import Callable, Coroutine
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Coroutine, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +35,7 @@ class WebhookPayload:
 
     event: WebhookEvent
     object_kind: str
-    event_name: Optional[str]
+    event_name: str | None
     user: dict
     project: dict
     data: dict
@@ -47,10 +48,10 @@ EventHandler = Callable[[WebhookPayload], Coroutine[Any, Any, None]]
 class GitLabWebhookHandler:
     """GitLab webhook handler."""
 
-    secret: Optional[str] = None
+    secret: str | None = None
     handlers: dict[str, list[EventHandler]] = field(default_factory=dict)
 
-    def verify_token(self, token: Optional[str]) -> bool:
+    def verify_token(self, token: str | None) -> bool:
         """Verify webhook secret token."""
         if not self.secret:
             return True
@@ -59,7 +60,7 @@ class GitLabWebhookHandler:
     def register(
         self,
         event: WebhookEvent,
-        action: Optional[str] = None,
+        action: str | None = None,
     ) -> Callable[[EventHandler], EventHandler]:
         """Register event handler decorator."""
         key = f"{event.value}:{action}" if action else event.value
@@ -72,11 +73,15 @@ class GitLabWebhookHandler:
 
         return decorator
 
-    def on_merge_request(self, action: Optional[str] = None) -> Callable[[EventHandler], EventHandler]:
+    def on_merge_request(
+        self, action: str | None = None
+    ) -> Callable[[EventHandler], EventHandler]:
         """Register merge request handler."""
         return self.register(WebhookEvent.MERGE_REQUEST, action)
 
-    def on_issue(self, action: Optional[str] = None) -> Callable[[EventHandler], EventHandler]:
+    def on_issue(
+        self, action: str | None = None
+    ) -> Callable[[EventHandler], EventHandler]:
         """Register issue handler."""
         return self.register(WebhookEvent.ISSUE, action)
 
@@ -88,14 +93,16 @@ class GitLabWebhookHandler:
         """Register push handler."""
         return self.register(WebhookEvent.PUSH)
 
-    def on_pipeline(self, action: Optional[str] = None) -> Callable[[EventHandler], EventHandler]:
+    def on_pipeline(
+        self, action: str | None = None
+    ) -> Callable[[EventHandler], EventHandler]:
         """Register pipeline handler."""
         return self.register(WebhookEvent.PIPELINE, action)
 
     async def handle(
         self,
         payload: dict,
-        token: Optional[str] = None,
+        token: str | None = None,
     ) -> bool:
         """Handle incoming webhook."""
         # Verify token

@@ -6,17 +6,16 @@ High-level service for Linear operations.
 """
 
 import logging
-from typing import Optional
 
 from .client import LinearClient
 from .models import (
-    LinearConfig,
+    IssuePriority,
     LinearComment,
+    LinearConfig,
     LinearIssue,
     LinearProject,
     LinearTeam,
     LinearUser,
-    IssuePriority,
 )
 
 logger = logging.getLogger(__name__)
@@ -85,7 +84,7 @@ class LinearService:
         data = await self.client.query(query)
         return [LinearTeam(**t) for t in data["teams"]["nodes"]]
 
-    async def get_team(self, team_id: Optional[str] = None) -> LinearTeam:
+    async def get_team(self, team_id: str | None = None) -> LinearTeam:
         """Get team by ID."""
         tid = team_id or self._team_id
         if not tid:
@@ -99,7 +98,7 @@ class LinearService:
         return LinearTeam(**data["team"])
 
     # Project methods
-    async def list_projects(self, team_id: Optional[str] = None) -> list[LinearProject]:
+    async def list_projects(self, team_id: str | None = None) -> list[LinearProject]:
         """List projects."""
         query = f"""
             {self.client.PROJECT_FRAGMENT}
@@ -127,9 +126,9 @@ class LinearService:
     # Issue methods
     async def list_issues(
         self,
-        team_id: Optional[str] = None,
-        project_id: Optional[str] = None,
-        state_names: Optional[list[str]] = None,
+        team_id: str | None = None,
+        project_id: str | None = None,
+        state_names: list[str] | None = None,
         first: int = 50,
     ) -> list[LinearIssue]:
         """List issues."""
@@ -171,13 +170,13 @@ class LinearService:
     async def create_issue(
         self,
         title: str,
-        description: Optional[str] = None,
-        team_id: Optional[str] = None,
-        project_id: Optional[str] = None,
-        priority: Optional[IssuePriority] = None,
-        assignee_id: Optional[str] = None,
-        label_ids: Optional[list[str]] = None,
-        estimate: Optional[float] = None,
+        description: str | None = None,
+        team_id: str | None = None,
+        project_id: str | None = None,
+        priority: IssuePriority | None = None,
+        assignee_id: str | None = None,
+        label_ids: list[str] | None = None,
+        estimate: float | None = None,
     ) -> LinearIssue:
         """Create issue."""
         tid = team_id or self._team_id
@@ -215,11 +214,11 @@ class LinearService:
     async def update_issue(
         self,
         issue_id: str,
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        priority: Optional[IssuePriority] = None,
-        state_id: Optional[str] = None,
-        assignee_id: Optional[str] = None,
+        title: str | None = None,
+        description: str | None = None,
+        priority: IssuePriority | None = None,
+        state_id: str | None = None,
+        assignee_id: str | None = None,
     ) -> LinearIssue:
         """Update issue."""
         mutation = f"""
@@ -301,7 +300,9 @@ class LinearService:
                 }
             }
         """
-        data = await self.client.mutate(mutation, {"input": {"issueId": issue_id, "body": body}})
+        data = await self.client.mutate(
+            mutation, {"input": {"issueId": issue_id, "body": body}}
+        )
         c = data["commentCreate"]["comment"]
         return LinearComment(
             id=c["id"],

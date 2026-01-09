@@ -10,13 +10,14 @@ Provides:
 """
 
 import logging
-from enum import Enum, auto
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Callable
+from enum import Enum, auto
+from typing import Any
 
-from ..types import AgentStatus
 from ..base import BaseAgent
+from ..types import AgentStatus
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +53,9 @@ class LifecycleRecord:
             "event": self.event.name,
             "agent_id": self.agent_id,
             "timestamp": self.timestamp.isoformat(),
-            "previous_status": self.previous_status.value if self.previous_status else None,
+            "previous_status": self.previous_status.value
+            if self.previous_status
+            else None,
             "new_status": self.new_status.value if self.new_status else None,
             "metadata": self.metadata,
         }
@@ -100,12 +103,14 @@ class LifecycleManager:
         Returns:
             Decorator function
         """
+
         def decorator(func: LifecycleCallback) -> LifecycleCallback:
             if event is None:
                 self._global_callbacks.append(func)
             else:
                 self._callbacks[event].append(func)
             return func
+
         return decorator
 
     def add_callback(
@@ -178,7 +183,7 @@ class LifecycleManager:
         # Add to history
         self._history.append(record)
         if len(self._history) > self._max_history:
-            self._history = self._history[-self._max_history:]
+            self._history = self._history[-self._max_history :]
 
         # Execute callbacks
         for callback in self._callbacks[event]:

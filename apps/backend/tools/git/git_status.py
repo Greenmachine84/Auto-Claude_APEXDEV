@@ -9,23 +9,22 @@ Capabilities:
 - Branch information
 """
 
-from typing import Any, Dict, List, Optional
-import subprocess
 import os
+import subprocess
 
 from tools.core.base_tool import (
     BaseTool,
     ToolCategory,
     ToolContext,
+    ToolParameter,
     ToolResult,
     ToolStatus,
-    ToolParameter,
 )
 
 
 class GitStatusTool(BaseTool):
     """Show git repository status.
-    
+
     Example:
         tool = GitStatusTool()
         result = await tool.run(ToolContext(
@@ -33,14 +32,14 @@ class GitStatusTool(BaseTool):
             parameters={"path": "/path/to/repo"}
         ))
     """
-    
+
     name = "git_status"
     description = "Show git repository status"
     category = ToolCategory.GIT
     required_permissions = {"git_read"}
     version = "1.0.0"
-    
-    def get_parameters(self) -> List[ToolParameter]:
+
+    def get_parameters(self) -> list[ToolParameter]:
         """Get parameter definitions."""
         return [
             ToolParameter(
@@ -51,14 +50,14 @@ class GitStatusTool(BaseTool):
                 default=".",
             ),
         ]
-    
+
     async def execute(self, context: ToolContext) -> ToolResult:
         """Execute git status."""
         path = context.parameters.get("path", context.working_directory)
-        
+
         if not os.path.isabs(path):
             path = os.path.join(context.working_directory, path)
-        
+
         try:
             # Get porcelain status
             result = subprocess.run(
@@ -68,7 +67,7 @@ class GitStatusTool(BaseTool):
                 text=True,
                 timeout=30,
             )
-            
+
             if result.returncode != 0:
                 return ToolResult(
                     tool_name=self.name,
@@ -76,32 +75,32 @@ class GitStatusTool(BaseTool):
                     output=None,
                     error=result.stderr,
                 )
-            
+
             # Parse status
             lines = result.stdout.strip().split("\n") if result.stdout.strip() else []
             branch = None
             staged = []
             modified = []
             untracked = []
-            
+
             for line in lines:
                 if line.startswith("## "):
                     branch = line[3:].split("...")[0]
                     continue
-                
+
                 if not line or len(line) < 3:
                     continue
-                
+
                 status_code = line[:2]
                 filename = line[3:]
-                
+
                 if status_code[0] != " " and status_code[0] != "?":
                     staged.append({"status": status_code[0], "file": filename})
                 if status_code[1] != " " and status_code[1] != "?":
                     modified.append({"status": status_code[1], "file": filename})
                 if status_code == "??":
                     untracked.append(filename)
-            
+
             return ToolResult(
                 tool_name=self.name,
                 status=ToolStatus.COMPLETED,
@@ -110,10 +109,12 @@ class GitStatusTool(BaseTool):
                     "staged": staged,
                     "modified": modified,
                     "untracked": untracked,
-                    "clean": len(staged) == 0 and len(modified) == 0 and len(untracked) == 0,
+                    "clean": len(staged) == 0
+                    and len(modified) == 0
+                    and len(untracked) == 0,
                 },
             )
-            
+
         except Exception as e:
             return ToolResult(
                 tool_name=self.name,

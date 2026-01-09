@@ -6,7 +6,7 @@ HTTP client for Slack API interactions.
 """
 
 import logging
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class SlackClientError(Exception):
     """Slack client error."""
 
-    def __init__(self, message: str, error_code: Optional[str] = None):
+    def __init__(self, message: str, error_code: str | None = None):
         super().__init__(message)
         self.error_code = error_code
 
@@ -30,7 +30,7 @@ class SlackClient:
 
     def __init__(self, config: SlackConfig):
         self.config = config
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
 
     async def _get_client(self) -> httpx.AsyncClient:
         """Get or create HTTP client."""
@@ -54,8 +54,8 @@ class SlackClient:
     async def _call(
         self,
         method: str,
-        params: Optional[dict] = None,
-        json_data: Optional[dict] = None,
+        params: dict | None = None,
+        json_data: dict | None = None,
     ) -> dict[str, Any]:
         """Call Slack API method."""
         client = await self._get_client()
@@ -90,10 +90,10 @@ class SlackClient:
     async def chat_post_message(
         self,
         channel: str,
-        text: Optional[str] = None,
-        blocks: Optional[list[dict]] = None,
-        attachments: Optional[list[dict]] = None,
-        thread_ts: Optional[str] = None,
+        text: str | None = None,
+        blocks: list[dict] | None = None,
+        attachments: list[dict] | None = None,
+        thread_ts: str | None = None,
         reply_broadcast: bool = False,
     ) -> dict[str, Any]:
         """Post message to channel."""
@@ -114,8 +114,8 @@ class SlackClient:
         self,
         channel: str,
         ts: str,
-        text: Optional[str] = None,
-        blocks: Optional[list[dict]] = None,
+        text: str | None = None,
+        blocks: list[dict] | None = None,
     ) -> dict[str, Any]:
         """Update message."""
         payload = {"channel": channel, "ts": ts}
@@ -154,8 +154,8 @@ class SlackClient:
         self,
         channel: str,
         limit: int = 100,
-        oldest: Optional[str] = None,
-        latest: Optional[str] = None,
+        oldest: str | None = None,
+        latest: str | None = None,
     ) -> dict[str, Any]:
         """Get conversation history."""
         payload = {"channel": channel, "limit": limit}
@@ -187,14 +187,18 @@ class SlackClient:
         return await self._call("users.info", json_data={"user": user})
 
     # Reactions
-    async def reactions_add(self, channel: str, timestamp: str, name: str) -> dict[str, Any]:
+    async def reactions_add(
+        self, channel: str, timestamp: str, name: str
+    ) -> dict[str, Any]:
         """Add reaction."""
         return await self._call(
             "reactions.add",
             json_data={"channel": channel, "timestamp": timestamp, "name": name},
         )
 
-    async def reactions_remove(self, channel: str, timestamp: str, name: str) -> dict[str, Any]:
+    async def reactions_remove(
+        self, channel: str, timestamp: str, name: str
+    ) -> dict[str, Any]:
         """Remove reaction."""
         return await self._call(
             "reactions.remove",

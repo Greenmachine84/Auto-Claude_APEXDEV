@@ -6,12 +6,11 @@ High-level service for GitHub operations.
 """
 
 import logging
-from typing import Optional
 
 from .client import GitHubClient
 from .models import (
-    GitHubConfig,
     GitHubComment,
+    GitHubConfig,
     GitHubIssue,
     GitHubPullRequest,
     GitHubRepository,
@@ -34,7 +33,9 @@ class GitHubService:
         self._owner = config.default_owner
         self._repo = config.default_repo
 
-    def _repo_path(self, owner: Optional[str] = None, repo: Optional[str] = None) -> str:
+    def _repo_path(
+        self, owner: str | None = None, repo: str | None = None
+    ) -> str:
         """Build repository path."""
         o = owner or self._owner
         r = repo or self._repo
@@ -55,15 +56,17 @@ class GitHubService:
     # Repository methods
     async def get_repository(
         self,
-        owner: Optional[str] = None,
-        repo: Optional[str] = None,
+        owner: str | None = None,
+        repo: str | None = None,
     ) -> GitHubRepository:
         """Get repository details."""
         path = self._repo_path(owner, repo)
         data = await self.client.get(path)
         return GitHubRepository(**data)
 
-    async def list_repositories(self, org: Optional[str] = None) -> list[GitHubRepository]:
+    async def list_repositories(
+        self, org: str | None = None
+    ) -> list[GitHubRepository]:
         """List repositories."""
         if org:
             data = await self.client.paginate(f"/orgs/{org}/repos")
@@ -74,8 +77,8 @@ class GitHubService:
     # Pull request methods
     async def list_pull_requests(
         self,
-        owner: Optional[str] = None,
-        repo: Optional[str] = None,
+        owner: str | None = None,
+        repo: str | None = None,
         state: PullRequestState = PullRequestState.OPEN,
     ) -> list[GitHubPullRequest]:
         """List pull requests."""
@@ -86,8 +89,8 @@ class GitHubService:
     async def get_pull_request(
         self,
         number: int,
-        owner: Optional[str] = None,
-        repo: Optional[str] = None,
+        owner: str | None = None,
+        repo: str | None = None,
     ) -> GitHubPullRequest:
         """Get pull request details."""
         path = f"{self._repo_path(owner, repo)}/pulls/{number}"
@@ -99,27 +102,33 @@ class GitHubService:
         title: str,
         head: str,
         base: str,
-        body: Optional[str] = None,
+        body: str | None = None,
         draft: bool = False,
-        owner: Optional[str] = None,
-        repo: Optional[str] = None,
+        owner: str | None = None,
+        repo: str | None = None,
     ) -> GitHubPullRequest:
         """Create pull request."""
         path = f"{self._repo_path(owner, repo)}/pulls"
         data = await self.client.post(
             path,
-            json={"title": title, "head": head, "base": base, "body": body, "draft": draft},
+            json={
+                "title": title,
+                "head": head,
+                "base": base,
+                "body": body,
+                "draft": draft,
+            },
         )
         return GitHubPullRequest(**data)
 
     async def update_pull_request(
         self,
         number: int,
-        title: Optional[str] = None,
-        body: Optional[str] = None,
-        state: Optional[PullRequestState] = None,
-        owner: Optional[str] = None,
-        repo: Optional[str] = None,
+        title: str | None = None,
+        body: str | None = None,
+        state: PullRequestState | None = None,
+        owner: str | None = None,
+        repo: str | None = None,
     ) -> GitHubPullRequest:
         """Update pull request."""
         path = f"{self._repo_path(owner, repo)}/pulls/{number}"
@@ -136,11 +145,11 @@ class GitHubService:
     async def merge_pull_request(
         self,
         number: int,
-        commit_title: Optional[str] = None,
-        commit_message: Optional[str] = None,
+        commit_title: str | None = None,
+        commit_message: str | None = None,
         merge_method: str = "merge",
-        owner: Optional[str] = None,
-        repo: Optional[str] = None,
+        owner: str | None = None,
+        repo: str | None = None,
     ) -> dict:
         """Merge pull request."""
         path = f"{self._repo_path(owner, repo)}/pulls/{number}/merge"
@@ -155,8 +164,8 @@ class GitHubService:
     async def list_reviews(
         self,
         pr_number: int,
-        owner: Optional[str] = None,
-        repo: Optional[str] = None,
+        owner: str | None = None,
+        repo: str | None = None,
     ) -> list[GitHubReview]:
         """List pull request reviews."""
         path = f"{self._repo_path(owner, repo)}/pulls/{pr_number}/reviews"
@@ -166,11 +175,11 @@ class GitHubService:
     async def create_review(
         self,
         pr_number: int,
-        body: Optional[str] = None,
+        body: str | None = None,
         event: ReviewState = ReviewState.COMMENTED,
-        comments: Optional[list[dict]] = None,
-        owner: Optional[str] = None,
-        repo: Optional[str] = None,
+        comments: list[dict] | None = None,
+        owner: str | None = None,
+        repo: str | None = None,
     ) -> GitHubReview:
         """Create pull request review."""
         path = f"{self._repo_path(owner, repo)}/pulls/{pr_number}/reviews"
@@ -185,10 +194,10 @@ class GitHubService:
     # Issue methods
     async def list_issues(
         self,
-        owner: Optional[str] = None,
-        repo: Optional[str] = None,
+        owner: str | None = None,
+        repo: str | None = None,
         state: IssueState = IssueState.OPEN,
-        labels: Optional[list[str]] = None,
+        labels: list[str] | None = None,
     ) -> list[GitHubIssue]:
         """List issues."""
         path = f"{self._repo_path(owner, repo)}/issues"
@@ -202,8 +211,8 @@ class GitHubService:
     async def get_issue(
         self,
         number: int,
-        owner: Optional[str] = None,
-        repo: Optional[str] = None,
+        owner: str | None = None,
+        repo: str | None = None,
     ) -> GitHubIssue:
         """Get issue details."""
         path = f"{self._repo_path(owner, repo)}/issues/{number}"
@@ -213,11 +222,11 @@ class GitHubService:
     async def create_issue(
         self,
         title: str,
-        body: Optional[str] = None,
-        labels: Optional[list[str]] = None,
-        assignees: Optional[list[str]] = None,
-        owner: Optional[str] = None,
-        repo: Optional[str] = None,
+        body: str | None = None,
+        labels: list[str] | None = None,
+        assignees: list[str] | None = None,
+        owner: str | None = None,
+        repo: str | None = None,
     ) -> GitHubIssue:
         """Create issue."""
         path = f"{self._repo_path(owner, repo)}/issues"
@@ -234,12 +243,12 @@ class GitHubService:
     async def update_issue(
         self,
         number: int,
-        title: Optional[str] = None,
-        body: Optional[str] = None,
-        state: Optional[IssueState] = None,
-        labels: Optional[list[str]] = None,
-        owner: Optional[str] = None,
-        repo: Optional[str] = None,
+        title: str | None = None,
+        body: str | None = None,
+        state: IssueState | None = None,
+        labels: list[str] | None = None,
+        owner: str | None = None,
+        repo: str | None = None,
     ) -> GitHubIssue:
         """Update issue."""
         path = f"{self._repo_path(owner, repo)}/issues/{number}"
@@ -259,8 +268,8 @@ class GitHubService:
     async def list_issue_comments(
         self,
         number: int,
-        owner: Optional[str] = None,
-        repo: Optional[str] = None,
+        owner: str | None = None,
+        repo: str | None = None,
     ) -> list[GitHubComment]:
         """List issue comments."""
         path = f"{self._repo_path(owner, repo)}/issues/{number}/comments"
@@ -271,8 +280,8 @@ class GitHubService:
         self,
         number: int,
         body: str,
-        owner: Optional[str] = None,
-        repo: Optional[str] = None,
+        owner: str | None = None,
+        repo: str | None = None,
     ) -> GitHubComment:
         """Create issue comment."""
         path = f"{self._repo_path(owner, repo)}/issues/{number}/comments"

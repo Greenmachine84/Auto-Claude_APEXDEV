@@ -13,119 +13,121 @@ Categories:
 
 Phase 7 Additions:
 - Core: AgentLLMConfig, EnterpriseAgentConfig, LLM-agnostic base class
-- Subdirectories: code_review, security, qa, documentation, project_analysis, 
+- Subdirectories: code_review, security, qa, documentation, project_analysis,
                   orchestration, capabilities
 """
 
 # Architecture Agents
-from .architect_agent import ArchitectAgent
-from .system_designer_agent import SystemDesignerAgent
-from .migration_agent import MigrationAgent
-
-# Security Agents
-from .security_scanner_agent import SecurityScannerAgent
-from .vulnerability_analyzer_agent import VulnerabilityAnalyzerAgent
-from .compliance_checker_agent import ComplianceCheckerAgent
-
-# Quality Agents
-from .test_generator_agent import TestGeneratorAgent
-from .performance_analyzer_agent import PerformanceAnalyzerAgent
-from .coverage_agent import CoverageAgent
-
-# Documentation Agents
-from .documentation_agent import DocumentationAgent
-from .api_documenter_agent import APIDocumenterAgent
-from .changelog_generator_agent import ChangelogGeneratorAgent
-
 # API Agents
 from .api_designer_agent import APIDesignerAgent
-from .schema_validator_agent import SchemaValidatorAgent
-
-# Orchestration Agents
-from .task_coordinator_agent import TaskCoordinatorAgent
-from .workflow_manager_agent import WorkflowManagerAgent
-
-# Phase 7: Core LLM-Agnostic Infrastructure
-from .config import AgentLLMConfig, EnterpriseAgentConfig, LLMProvider
-from .types import EnterpriseAgentType, Severity
-from .config import AgentCapability
+from .api_documenter_agent import APIDocumenterAgent
+from .architect_agent import ArchitectAgent
 from .base_enterprise_agent import BaseEnterpriseAgent
-
-# Phase 7: Code Review Module
-from .code_review import (
-    CodeReviewAgent,
-    ReviewResult,
-    ReviewFinding,
-    ReviewPrompts,
-    SeverityClassifier,
-)
-
-# Phase 7: Security Module
-from .security import (
-    SecurityAgent,
-    ScanResult,
-    VulnerabilityFinding,
-    SecretFinding,
-    VulnerabilityDB,
-    OWASPChecker,
-)
-
-# Phase 7: QA Module
-from .qa import (
-    QAAgent,
-    TestGenerator,
-    GeneratedTest,
-    CoverageAnalyzer,
-    CoverageReport,
-    TestTemplates,
-    TestTemplate,
-)
-
-# Phase 7: Documentation Module
-from .documentation import (
-    DocumentationAgent as DocumentationAgentV2,
-    DocstringGenerator,
-    GeneratedDocstring,
-    ReadmeGenerator,
-    ReadmeSection,
-    APIDocGenerator,
-    APIEndpoint,
-)
-
-# Phase 7: Project Analysis Module
-from .project_analysis import (
-    ProjectAnalyzerAgent,
-    DependencyMapper,
-    DependencyGraph,
-    ArchitectureExtractor,
-    ArchitectureMap,
-    TechDebtAnalyzer,
-    TechDebtReport,
-)
-
-# Phase 7: Orchestration Module
-from .orchestration import (
-    OrchestratorAgent,
-    AgentCoordinator,
-    CoordinationResult,
-    ResultAggregator,
-    AggregatedResult,
-    PipelineManager,
-    Pipeline,
-    PipelineStage,
+from .capabilities import (
+    AnalysisResult as CapabilityAnalysisResult,
 )
 
 # Phase 7: Capabilities Module
 from .capabilities import (
     CodeAnalysisCapability,
-    AnalysisResult as CapabilityAnalysisResult,
+    CollaborationCapability,
+    DocOutput,
+    DocumentationCapability,
+    Message,
     TestGenerationCapability,
     TestSuite,
-    DocumentationCapability,
-    DocOutput,
-    CollaborationCapability,
-    Message,
 )
+from .changelog_generator_agent import ChangelogGeneratorAgent
+
+# Phase 7: Code Review Module
+from .code_review import (
+    CodeReviewAgent,
+    ReviewFinding,
+    ReviewPrompts,
+    ReviewResult,
+    SeverityClassifier,
+)
+from .compliance_checker_agent import ComplianceCheckerAgent
+
+# Phase 7: Core LLM-Agnostic Infrastructure
+from .config import AgentCapability, AgentLLMConfig, EnterpriseAgentConfig, LLMProvider
+from .coverage_agent import CoverageAgent
+from .documentation import (
+    APIDocGenerator,
+    APIEndpoint,
+    DocstringGenerator,
+    GeneratedDocstring,
+    ReadmeGenerator,
+    ReadmeSection,
+)
+
+# Phase 7: Documentation Module
+from .documentation import (
+    DocumentationAgent as DocumentationAgentV2,
+)
+
+# Documentation Agents
+from .documentation_agent import DocumentationAgent
+from .migration_agent import MigrationAgent
+
+# Phase 7: Orchestration Module
+from .orchestration import (
+    AgentCoordinator,
+    AggregatedResult,
+    CoordinationResult,
+    OrchestratorAgent,
+    Pipeline,
+    PipelineManager,
+    PipelineStage,
+    ResultAggregator,
+)
+from .performance_analyzer_agent import PerformanceAnalyzerAgent
+
+# Phase 7: Project Analysis Module
+from .project_analysis import (
+    ArchitectureExtractor,
+    ArchitectureMap,
+    DependencyGraph,
+    DependencyMapper,
+    ProjectAnalyzerAgent,
+    TechDebtAnalyzer,
+    TechDebtReport,
+)
+
+# Phase 7: QA Module
+from .qa import (
+    CoverageAnalyzer,
+    CoverageReport,
+    GeneratedTest,
+    QAAgent,
+    TestGenerator,
+    TestTemplate,
+    TestTemplates,
+)
+from .schema_validator_agent import SchemaValidatorAgent
+
+# Phase 7: Security Module
+from .security import (
+    OWASPChecker,
+    ScanResult,
+    SecretFinding,
+    SecurityAgent,
+    VulnerabilityDB,
+    VulnerabilityFinding,
+)
+
+# Security Agents
+from .security_scanner_agent import SecurityScannerAgent
+from .system_designer_agent import SystemDesignerAgent
+
+# Orchestration Agents
+from .task_coordinator_agent import TaskCoordinatorAgent
+
+# Quality Agents
+from .test_generator_agent import TestGeneratorAgent
+from .types import EnterpriseAgentType, Severity
+from .vulnerability_analyzer_agent import VulnerabilityAnalyzerAgent
+from .workflow_manager_agent import WorkflowManagerAgent
 
 __all__ = [
     # Architecture (Legacy)
@@ -245,10 +247,10 @@ ENTERPRISE_AGENT_REGISTRY: dict[EnterpriseAgentType, list[type]] = {
 
 def get_enterprise_agents_by_type(agent_type: EnterpriseAgentType) -> list[type]:
     """Get all enterprise agent classes for a given type.
-    
+
     Args:
         agent_type: The enterprise agent type category
-        
+
     Returns:
         List of agent classes in that category
     """
@@ -257,12 +259,8 @@ def get_enterprise_agents_by_type(agent_type: EnterpriseAgentType) -> list[type]
 
 def get_all_enterprise_agents() -> list[type]:
     """Get all enterprise agent classes.
-    
+
     Returns:
         List of all enterprise agent classes
     """
-    return [
-        agent
-        for agents in ENTERPRISE_AGENT_REGISTRY.values()
-        for agent in agents
-    ]
+    return [agent for agents in ENTERPRISE_AGENT_REGISTRY.values() for agent in agents]

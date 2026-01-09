@@ -6,9 +6,9 @@ Provides skills for test-related operations:
 - Coverage analysis
 """
 
-from skills.testing.test_generation import TestGenerationSkill
-from skills.testing.test_execution import TestExecutionSkill
 from skills.testing.coverage_analysis import CoverageAnalysisSkill
+from skills.testing.test_execution import TestExecutionSkill
+from skills.testing.test_generation import TestGenerationSkill
 
 __all__ = [
     "TestGenerationSkill",

@@ -6,20 +6,19 @@ High-level service for JIRA operations.
 """
 
 import logging
-from typing import Any, Optional
+from typing import Any
 
 from .client import JiraClient
 from .models import (
-    JiraConfig,
+    IssuePriority,
+    IssueType,
     JiraComment,
+    JiraConfig,
     JiraIssue,
     JiraProject,
-    JiraSprint,
     JiraStatus,
     JiraTransition,
     JiraUser,
-    IssueType,
-    IssuePriority,
 )
 
 logger = logging.getLogger(__name__)
@@ -37,7 +36,7 @@ class JiraService:
         """Close service."""
         await self.client.close()
 
-    def _parse_user(self, data: Optional[dict]) -> Optional[JiraUser]:
+    def _parse_user(self, data: dict | None) -> JiraUser | None:
         """Parse user from API response."""
         if not data:
             return None
@@ -71,7 +70,9 @@ class JiraService:
             description=self._extract_description(fields.get("description")),
             issue_type=fields.get("issuetype", {}).get("name", ""),
             status=self._parse_status(fields.get("status", {})),
-            priority=fields.get("priority", {}).get("name") if fields.get("priority") else None,
+            priority=fields.get("priority", {}).get("name")
+            if fields.get("priority")
+            else None,
             assignee=self._parse_user(fields.get("assignee")),
             reporter=self._parse_user(fields.get("reporter")),
             creator=self._parse_user(fields.get("creator")),
@@ -84,7 +85,7 @@ class JiraService:
             due_date=fields.get("duedate"),
         )
 
-    def _extract_description(self, desc: Any) -> Optional[str]:
+    def _extract_description(self, desc: Any) -> str | None:
         """Extract plain text from ADF or return as-is."""
         if desc is None:
             return None
@@ -123,7 +124,7 @@ class JiraService:
             for p in data
         ]
 
-    async def get_project(self, project_key: Optional[str] = None) -> JiraProject:
+    async def get_project(self, project_key: str | None = None) -> JiraProject:
         """Get project details."""
         key = project_key or self._project_key
         if not key:
@@ -151,9 +152,9 @@ class JiraService:
 
     async def list_project_issues(
         self,
-        project_key: Optional[str] = None,
-        issue_type: Optional[IssueType] = None,
-        status: Optional[str] = None,
+        project_key: str | None = None,
+        issue_type: IssueType | None = None,
+        status: str | None = None,
         max_results: int = 50,
     ) -> list[JiraIssue]:
         """List issues in project."""
@@ -163,9 +164,9 @@ class JiraService:
 
         jql_parts = [f"project = {key}"]
         if issue_type:
-            jql_parts.append(f"issuetype = \"{issue_type.value}\"")
+            jql_parts.append(f'issuetype = "{issue_type.value}"')
         if status:
-            jql_parts.append(f"status = \"{status}\"")
+            jql_parts.append(f'status = "{status}"')
         jql_parts.append("ORDER BY created DESC")
 
         return await self.search_issues(" AND ".join(jql_parts), max_results)
@@ -179,11 +180,11 @@ class JiraService:
         self,
         summary: str,
         issue_type: IssueType = IssueType.TASK,
-        description: Optional[str] = None,
-        priority: Optional[IssuePriority] = None,
-        assignee_id: Optional[str] = None,
-        labels: Optional[list[str]] = None,
-        project_key: Optional[str] = None,
+        description: str | None = None,
+        priority: IssuePriority | None = None,
+        assignee_id: str | None = None,
+        labels: list[str] | None = None,
+        project_key: str | None = None,
     ) -> JiraIssue:
         """Create issue."""
         key = project_key or self._project_key
@@ -199,10 +200,12 @@ class JiraService:
             fields["description"] = {
                 "type": "doc",
                 "version": 1,
-                "content": [{
-                    "type": "paragraph",
-                    "content": [{"type": "text", "text": description}],
-                }],
+                "content": [
+                    {
+                        "type": "paragraph",
+                        "content": [{"type": "text", "text": description}],
+                    }
+                ],
             }
         if priority:
             fields["priority"] = {"name": priority.value}
@@ -217,11 +220,11 @@ class JiraService:
     async def update_issue(
         self,
         issue_key: str,
-        summary: Optional[str] = None,
-        description: Optional[str] = None,
-        priority: Optional[IssuePriority] = None,
-        assignee_id: Optional[str] = None,
-        labels: Optional[list[str]] = None,
+        summary: str | None = None,
+        description: str | None = None,
+        priority: IssuePriority | None = None,
+        assignee_id: str | None = None,
+        labels: list[str] | None = None,
     ) -> JiraIssue:
         """Update issue."""
         fields: dict[str, Any] = {}
@@ -231,10 +234,12 @@ class JiraService:
             fields["description"] = {
                 "type": "doc",
                 "version": 1,
-                "content": [{
-                    "type": "paragraph",
-                    "content": [{"type": "text", "text": description}],
-                }],
+                "content": [
+                    {
+                        "type": "paragraph",
+                        "content": [{"type": "text", "text": description}],
+                    }
+                ],
             }
         if priority:
             fields["priority"] = {"name": priority.value}
@@ -267,24 +272,28 @@ class JiraService:
         self,
         issue_key: str,
         transition_id: str,
-        comment: Optional[str] = None,
+        comment: str | None = None,
     ) -> JiraIssue:
         """Transition issue to new status."""
         payload: dict[str, Any] = {"transition": {"id": transition_id}}
         if comment:
             payload["update"] = {
-                "comment": [{
-                    "add": {
-                        "body": {
-                            "type": "doc",
-                            "version": 1,
-                            "content": [{
-                                "type": "paragraph",
-                                "content": [{"type": "text", "text": comment}],
-                            }],
+                "comment": [
+                    {
+                        "add": {
+                            "body": {
+                                "type": "doc",
+                                "version": 1,
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [{"type": "text", "text": comment}],
+                                    }
+                                ],
+                            }
                         }
                     }
-                }]
+                ]
             }
         await self.client.post(f"/issue/{issue_key}/transitions", json=payload)
         return await self.get_issue(issue_key)
@@ -311,10 +320,12 @@ class JiraService:
             "body": {
                 "type": "doc",
                 "version": 1,
-                "content": [{
-                    "type": "paragraph",
-                    "content": [{"type": "text", "text": body}],
-                }],
+                "content": [
+                    {
+                        "type": "paragraph",
+                        "content": [{"type": "text", "text": body}],
+                    }
+                ],
             }
         }
         data = await self.client.post(f"/issue/{issue_key}/comment", json=payload)

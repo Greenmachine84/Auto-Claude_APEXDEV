@@ -10,14 +10,21 @@ Capabilities:
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from skills.core.base_skill import BaseSkill, SkillContext, SkillResult, SkillCategory, SkillStatus
+from skills.core.base_skill import (
+    BaseSkill,
+    SkillCategory,
+    SkillContext,
+    SkillResult,
+    SkillStatus,
+)
 
 
 @dataclass
 class CoverageData:
     """Coverage data for a file."""
+
     file_path: str
     line_coverage: float
     branch_coverage: float
@@ -25,16 +32,17 @@ class CoverageData:
     lines_total: int
     branches_covered: int
     branches_total: int
-    uncovered_lines: List[int] = field(default_factory=list)
+    uncovered_lines: list[int] = field(default_factory=list)
 
 
 @dataclass
 class CoverageReport:
     """Overall coverage report."""
+
     total_line_coverage: float
     total_branch_coverage: float
-    files: List[CoverageData] = field(default_factory=list)
-    
+    files: list[CoverageData] = field(default_factory=list)
+
     @property
     def meets_threshold(self) -> bool:
         """Check if coverage meets default threshold (80%)."""
@@ -43,10 +51,10 @@ class CoverageReport:
 
 class CoverageAnalysisSkill(BaseSkill):
     """Analyze test coverage.
-    
+
     Runs coverage analysis on the codebase and generates
     detailed reports on code coverage.
-    
+
     Example:
         skill = CoverageAnalysisSkill()
         context = SkillContext(
@@ -59,26 +67,26 @@ class CoverageAnalysisSkill(BaseSkill):
         )
         result = await skill.run(context)
     """
-    
+
     name = "coverage_analysis"
     description = "Analyze test coverage"
     category = SkillCategory.TESTING
     required_tools = ["command_execute", "file_read"]
     required_permissions = {"execute_commands", "read_files"}
     version = "1.0.0"
-    
-    def validate_input(self, input_data: Dict[str, Any]) -> bool:
+
+    def validate_input(self, input_data: dict[str, Any]) -> bool:
         """Validate input data."""
         if "source_path" not in input_data:
             return False
         return True
-    
+
     async def execute(self, context: SkillContext) -> SkillResult:
         """Execute coverage analysis.
-        
+
         Args:
             context: Execution context with paths
-            
+
         Returns:
             SkillResult with coverage report
         """
@@ -86,13 +94,13 @@ class CoverageAnalysisSkill(BaseSkill):
         source_path = input_data.get("source_path", "src/")
         test_path = input_data.get("test_path", "tests/")
         threshold = input_data.get("threshold", 80)
-        
+
         # Run coverage analysis (placeholder)
         report = self._analyze_coverage(source_path, test_path)
-        
+
         # Check threshold
         passes_threshold = report.total_line_coverage >= threshold
-        
+
         return SkillResult(
             skill_name=self.name,
             status=SkillStatus.COMPLETED,
@@ -106,7 +114,7 @@ class CoverageAnalysisSkill(BaseSkill):
             },
             tokens_used=0,
         )
-    
+
     def _analyze_coverage(self, source_path: str, test_path: str) -> CoverageReport:
         """Analyze coverage (placeholder)."""
         # Will use coverage tools for actual analysis
@@ -115,8 +123,8 @@ class CoverageAnalysisSkill(BaseSkill):
             total_branch_coverage=0.0,
             files=[],
         )
-    
-    def _coverage_to_dict(self, data: CoverageData) -> Dict[str, Any]:
+
+    def _coverage_to_dict(self, data: CoverageData) -> dict[str, Any]:
         """Convert CoverageData to dictionary."""
         return {
             "file_path": data.file_path,

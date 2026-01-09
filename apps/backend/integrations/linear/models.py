@@ -37,9 +37,11 @@ class LinearConfig(BaseModel):
     """Linear integration configuration."""
 
     api_key: str = Field(..., description="Linear API key")
-    base_url: str = Field(default="https://api.linear.app/graphql", description="Linear GraphQL API URL")
-    webhook_secret: Optional[str] = Field(None, description="Webhook signing secret")
-    default_team_id: Optional[str] = Field(None, description="Default team ID")
+    base_url: str = Field(
+        default="https://api.linear.app/graphql", description="Linear GraphQL API URL"
+    )
+    webhook_secret: str | None = Field(None, description="Webhook signing secret")
+    default_team_id: str | None = Field(None, description="Default team ID")
 
 
 class LinearUser(BaseModel):
@@ -48,8 +50,8 @@ class LinearUser(BaseModel):
     id: str
     name: str
     email: str
-    display_name: Optional[str] = None
-    avatar_url: Optional[HttpUrl] = None
+    display_name: str | None = None
+    avatar_url: HttpUrl | None = None
     active: bool = True
     admin: bool = False
 
@@ -60,7 +62,7 @@ class LinearLabel(BaseModel):
     id: str
     name: str
     color: str
-    description: Optional[str] = None
+    description: str | None = None
 
 
 class LinearCycle(BaseModel):
@@ -68,10 +70,10 @@ class LinearCycle(BaseModel):
 
     id: str
     number: int
-    name: Optional[str] = None
+    name: str | None = None
     starts_at: datetime
     ends_at: datetime
-    completed_at: Optional[datetime] = None
+    completed_at: datetime | None = None
     progress: float = 0.0
 
 
@@ -80,16 +82,16 @@ class LinearProject(BaseModel):
 
     id: str
     name: str
-    description: Optional[str] = None
+    description: str | None = None
     slug_id: str
-    icon: Optional[str] = None
-    color: Optional[str] = None
+    icon: str | None = None
+    color: str | None = None
     state: str = "planned"
     progress: float = 0.0
-    target_date: Optional[str] = None
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
-    cancelled_at: Optional[datetime] = None
+    target_date: str | None = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    cancelled_at: datetime | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -100,11 +102,11 @@ class LinearTeam(BaseModel):
     id: str
     key: str
     name: str
-    description: Optional[str] = None
-    icon: Optional[str] = None
-    color: Optional[str] = None
+    description: str | None = None
+    icon: str | None = None
+    color: str | None = None
     private: bool = False
-    timezone: Optional[str] = None
+    timezone: str | None = None
 
 
 class LinearComment(BaseModel):
@@ -112,10 +114,10 @@ class LinearComment(BaseModel):
 
     id: str
     body: str
-    user: Optional[LinearUser] = None
+    user: LinearUser | None = None
     created_at: datetime
     updated_at: datetime
-    edited_at: Optional[datetime] = None
+    edited_at: datetime | None = None
 
 
 class LinearIssue(BaseModel):
@@ -124,23 +126,23 @@ class LinearIssue(BaseModel):
     id: str
     identifier: str  # e.g., "TEAM-123"
     title: str
-    description: Optional[str] = None
+    description: str | None = None
     priority: IssuePriority = IssuePriority.NO_PRIORITY
     priority_label: str = "No priority"
     url: HttpUrl
-    state: Optional[dict] = None  # Contains id, name, type
-    assignee: Optional[LinearUser] = None
-    creator: Optional[LinearUser] = None
-    team: Optional[LinearTeam] = None
-    project: Optional[LinearProject] = None
-    cycle: Optional[LinearCycle] = None
+    state: dict | None = None  # Contains id, name, type
+    assignee: LinearUser | None = None
+    creator: LinearUser | None = None
+    team: LinearTeam | None = None
+    project: LinearProject | None = None
+    cycle: LinearCycle | None = None
     labels: list[LinearLabel] = Field(default_factory=list)
     parent: Optional["LinearIssue"] = None
-    estimate: Optional[float] = None
-    due_date: Optional[str] = None
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
-    cancelled_at: Optional[datetime] = None
+    estimate: float | None = None
+    due_date: str | None = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    cancelled_at: datetime | None = None
     created_at: datetime
     updated_at: datetime
-    archived_at: Optional[datetime] = None
+    archived_at: datetime | None = None

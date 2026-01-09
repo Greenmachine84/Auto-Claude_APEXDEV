@@ -8,11 +8,11 @@ Google style, NumPy style, and reStructuredText.
 import re
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Optional
 
 
 class DocstringStyle(Enum):
     """Docstring formatting styles."""
+
     GOOGLE = "google"
     NUMPY = "numpy"
     SPHINX = "sphinx"
@@ -23,16 +23,18 @@ class DocstringStyle(Enum):
 @dataclass
 class ParameterDoc:
     """Documented parameter."""
+
     name: str
     type: str = ""
     description: str = ""
-    default: Optional[str] = None
+    default: str | None = None
     optional: bool = False
 
 
 @dataclass
 class ReturnDoc:
     """Documented return value."""
+
     type: str = ""
     description: str = ""
 
@@ -40,6 +42,7 @@ class ReturnDoc:
 @dataclass
 class ExceptionDoc:
     """Documented exception."""
+
     type: str
     description: str = ""
 
@@ -47,6 +50,7 @@ class ExceptionDoc:
 @dataclass
 class ExampleDoc:
     """Documented example."""
+
     code: str
     description: str = ""
     output: str = ""
@@ -55,19 +59,20 @@ class ExampleDoc:
 @dataclass
 class ParsedDocstring:
     """Parsed docstring structure."""
+
     summary: str = ""
     description: str = ""
     parameters: list[ParameterDoc] = field(default_factory=list)
-    returns: Optional[ReturnDoc] = None
-    yields: Optional[ReturnDoc] = None
+    returns: ReturnDoc | None = None
+    yields: ReturnDoc | None = None
     raises: list[ExceptionDoc] = field(default_factory=list)
     examples: list[ExampleDoc] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
     see_also: list[str] = field(default_factory=list)
     attributes: list[ParameterDoc] = field(default_factory=list)
-    deprecated: Optional[str] = None
-    version: Optional[str] = None
+    deprecated: str | None = None
+    version: str | None = None
     style: DocstringStyle = DocstringStyle.AUTO
 
 
@@ -97,7 +102,11 @@ class DocstringParser:
             return ParsedDocstring()
 
         # Detect style if auto
-        detected_style = self._detect_style(docstring) if self.style == DocstringStyle.AUTO else self.style
+        detected_style = (
+            self._detect_style(docstring)
+            if self.style == DocstringStyle.AUTO
+            else self.style
+        )
 
         if detected_style == DocstringStyle.GOOGLE:
             return self._parse_google_style(docstring)
@@ -123,18 +132,28 @@ class DocstringParser:
         result = ParsedDocstring(style=DocstringStyle.GOOGLE)
 
         # Split into sections
-        sections = self._split_sections(docstring, [
-            "Args", "Arguments", "Parameters",
-            "Returns", "Yields",
-            "Raises", "Exceptions",
-            "Examples", "Example",
-            "Note", "Notes",
-            "Warning", "Warnings",
-            "See Also",
-            "Attributes",
-            "Deprecated",
-            "Version",
-        ])
+        sections = self._split_sections(
+            docstring,
+            [
+                "Args",
+                "Arguments",
+                "Parameters",
+                "Returns",
+                "Yields",
+                "Raises",
+                "Exceptions",
+                "Examples",
+                "Example",
+                "Note",
+                "Notes",
+                "Warning",
+                "Warnings",
+                "See Also",
+                "Attributes",
+                "Deprecated",
+                "Version",
+            ],
+        )
 
         # Parse summary
         summary_section = sections.get("_summary", "")
@@ -184,7 +203,11 @@ class DocstringParser:
 
         # Parse See Also
         if "See Also" in sections:
-            result.see_also = [line.strip() for line in sections["See Also"].strip().split("\n") if line.strip()]
+            result.see_also = [
+                line.strip()
+                for line in sections["See Also"].strip().split("\n")
+                if line.strip()
+            ]
 
         # Parse Attributes
         if "Attributes" in sections:
@@ -200,7 +223,9 @@ class DocstringParser:
 
         return result
 
-    def _split_sections(self, docstring: str, section_names: list[str]) -> dict[str, str]:
+    def _split_sections(
+        self, docstring: str, section_names: list[str]
+    ) -> dict[str, str]:
         """Split docstring into sections."""
         sections = {}
 
@@ -243,24 +268,30 @@ class DocstringParser:
             # Check for optional and default
             optional = "optional" in param_type.lower()
             default = None
-            default_match = re.search(r"default[s]?\s*(?:=|:)?\s*(.+?)(?:,|\)|$)", param_type, re.IGNORECASE)
+            default_match = re.search(
+                r"default[s]?\s*(?:=|:)?\s*(.+?)(?:,|\)|$)", param_type, re.IGNORECASE
+            )
             if default_match:
                 default = default_match.group(1).strip()
 
-            params.append(ParameterDoc(
-                name=name,
-                type=param_type.split(",")[0].strip() if param_type else "",
-                description=description,
-                default=default,
-                optional=optional,
-            ))
+            params.append(
+                ParameterDoc(
+                    name=name,
+                    type=param_type.split(",")[0].strip() if param_type else "",
+                    description=description,
+                    default=default,
+                    optional=optional,
+                )
+            )
 
         return params
 
     def _parse_google_returns(self, content: str) -> ReturnDoc:
         """Parse Google-style returns section."""
         # Pattern: type: description
-        match = re.match(r"^\s*(\w+(?:\[[^\]]+\])?)\s*:\s*(.+)", content.strip(), re.DOTALL)
+        match = re.match(
+            r"^\s*(\w+(?:\[[^\]]+\])?)\s*:\s*(.+)", content.strip(), re.DOTALL
+        )
         if match:
             return ReturnDoc(type=match.group(1), description=match.group(2).strip())
 
@@ -274,10 +305,12 @@ class DocstringParser:
         pattern = r"^\s*(\w+)\s*:\s*(.+?)(?=^\s*\w+\s*:|$)"
 
         for match in re.finditer(pattern, content, re.MULTILINE | re.DOTALL):
-            exceptions.append(ExceptionDoc(
-                type=match.group(1),
-                description=match.group(2).strip(),
-            ))
+            exceptions.append(
+                ExceptionDoc(
+                    type=match.group(1),
+                    description=match.group(2).strip(),
+                )
+            )
 
         return exceptions
 
@@ -309,10 +342,12 @@ class DocstringParser:
                     pass
 
             if code_lines:
-                examples.append(ExampleDoc(
-                    code="\n".join(code_lines),
-                    output="\n".join(output_lines).strip(),
-                ))
+                examples.append(
+                    ExampleDoc(
+                        code="\n".join(code_lines),
+                        output="\n".join(output_lines).strip(),
+                    )
+                )
 
         return examples
 
@@ -371,11 +406,13 @@ class DocstringParser:
         pattern = r"^(\w+)\s*:\s*(.+?)$\n((?:\s{4}.+\n?)*)"
 
         for match in re.finditer(pattern, content, re.MULTILINE):
-            params.append(ParameterDoc(
-                name=match.group(1),
-                type=match.group(2).strip(),
-                description=match.group(3).strip(),
-            ))
+            params.append(
+                ParameterDoc(
+                    name=match.group(1),
+                    type=match.group(2).strip(),
+                    description=match.group(3).strip(),
+                )
+            )
 
         return params
 
@@ -396,10 +433,12 @@ class DocstringParser:
 
         pattern = r"^(\w+)$\n((?:\s{4}.+\n?)*)"
         for match in re.finditer(pattern, content, re.MULTILINE):
-            exceptions.append(ExceptionDoc(
-                type=match.group(1).strip(),
-                description=match.group(2).strip(),
-            ))
+            exceptions.append(
+                ExceptionDoc(
+                    type=match.group(1).strip(),
+                    description=match.group(2).strip(),
+                )
+            )
 
         return exceptions
 
@@ -413,32 +452,50 @@ class DocstringParser:
             result.summary = paragraphs[0].strip()
 
         # Parse :param name: description
-        for match in re.finditer(r":param\s+(\w+):\s*(.+?)(?=:param|:type|:returns?|:raises?|$)", docstring, re.DOTALL):
-            param = ParameterDoc(name=match.group(1), description=match.group(2).strip())
+        for match in re.finditer(
+            r":param\s+(\w+):\s*(.+?)(?=:param|:type|:returns?|:raises?|$)",
+            docstring,
+            re.DOTALL,
+        ):
+            param = ParameterDoc(
+                name=match.group(1), description=match.group(2).strip()
+            )
 
             # Look for type
-            type_match = re.search(rf":type\s+{param.name}:\s*(.+?)(?=:param|:type|:returns?|:raises?|$)", docstring, re.DOTALL)
+            type_match = re.search(
+                rf":type\s+{param.name}:\s*(.+?)(?=:param|:type|:returns?|:raises?|$)",
+                docstring,
+                re.DOTALL,
+            )
             if type_match:
                 param.type = type_match.group(1).strip()
 
             result.parameters.append(param)
 
         # Parse :returns: or :return:
-        returns_match = re.search(r":returns?:\s*(.+?)(?=:rtype:|:raises?|$)", docstring, re.DOTALL)
+        returns_match = re.search(
+            r":returns?:\s*(.+?)(?=:rtype:|:raises?|$)", docstring, re.DOTALL
+        )
         if returns_match:
             result.returns = ReturnDoc(description=returns_match.group(1).strip())
 
             # Look for rtype
-            rtype_match = re.search(r":rtype:\s*(.+?)(?=:raises?|$)", docstring, re.DOTALL)
+            rtype_match = re.search(
+                r":rtype:\s*(.+?)(?=:raises?|$)", docstring, re.DOTALL
+            )
             if rtype_match:
                 result.returns.type = rtype_match.group(1).strip()
 
         # Parse :raises ExceptionType: description
-        for match in re.finditer(r":raises?\s+(\w+):\s*(.+?)(?=:raises?|$)", docstring, re.DOTALL):
-            result.raises.append(ExceptionDoc(
-                type=match.group(1),
-                description=match.group(2).strip(),
-            ))
+        for match in re.finditer(
+            r":raises?\s+(\w+):\s*(.+?)(?=:raises?|$)", docstring, re.DOTALL
+        ):
+            result.raises.append(
+                ExceptionDoc(
+                    type=match.group(1),
+                    description=match.group(2).strip(),
+                )
+            )
 
         return result
 

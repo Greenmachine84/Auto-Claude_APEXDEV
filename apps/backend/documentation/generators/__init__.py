@@ -6,9 +6,9 @@ including API docs, guides, and references.
 """
 
 from .api_generator import ApiDocGenerator
+from .base import BaseGenerator
 from .guide_generator import GuideGenerator
 from .reference_generator import ReferenceGenerator
-from .base import BaseGenerator
 
 __all__ = [
     "BaseGenerator",

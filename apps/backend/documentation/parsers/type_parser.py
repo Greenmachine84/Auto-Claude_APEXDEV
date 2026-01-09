@@ -4,14 +4,14 @@ Type parser.
 Parses Python type hints for documentation.
 """
 
-import sys
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set, Tuple, Union, get_args, get_origin
+from typing import Any, Union, get_args, get_origin
 
 
 class TypeCategory(Enum):
     """Categories of types."""
+
     PRIMITIVE = "primitive"
     COLLECTION = "collection"
     MAPPING = "mapping"
@@ -27,13 +27,14 @@ class TypeCategory(Enum):
 @dataclass
 class ParsedType:
     """Parsed type information."""
+
     name: str
     category: TypeCategory
     description: str = ""
     args: list["ParsedType"] = field(default_factory=list)
     is_optional: bool = False
     default: Any = None
-    origin: Optional[type] = None
+    origin: type | None = None
     raw_type: Any = None
 
 
@@ -112,7 +113,9 @@ class TypeParser:
             return self._parse_mapping(type_hint, origin, args)
 
         # Handle Callable
-        if origin is type(lambda: None).__class__ or str(type_hint).startswith("typing.Callable"):
+        if origin is type(lambda: None).__class__ or str(type_hint).startswith(
+            "typing.Callable"
+        ):
             return self._parse_callable(type_hint, args)
 
         # Handle Literal
@@ -218,7 +221,11 @@ class TypeParser:
             param_types = args[0] if args[0] is not ... else []
             return_type = args[1] if len(args) > 1 else Any
 
-            param_names = [self.parse(t).name for t in param_types] if isinstance(param_types, (list, tuple)) else ["..."]
+            param_names = (
+                [self.parse(t).name for t in param_types]
+                if isinstance(param_types, (list, tuple))
+                else ["..."]
+            )
             return_name = self.parse(return_type).name
 
             name = f"Callable[[{', '.join(param_names)}], {return_name}]"
@@ -305,7 +312,9 @@ class TypeParser:
         elif parsed.category == TypeCategory.MAPPING:
             schema = {"type": "object"}
             if len(parsed.args) == 2:
-                schema["additionalProperties"] = self.to_json_schema_type(parsed.args[1])
+                schema["additionalProperties"] = self.to_json_schema_type(
+                    parsed.args[1]
+                )
         elif parsed.category == TypeCategory.UNION:
             schemas = [self.to_json_schema_type(arg) for arg in parsed.args]
             schema = {"oneOf": schemas}
@@ -352,8 +361,8 @@ class TypeParser:
         """
         descriptions = {
             TypeCategory.PRIMITIVE: f"A {parsed.name} value",
-            TypeCategory.COLLECTION: f"A collection of values",
-            TypeCategory.MAPPING: f"A key-value mapping",
+            TypeCategory.COLLECTION: "A collection of values",
+            TypeCategory.MAPPING: "A key-value mapping",
             TypeCategory.UNION: f"One of: {parsed.name}",
             TypeCategory.OPTIONAL: f"Optional {parsed.args[0].name if parsed.args else 'value'}",
             TypeCategory.CALLABLE: "A callable function",

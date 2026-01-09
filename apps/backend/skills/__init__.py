@@ -15,10 +15,10 @@ Skills are reusable capability units that agents use to accomplish tasks.
 Example:
     from skills import SkillRegistry, SkillExecutor
     from skills.coding import CodeGenerationSkill
-    
+
     registry = SkillRegistry()
     registry.register(CodeGenerationSkill())
-    
+
     executor = SkillExecutor(registry)
     result = await executor.execute("code_generation", context)
 
@@ -28,11 +28,11 @@ See Also:
 """
 
 from skills.core.base_skill import BaseSkill
-from skills.core.skill_registry import SkillRegistry
-from skills.core.skill_executor import SkillExecutor
 from skills.core.skill_config import SkillConfig
+from skills.core.skill_executor import SkillExecutor
+from skills.core.skill_registry import SkillRegistry
+from skills.types.result_types import SkillError, SkillResult
 from skills.types.skill_types import SkillCategory, SkillStatus
-from skills.types.result_types import SkillResult, SkillError
 
 __all__ = [
     # Core

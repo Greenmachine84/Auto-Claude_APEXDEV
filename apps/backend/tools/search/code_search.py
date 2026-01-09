@@ -9,7 +9,6 @@ Capabilities:
 - Find definitions
 """
 
-from typing import Any, Dict, List, Optional
 import os
 import re
 
@@ -17,15 +16,15 @@ from tools.core.base_tool import (
     BaseTool,
     ToolCategory,
     ToolContext,
+    ToolParameter,
     ToolResult,
     ToolStatus,
-    ToolParameter,
 )
 
 
 class CodeSearchTool(BaseTool):
     """Search for code patterns.
-    
+
     Example:
         tool = CodeSearchTool()
         result = await tool.run(ToolContext(
@@ -36,13 +35,13 @@ class CodeSearchTool(BaseTool):
             }
         ))
     """
-    
+
     name = "code_search"
     description = "Search for code patterns"
     category = ToolCategory.SEARCH
     required_permissions = {"read_files"}
     version = "1.0.0"
-    
+
     # Language file extensions
     EXTENSIONS = {
         "python": [".py"],
@@ -53,8 +52,8 @@ class CodeSearchTool(BaseTool):
         "ruby": [".rb"],
         "csharp": [".cs"],
     }
-    
-    def get_parameters(self) -> List[ToolParameter]:
+
+    def get_parameters(self) -> list[ToolParameter]:
         """Get parameter definitions."""
         return [
             ToolParameter(
@@ -91,7 +90,7 @@ class CodeSearchTool(BaseTool):
                 default=50,
             ),
         ]
-    
+
     async def execute(self, context: ToolContext) -> ToolResult:
         """Execute code search."""
         path = context.parameters.get("path")
@@ -99,41 +98,43 @@ class CodeSearchTool(BaseTool):
         language = context.parameters.get("language")
         use_regex = context.parameters.get("regex", False)
         max_results = context.parameters.get("max_results", 50)
-        
+
         if not os.path.isabs(path):
             path = os.path.join(context.working_directory, path)
-        
+
         try:
             # Get file extensions to search
             extensions = None
             if language and language in self.EXTENSIONS:
                 extensions = self.EXTENSIONS[language]
-            
+
             # Search files
             results = []
             for root, dirs, files in os.walk(path):
                 # Skip hidden directories
                 dirs[:] = [d for d in dirs if not d.startswith(".")]
-                
+
                 for name in files:
                     if len(results) >= max_results:
                         break
-                    
+
                     # Check extension
                     if extensions:
                         if not any(name.endswith(ext) for ext in extensions):
                             continue
-                    
+
                     full_path = os.path.join(root, name)
                     rel_path = os.path.relpath(full_path, path)
-                    
+
                     matches = self._search_file(full_path, query, use_regex)
                     if matches:
-                        results.append({
-                            "file": rel_path,
-                            "matches": matches[:5],
-                        })
-            
+                        results.append(
+                            {
+                                "file": rel_path,
+                                "matches": matches[:5],
+                            }
+                        )
+
             return ToolResult(
                 tool_name=self.name,
                 status=ToolStatus.COMPLETED,
@@ -143,7 +144,7 @@ class CodeSearchTool(BaseTool):
                     "query": query,
                 },
             )
-            
+
         except Exception as e:
             return ToolResult(
                 tool_name=self.name,
@@ -151,13 +152,13 @@ class CodeSearchTool(BaseTool):
                 output=None,
                 error=str(e),
             )
-    
-    def _search_file(self, path: str, query: str, use_regex: bool) -> List[Dict]:
+
+    def _search_file(self, path: str, query: str, use_regex: bool) -> list[dict]:
         """Search a single file."""
         matches = []
-        
+
         try:
-            with open(path, "r", encoding="utf-8", errors="ignore") as f:
+            with open(path, encoding="utf-8", errors="ignore") as f:
                 for i, line in enumerate(f, 1):
                     if use_regex:
                         if re.search(query, line):
@@ -167,5 +168,5 @@ class CodeSearchTool(BaseTool):
                             matches.append({"line": i, "text": line.strip()[:200]})
         except Exception:
             pass
-        
+
         return matches

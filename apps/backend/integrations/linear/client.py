@@ -6,7 +6,7 @@ GraphQL client for Linear API interactions.
 """
 
 import logging
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class LinearClientError(Exception):
     """Linear client error."""
 
-    def __init__(self, message: str, errors: Optional[list] = None):
+    def __init__(self, message: str, errors: list | None = None):
         super().__init__(message)
         self.errors = errors or []
 
@@ -29,7 +29,7 @@ class LinearClient:
     def __init__(self, config: LinearConfig):
         self.config = config
         self.base_url = config.base_url
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
 
     async def _get_client(self) -> httpx.AsyncClient:
         """Get or create HTTP client."""
@@ -52,7 +52,7 @@ class LinearClient:
     async def query(
         self,
         query: str,
-        variables: Optional[dict] = None,
+        variables: dict | None = None,
     ) -> dict[str, Any]:
         """Execute GraphQL query."""
         client = await self._get_client()
@@ -66,7 +66,11 @@ class LinearClient:
 
             if "errors" in result:
                 errors = result["errors"]
-                message = errors[0].get("message", "Unknown error") if errors else "Unknown error"
+                message = (
+                    errors[0].get("message", "Unknown error")
+                    if errors
+                    else "Unknown error"
+                )
                 logger.error(f"Linear GraphQL error: {message}")
                 raise LinearClientError(message, errors)
 
@@ -81,7 +85,7 @@ class LinearClient:
     async def mutate(
         self,
         mutation: str,
-        variables: Optional[dict] = None,
+        variables: dict | None = None,
     ) -> dict[str, Any]:
         """Execute GraphQL mutation."""
         return await self.query(mutation, variables)

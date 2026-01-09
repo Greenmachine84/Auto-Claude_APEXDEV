@@ -9,10 +9,10 @@ Provides semantic memory capabilities:
 Part of Phase 2: Memory System Architecture
 """
 
-from .vector_store import VectorStore, VectorEntry, VectorSearchResult
-from .knowledge_graph import KnowledgeGraph, KGNode, KGEdge
-from .semantic_search import SemanticSearchEngine
 from .consolidation import KnowledgeConsolidator
+from .knowledge_graph import KGEdge, KGNode, KnowledgeGraph
+from .semantic_search import SemanticSearchEngine
+from .vector_store import VectorEntry, VectorSearchResult, VectorStore
 
 __all__ = [
     "VectorStore",

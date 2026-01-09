@@ -13,15 +13,15 @@ Example:
         max_tokens=4096,
         timeout_seconds=300,
     )
-    
+
     if config.is_enabled:
         skill = registry.get(config.name)
 """
 
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Set
-import os
 import logging
+import os
+from dataclasses import dataclass, field
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -29,43 +29,45 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ResourceLimits:
     """Resource limits for skill execution."""
+
     max_tokens: int = 4096
     max_memory_mb: int = 512
     max_execution_time_seconds: int = 300
     max_retries: int = 3
     max_file_size_kb: int = 1024
-    
+
     def validate(self) -> bool:
         """Validate limits are reasonable."""
         return (
-            self.max_tokens > 0 and
-            self.max_memory_mb > 0 and
-            self.max_execution_time_seconds > 0 and
-            self.max_retries >= 0 and
-            self.max_file_size_kb > 0
+            self.max_tokens > 0
+            and self.max_memory_mb > 0
+            and self.max_execution_time_seconds > 0
+            and self.max_retries >= 0
+            and self.max_file_size_kb > 0
         )
 
 
 @dataclass
 class SkillConfig:
     """Configuration for a skill.
-    
+
     Provides configuration settings for skill execution including
     resource limits, feature flags, and provider settings.
     """
+
     name: str
     enabled: bool = True
     timeout_seconds: int = 300
     max_tokens: int = 4096
     temperature: float = 0.7
-    preferred_provider: Optional[str] = None
-    fallback_providers: List[str] = field(default_factory=list)
+    preferred_provider: str | None = None
+    fallback_providers: list[str] = field(default_factory=list)
     resource_limits: ResourceLimits = field(default_factory=ResourceLimits)
-    required_tools: Set[str] = field(default_factory=set)
-    allowed_file_patterns: List[str] = field(default_factory=lambda: ["*"])
-    denied_file_patterns: List[str] = field(default_factory=list)
-    custom_settings: Dict[str, Any] = field(default_factory=dict)
-    
+    required_tools: set[str] = field(default_factory=set)
+    allowed_file_patterns: list[str] = field(default_factory=lambda: ["*"])
+    denied_file_patterns: list[str] = field(default_factory=list)
+    custom_settings: dict[str, Any] = field(default_factory=dict)
+
     @property
     def is_enabled(self) -> bool:
         """Check if skill is enabled (considers env override)."""
@@ -74,7 +76,7 @@ class SkillConfig:
         if env_value is not None:
             return env_value.lower() in ("true", "1", "yes")
         return self.enabled
-    
+
     @property
     def effective_timeout(self) -> int:
         """Get effective timeout (considers env override)."""
@@ -86,45 +88,45 @@ class SkillConfig:
             except ValueError:
                 pass
         return self.timeout_seconds
-    
-    def get_provider(self) -> Optional[str]:
+
+    def get_provider(self) -> str | None:
         """Get the preferred provider (considers env override)."""
         env_key = f"SKILL_{self.name.upper()}_PROVIDER"
         env_value = os.getenv(env_key)
         if env_value:
             return env_value
         return self.preferred_provider
-    
-    def validate(self) -> List[str]:
+
+    def validate(self) -> list[str]:
         """Validate configuration.
-        
+
         Returns:
             List of validation error messages (empty if valid)
         """
-        errors: List[str] = []
-        
+        errors: list[str] = []
+
         if not self.name:
             errors.append("Skill name is required")
-        
+
         if self.timeout_seconds <= 0:
             errors.append("Timeout must be positive")
-        
+
         if self.max_tokens <= 0:
             errors.append("Max tokens must be positive")
-        
+
         if not 0.0 <= self.temperature <= 2.0:
             errors.append("Temperature must be between 0.0 and 2.0")
-        
+
         if not self.resource_limits.validate():
             errors.append("Invalid resource limits")
-        
+
         return errors
-    
+
     def is_valid(self) -> bool:
         """Check if configuration is valid."""
         return len(self.validate()) == 0
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
             "name": self.name,
@@ -148,19 +150,21 @@ class SkillConfig:
             "denied_file_patterns": self.denied_file_patterns,
             "custom_settings": self.custom_settings,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "SkillConfig":
+    def from_dict(cls, data: dict[str, Any]) -> "SkillConfig":
         """Create from dictionary."""
         resource_data = data.get("resource_limits", {})
         resource_limits = ResourceLimits(
             max_tokens=resource_data.get("max_tokens", 4096),
             max_memory_mb=resource_data.get("max_memory_mb", 512),
-            max_execution_time_seconds=resource_data.get("max_execution_time_seconds", 300),
+            max_execution_time_seconds=resource_data.get(
+                "max_execution_time_seconds", 300
+            ),
             max_retries=resource_data.get("max_retries", 3),
             max_file_size_kb=resource_data.get("max_file_size_kb", 1024),
         )
-        
+
         return cls(
             name=data.get("name", ""),
             enabled=data.get("enabled", True),
@@ -179,11 +183,11 @@ class SkillConfig:
 
 class SkillConfigManager:
     """Manage configurations for multiple skills."""
-    
+
     def __init__(self) -> None:
         """Initialize the config manager."""
-        self._configs: Dict[str, SkillConfig] = {}
-    
+        self._configs: dict[str, SkillConfig] = {}
+
     def register(self, config: SkillConfig) -> None:
         """Register a skill configuration."""
         if config.is_valid():
@@ -192,31 +196,31 @@ class SkillConfigManager:
         else:
             errors = config.validate()
             logger.error(f"Invalid config for {config.name}: {errors}")
-    
-    def get(self, name: str) -> Optional[SkillConfig]:
+
+    def get(self, name: str) -> SkillConfig | None:
         """Get configuration for a skill."""
         return self._configs.get(name)
-    
+
     def get_or_default(self, name: str) -> SkillConfig:
         """Get configuration or create default."""
         if name not in self._configs:
             self._configs[name] = SkillConfig(name=name)
         return self._configs[name]
-    
-    def list_enabled(self) -> List[str]:
+
+    def list_enabled(self) -> list[str]:
         """List enabled skill names."""
         return [name for name, cfg in self._configs.items() if cfg.is_enabled]
-    
-    def list_disabled(self) -> List[str]:
+
+    def list_disabled(self) -> list[str]:
         """List disabled skill names."""
         return [name for name, cfg in self._configs.items() if not cfg.is_enabled]
-    
-    def to_dict(self) -> Dict[str, Dict[str, Any]]:
+
+    def to_dict(self) -> dict[str, dict[str, Any]]:
         """Export all configs as dictionary."""
         return {name: cfg.to_dict() for name, cfg in self._configs.items()}
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Dict[str, Any]]) -> "SkillConfigManager":
+    def from_dict(cls, data: dict[str, dict[str, Any]]) -> "SkillConfigManager":
         """Create from dictionary."""
         manager = cls()
         for name, cfg_data in data.items():

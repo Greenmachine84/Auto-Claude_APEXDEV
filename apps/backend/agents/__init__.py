@@ -31,88 +31,66 @@ APEX Constitution Compliant.
 """
 
 # Types
-from .types import (
-    AgentType,
-    AgentCategory,
-    AGENT_CATEGORY_MAP,
-    Priority,
-    AgentStatus,
-    InvalidStatusTransitionError,
-    AgentResult,
-    SuccessResult,
-    ErrorResult,
-    PartialResult,
-    ErrorCode,
-)
-
 # Base
 from .base import (
     AUTO_CONTINUE_DELAY_SECONDS,
     HUMAN_INTERVENTION_FILE,
-    BaseAgent,
-    AgentConfig,
     AgentCapabilities,
-    ResourceLimits,
-    AgentStateManager,
-    ExecutionContext,
-    ContextBuilder,
+    AgentConfig,
     AgentHooks,
+    AgentStateManager,
+    BaseAgent,
+    ContextBuilder,
+    ExecutionContext,
     HookType,
+    ResourceLimits,
     hook,
-    pre_execute,
-    post_execute,
     on_error,
     on_memory_store,
+    post_execute,
+    pre_execute,
 )
 
-# Registry
-from .registry import (
-    AgentRegistry,
-    get_registry,
-    AgentFactory,
-    create_agent,
-    AgentCatalog,
-    AgentMetadata,
+# Coder
+from .coder import run_autonomous_agent
+
+# Core Agents
+from .core import (
+    CoderAgent,
+    FixerAgent,
+    OrchestratorAgent,
+    ReviewerAgent,
+)
+
+# Enterprise Agents
+from .enterprise import (
+    APIDesignerAgent,
+    APIDocumenterAgent,
+    ArchitectAgent,
+    ChangelogGeneratorAgent,
+    ComplianceCheckerAgent,
+    CoverageAgent,
+    DocumentationAgent,
+    MigrationAgent,
+    PerformanceAnalyzerAgent,
+    SchemaValidatorAgent,
+    SecurityScannerAgent,
+    SystemDesignerAgent,
+    TaskCoordinatorAgent,
+    TestGeneratorAgent,
+    VulnerabilityAnalyzerAgent,
+    WorkflowManagerAgent,
 )
 
 # Lifecycle
 from .lifecycle import (
     AgentPool,
-    PoolConfig,
-    LifecycleManager,
-    LifecycleEvent,
     AgentSupervisor,
+    LifecycleEvent,
+    LifecycleManager,
+    PoolConfig,
     SupervisorConfig,
 )
-
-# Core Agents
-from .core import (
-    CoderAgent,
-    ReviewerAgent,
-    FixerAgent,
-    OrchestratorAgent,
-)
-
-# Enterprise Agents
-from .enterprise import (
-    ArchitectAgent,
-    SystemDesignerAgent,
-    MigrationAgent,
-    SecurityScannerAgent,
-    VulnerabilityAnalyzerAgent,
-    ComplianceCheckerAgent,
-    TestGeneratorAgent,
-    PerformanceAnalyzerAgent,
-    CoverageAgent,
-    DocumentationAgent,
-    APIDocumenterAgent,
-    ChangelogGeneratorAgent,
-    APIDesignerAgent,
-    SchemaValidatorAgent,
-    TaskCoordinatorAgent,
-    WorkflowManagerAgent,
-)
-
 
 # Memory Management
 from .memory_manager import (
@@ -120,6 +98,38 @@ from .memory_manager import (
     get_graphiti_context,
     save_session_memory,
     save_session_to_graphiti,
+)
+
+# Planner
+from .planner import run_followup_planner
+
+# Registry
+from .registry import (
+    AgentCatalog,
+    AgentFactory,
+    AgentMetadata,
+    AgentRegistry,
+    create_agent,
+    get_registry,
+)
+
+# Session Management
+from .session import (
+    post_session_processing,
+    run_agent_session,
+)
+from .types import (
+    AGENT_CATEGORY_MAP,
+    AgentCategory,
+    AgentResult,
+    AgentStatus,
+    AgentType,
+    ErrorCode,
+    ErrorResult,
+    InvalidStatusTransitionError,
+    PartialResult,
+    Priority,
+    SuccessResult,
 )
 
 # Utilities
@@ -131,18 +141,6 @@ from .utils import (
     load_implementation_plan,
     sync_spec_to_source,
 )
-
-# Session Management
-from .session import (
-    post_session_processing,
-    run_agent_session,
-)
-
-# Coder
-from .coder import run_autonomous_agent
-
-# Planner
-from .planner import run_followup_planner
 
 __version__ = "1.0.0"
 

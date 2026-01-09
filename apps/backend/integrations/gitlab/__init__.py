@@ -8,15 +8,15 @@ GitLab API integration for project, MR, and issue management.
 from .client import GitLabClient
 from .models import (
     GitLabConfig,
-    GitLabProject,
-    GitLabMergeRequest,
     GitLabIssue,
-    GitLabNote,
-    GitLabUser,
     GitLabLabel,
+    GitLabMergeRequest,
     GitLabMilestone,
-    MergeRequestState,
+    GitLabNote,
+    GitLabProject,
+    GitLabUser,
     IssueState,
+    MergeRequestState,
 )
 from .service import GitLabService
 from .webhooks import GitLabWebhookHandler, WebhookEvent

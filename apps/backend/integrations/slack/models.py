@@ -5,9 +5,8 @@ Phase 4: UI, Integrations & Analytics
 Pydantic models for Slack API entities.
 """
 
-from datetime import datetime
 from enum import Enum
-from typing import Any, Optional, Union
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -30,9 +29,15 @@ class SlackConfig(BaseModel):
     """Slack integration configuration."""
 
     bot_token: str = Field(..., description="Slack bot OAuth token (xoxb-...)")
-    app_token: Optional[str] = Field(None, description="Slack app token for Socket Mode")
-    signing_secret: Optional[str] = Field(None, description="Slack signing secret for webhooks")
-    default_channel: Optional[str] = Field(None, description="Default channel for notifications")
+    app_token: str | None = Field(
+        None, description="Slack app token for Socket Mode"
+    )
+    signing_secret: str | None = Field(
+        None, description="Slack signing secret for webhooks"
+    )
+    default_channel: str | None = Field(
+        None, description="Default channel for notifications"
+    )
 
 
 class SlackUser(BaseModel):
@@ -40,14 +45,14 @@ class SlackUser(BaseModel):
 
     id: str
     name: str
-    real_name: Optional[str] = None
-    display_name: Optional[str] = None
-    email: Optional[str] = None
+    real_name: str | None = None
+    display_name: str | None = None
+    email: str | None = None
     is_bot: bool = False
     is_admin: bool = False
-    team_id: Optional[str] = None
-    tz: Optional[str] = None
-    profile: Optional[dict] = None
+    team_id: str | None = None
+    tz: str | None = None
+    profile: dict | None = None
 
 
 class SlackChannel(BaseModel):
@@ -59,29 +64,29 @@ class SlackChannel(BaseModel):
     is_private: bool = False
     is_archived: bool = False
     is_member: bool = False
-    num_members: Optional[int] = None
-    topic: Optional[str] = None
-    purpose: Optional[str] = None
-    created: Optional[int] = None
-    creator: Optional[str] = None
+    num_members: int | None = None
+    topic: str | None = None
+    purpose: str | None = None
+    created: int | None = None
+    creator: str | None = None
 
 
 class SlackBlock(BaseModel):
     """Slack block element."""
 
     type: BlockType
-    block_id: Optional[str] = None
-    text: Optional[dict] = None
-    accessory: Optional[dict] = None
-    elements: Optional[list[dict]] = None
-    fields: Optional[list[dict]] = None
+    block_id: str | None = None
+    text: dict | None = None
+    accessory: dict | None = None
+    elements: list[dict] | None = None
+    fields: list[dict] | None = None
 
     @classmethod
     def section(
         cls,
         text: str,
         markdown: bool = True,
-        accessory: Optional[dict] = None,
+        accessory: dict | None = None,
     ) -> "SlackBlock":
         """Create section block."""
         return cls(
@@ -115,21 +120,21 @@ class SlackBlock(BaseModel):
 class SlackAttachment(BaseModel):
     """Slack message attachment (legacy format)."""
 
-    fallback: Optional[str] = None
-    color: Optional[str] = None
-    pretext: Optional[str] = None
-    author_name: Optional[str] = None
-    author_link: Optional[str] = None
-    author_icon: Optional[str] = None
-    title: Optional[str] = None
-    title_link: Optional[str] = None
-    text: Optional[str] = None
-    fields: Optional[list[dict]] = None
-    image_url: Optional[str] = None
-    thumb_url: Optional[str] = None
-    footer: Optional[str] = None
-    footer_icon: Optional[str] = None
-    ts: Optional[int] = None
+    fallback: str | None = None
+    color: str | None = None
+    pretext: str | None = None
+    author_name: str | None = None
+    author_link: str | None = None
+    author_icon: str | None = None
+    title: str | None = None
+    title_link: str | None = None
+    text: str | None = None
+    fields: list[dict] | None = None
+    image_url: str | None = None
+    thumb_url: str | None = None
+    footer: str | None = None
+    footer_icon: str | None = None
+    ts: int | None = None
 
 
 class SlackMessage(BaseModel):
@@ -137,27 +142,27 @@ class SlackMessage(BaseModel):
 
     ts: str  # Message timestamp (ID)
     channel: str
-    user: Optional[str] = None
-    text: Optional[str] = None
-    thread_ts: Optional[str] = None
+    user: str | None = None
+    text: str | None = None
+    thread_ts: str | None = None
     blocks: list[SlackBlock] = Field(default_factory=list)
     attachments: list[SlackAttachment] = Field(default_factory=list)
     reactions: list[dict] = Field(default_factory=list)
     reply_count: int = 0
     reply_users_count: int = 0
-    latest_reply: Optional[str] = None
-    subtype: Optional[str] = None
-    edited: Optional[dict] = None
+    latest_reply: str | None = None
+    subtype: str | None = None
+    edited: dict | None = None
 
 
 class MessageBuilder:
     """Builder for constructing Slack messages."""
 
     def __init__(self):
-        self.text: Optional[str] = None
+        self.text: str | None = None
         self.blocks: list[dict] = []
         self.attachments: list[dict] = []
-        self.thread_ts: Optional[str] = None
+        self.thread_ts: str | None = None
         self.reply_broadcast: bool = False
         self.unfurl_links: bool = True
         self.unfurl_media: bool = True
@@ -167,7 +172,7 @@ class MessageBuilder:
         self.text = text
         return self
 
-    def add_block(self, block: Union[SlackBlock, dict]) -> "MessageBuilder":
+    def add_block(self, block: SlackBlock | dict) -> "MessageBuilder":
         """Add a block."""
         if isinstance(block, SlackBlock):
             self.blocks.append(block.model_dump(exclude_none=True))
@@ -194,15 +199,17 @@ class MessageBuilder:
     def add_attachment(
         self,
         text: str,
-        color: Optional[str] = None,
-        title: Optional[str] = None,
+        color: str | None = None,
+        title: str | None = None,
     ) -> "MessageBuilder":
         """Add attachment."""
-        self.attachments.append({
-            "text": text,
-            "color": color,
-            "title": title,
-        })
+        self.attachments.append(
+            {
+                "text": text,
+                "color": color,
+                "title": title,
+            }
+        )
         return self
 
     def in_thread(self, thread_ts: str, broadcast: bool = False) -> "MessageBuilder":

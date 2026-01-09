@@ -8,9 +8,10 @@ World-Class Standards:
 Phase 7 Implementation: Enterprise Agents Architecture
 Reference: PHASE7_ENTERPRISE_AGENTS_ARCHITECTURE.md
 """
-from typing import Any, ClassVar, Dict, List, Optional
+
 import json
 import uuid
+from typing import Any, ClassVar
 
 from ..base_enterprise_agent import BaseEnterpriseAgent, LLMRouter
 from ..config import AgentCapability, EnterpriseAgentConfig
@@ -18,32 +19,33 @@ from ..types import (
     CoverageAnalysis,
     EnterpriseAgentType,
     TestCase,
-    TestGenerationResult,
 )
-from .test_generator import TestGenerator, GeneratedTest
-from .coverage_analyzer import CoverageAnalyzer, CoverageReport
+from .coverage_analyzer import CoverageAnalyzer
+from .test_generator import TestGenerator
 from .test_templates import TestTemplates
 
 
 class QAAgent(BaseEnterpriseAgent):
     """Agent for test generation using configured LLM.
-    
+
     Provides comprehensive QA capabilities including:
     - Unit test generation
     - Integration test generation
     - Coverage analysis
     - Test plan generation
-    
+
     Attributes:
         test_generator: Test code generator
         coverage_analyzer: Coverage analysis utility
         templates: Test templates by framework
     """
-    
+
     AGENT_TYPE: ClassVar[EnterpriseAgentType] = EnterpriseAgentType.QA
     AGENT_CATEGORY: ClassVar[str] = "qa"
-    
-    DEFAULT_SYSTEM_PROMPT: ClassVar[str] = """You are an expert QA engineer with deep knowledge of:
+
+    DEFAULT_SYSTEM_PROMPT: ClassVar[
+        str
+    ] = """You are an expert QA engineer with deep knowledge of:
 1. Test-driven development (TDD)
 2. Unit, integration, and e2e testing
 3. Multiple test frameworks (pytest, Jest, Vitest, etc.)
@@ -53,23 +55,23 @@ class QAAgent(BaseEnterpriseAgent):
 Generate comprehensive tests that achieve high coverage.
 Focus on edge cases and error conditions.
 Write clean, maintainable test code."""
-    
+
     def __init__(
         self,
         config: EnterpriseAgentConfig,
-        llm_router: Optional[LLMRouter] = None,
+        llm_router: LLMRouter | None = None,
     ):
         """Initialize the QA agent."""
         super().__init__(config, llm_router)
-        
+
         # Add QA capability
         self.add_capability(AgentCapability.TEST_GENERATION)
-        
+
         # Initialize components
         self.test_generator = TestGenerator()
         self.coverage_analyzer = CoverageAnalyzer()
         self.templates = TestTemplates()
-    
+
     @classmethod
     def get_description(cls) -> str:
         """Get agent description."""
@@ -78,13 +80,13 @@ Write clean, maintainable test code."""
             "and creates test plans. Targets 80%+ coverage with edge case focus. "
             "Uses configured LLM provider for intelligent test generation."
         )
-    
-    async def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def execute(self, context: dict[str, Any]) -> dict[str, Any]:
         """Execute QA task based on context.
-        
+
         Args:
             context: Must contain 'code' and 'language', optionally 'framework'
-            
+
         Returns:
             Test generation results
         """
@@ -93,24 +95,24 @@ Write clean, maintainable test code."""
                 "status": "error",
                 "message": "Context must contain 'code' and 'language'",
             }
-        
+
         code = context["code"]
         language = context["language"]
         framework = context.get("framework", self._default_framework(language))
-        
+
         result = await self.generate_tests(
             code=code,
             language=language,
             framework=framework,
         )
-        
+
         return {
             "status": "success",
             "test_code": result,
             "framework": framework,
             "language": language,
         }
-    
+
     async def generate_tests(
         self,
         code: str,
@@ -118,18 +120,18 @@ Write clean, maintainable test code."""
         framework: str,
     ) -> str:
         """Generate tests for code.
-        
+
         Args:
             code: Source code to generate tests for
             language: Programming language
             framework: Test framework (pytest, jest, etc.)
-            
+
         Returns:
             Generated test code
         """
         # Get template for framework
         template = self.templates.get_template(framework)
-        
+
         prompt = f"""Generate comprehensive tests for the following {language} code.
 
 Source Code:
@@ -150,23 +152,23 @@ Requirements:
 6. Mock external dependencies
 
 Provide only the test code, ready to run."""
-        
+
         return await self.complete(prompt)
-    
+
     async def analyze_coverage(
         self,
-        coverage_report: Dict[str, Any],
+        coverage_report: dict[str, Any],
     ) -> CoverageAnalysis:
         """Analyze coverage report.
-        
+
         Args:
             coverage_report: Coverage data from test run
-            
+
         Returns:
             Coverage analysis with recommendations
         """
         report = self.coverage_analyzer.analyze(coverage_report)
-        
+
         if report.coverage_percentage < 80:
             # Get LLM recommendations for improving coverage
             prompt = f"""Analyze this coverage report and suggest improvements.
@@ -178,10 +180,10 @@ Files with low coverage:
 
 Provide specific recommendations to improve coverage to 80%+.
 """
-            
+
             recommendations = await self.complete(prompt)
             report.recommendations = recommendations.split("\n")
-        
+
         return CoverageAnalysis(
             total_lines=report.total_lines,
             covered_lines=report.covered_lines,
@@ -192,16 +194,16 @@ Provide specific recommendations to improve coverage to 80%+.
             file_coverage=report.file_coverage,
             recommendations=report.recommendations,
         )
-    
+
     async def suggest_test_cases(
         self,
         code: str,
-    ) -> List[TestCase]:
+    ) -> list[TestCase]:
         """Suggest test cases for code.
-        
+
         Args:
             code: Source code to analyze
-            
+
         Returns:
             List of suggested test cases
         """
@@ -231,19 +233,19 @@ Include:
 - Error conditions
 - Boundary tests
 """
-        
+
         response = await self.complete(prompt)
         return self._parse_test_cases(response)
-    
+
     async def generate_test_plan(
         self,
         feature_spec: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate a test plan from feature specification.
-        
+
         Args:
             feature_spec: Feature specification or requirements
-            
+
         Returns:
             Comprehensive test plan
         """
@@ -276,9 +278,9 @@ Provide a test plan in JSON format:
   }}
 }}
 """
-        
+
         response = await self.complete(prompt)
-        
+
         try:
             data = json.loads(response)
             return data.get("test_plan", {})
@@ -287,7 +289,7 @@ Provide a test plan in JSON format:
                 "overview": "Test plan generated from feature spec",
                 "raw_response": response,
             }
-    
+
     def _default_framework(self, language: str) -> str:
         """Get default test framework for language."""
         defaults = {
@@ -299,25 +301,27 @@ Provide a test plan in JSON format:
             "rust": "cargo-test",
         }
         return defaults.get(language, "pytest")
-    
-    def _parse_test_cases(self, response: str) -> List[TestCase]:
+
+    def _parse_test_cases(self, response: str) -> list[TestCase]:
         """Parse test cases from LLM response."""
-        test_cases: List[TestCase] = []
-        
+        test_cases: list[TestCase] = []
+
         try:
             data = json.loads(response)
             for tc in data.get("test_cases", []):
-                test_cases.append(TestCase(
-                    id=str(uuid.uuid4()),
-                    name=tc.get("name", ""),
-                    description=tc.get("description", ""),
-                    test_type=tc.get("test_type", "unit"),
-                    target_function=tc.get("target_function", ""),
-                    test_code="",  # To be generated
-                    assertions=tc.get("assertions", []),
-                    tags=["edge_case"] if tc.get("edge_case") else [],
-                ))
+                test_cases.append(
+                    TestCase(
+                        id=str(uuid.uuid4()),
+                        name=tc.get("name", ""),
+                        description=tc.get("description", ""),
+                        test_type=tc.get("test_type", "unit"),
+                        target_function=tc.get("target_function", ""),
+                        test_code="",  # To be generated
+                        assertions=tc.get("assertions", []),
+                        tags=["edge_case"] if tc.get("edge_case") else [],
+                    )
+                )
         except json.JSONDecodeError:
             pass
-        
+
         return test_cases

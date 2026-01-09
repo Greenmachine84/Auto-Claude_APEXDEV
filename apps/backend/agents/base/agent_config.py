@@ -7,8 +7,8 @@ Configurations are immutable after creation for APEX compliance.
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Final
 from enum import Flag, auto
+from typing import Any, Final
 
 from ..types import AgentType, Priority
 
@@ -62,9 +62,7 @@ class Capability(Flag):
 
 # Predefined capability sets for common agent roles
 READ_ONLY_CAPABILITIES: Final[Capability] = (
-    Capability.CAN_READ_FILES
-    | Capability.CAN_ANALYZE_CODE
-    | Capability.CAN_READ_MEMORY
+    Capability.CAN_READ_FILES | Capability.CAN_ANALYZE_CODE | Capability.CAN_READ_MEMORY
 )
 
 CODER_CAPABILITIES: Final[Capability] = (
@@ -182,7 +180,9 @@ class AgentConfig:
         """Validate configuration after initialization."""
         # Set default name from agent type if not provided
         if not self.name:
-            object.__setattr__(self, "name", self.agent_type.value.replace("_", " ").title())
+            object.__setattr__(
+                self, "name", self.agent_type.value.replace("_", " ").title()
+            )
 
     @classmethod
     def for_coder(cls, **kwargs: Any) -> "AgentConfig":

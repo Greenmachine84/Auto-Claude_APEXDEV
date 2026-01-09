@@ -9,24 +9,23 @@ Capabilities:
 - Handle timeouts
 """
 
-from typing import Any, Dict, List, Optional
-import subprocess
 import os
 import shlex
+import subprocess
 
 from tools.core.base_tool import (
     BaseTool,
     ToolCategory,
     ToolContext,
+    ToolParameter,
     ToolResult,
     ToolStatus,
-    ToolParameter,
 )
 
 
 class CommandExecuteTool(BaseTool):
     """Execute shell commands.
-    
+
     Example:
         tool = CommandExecuteTool()
         result = await tool.run(ToolContext(
@@ -36,14 +35,14 @@ class CommandExecuteTool(BaseTool):
             }
         ))
     """
-    
+
     name = "command_execute"
     description = "Execute shell commands"
     category = ToolCategory.TERMINAL
     required_permissions = {"execute_commands"}
     version = "1.0.0"
-    
-    def get_parameters(self) -> List[ToolParameter]:
+
+    def get_parameters(self) -> list[ToolParameter]:
         """Get parameter definitions."""
         return [
             ToolParameter(
@@ -81,7 +80,7 @@ class CommandExecuteTool(BaseTool):
                 default=None,
             ),
         ]
-    
+
     async def execute(self, context: ToolContext) -> ToolResult:
         """Execute command."""
         command = context.parameters.get("command")
@@ -89,23 +88,23 @@ class CommandExecuteTool(BaseTool):
         timeout = context.parameters.get("timeout", 60)
         shell = context.parameters.get("shell", True)
         env = context.parameters.get("env")
-        
+
         if cwd and not os.path.isabs(cwd):
             cwd = os.path.join(context.working_directory, cwd)
-        
+
         try:
             # Merge environment
             process_env = os.environ.copy()
             process_env.update(context.environment)
             if env:
                 process_env.update(env)
-            
+
             # Execute command
             if shell:
                 args = command
             else:
                 args = shlex.split(command)
-            
+
             result = subprocess.run(
                 args,
                 shell=shell,
@@ -115,7 +114,7 @@ class CommandExecuteTool(BaseTool):
                 text=True,
                 timeout=timeout,
             )
-            
+
             return ToolResult(
                 tool_name=self.name,
                 status=ToolStatus.COMPLETED,
@@ -126,7 +125,7 @@ class CommandExecuteTool(BaseTool):
                     "command": command,
                 },
             )
-            
+
         except subprocess.TimeoutExpired:
             return ToolResult(
                 tool_name=self.name,

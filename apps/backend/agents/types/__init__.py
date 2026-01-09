@@ -10,17 +10,17 @@ This module is the foundation for type safety across the agent system.
 All types are immutable and follow APEX Constitution governance.
 """
 
-from .agent_types import AgentType, AgentCategory, AGENT_CATEGORY_MAP
+from .agent_types import AGENT_CATEGORY_MAP, AgentCategory, AgentType
 from .priority_types import Priority
-from .status_types import AgentStatus, InvalidStatusTransitionError
 from .result_types import (
     AgentResult,
-    SuccessResult,
+    ErrorCode,
     ErrorResult,
     PartialResult,
     ResultStatus,
-    ErrorCode,
+    SuccessResult,
 )
+from .status_types import AgentStatus, InvalidStatusTransitionError
 
 __all__ = [
     # Agent Types

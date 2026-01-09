@@ -12,10 +12,11 @@ Hooks provide extension points for:
 
 import functools
 import logging
-from enum import Enum, auto
-from typing import Any, Callable, TypeVar, ParamSpec
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from enum import Enum, auto
+from typing import Any, ParamSpec, TypeVar
 
 logger = logging.getLogger(__name__)
 
@@ -97,9 +98,7 @@ class AgentHooks:
         """Disable hook execution."""
         self._enabled = False
 
-    def register(
-        self, hook_type: HookType
-    ) -> Callable[[HookCallable], HookCallable]:
+    def register(self, hook_type: HookType) -> Callable[[HookCallable], HookCallable]:
         """Decorator to register a hook.
 
         Args:
@@ -108,9 +107,11 @@ class AgentHooks:
         Returns:
             Decorator function
         """
+
         def decorator(func: HookCallable) -> HookCallable:
             self._hooks[hook_type].append(func)
             return func
+
         return decorator
 
     def add_hook(self, hook_type: HookType, hook: HookCallable) -> None:
@@ -186,9 +187,7 @@ class AgentHooks:
             try:
                 hook(context)
             except Exception as e:
-                logger.error(
-                    f"Hook error ({hook_type.name} in {self.agent_id}): {e}"
-                )
+                logger.error(f"Hook error ({hook_type.name} in {self.agent_id}): {e}")
 
     def get_hooks(self, hook_type: HookType) -> list[HookCallable]:
         """Get all hooks of a type.
@@ -204,6 +203,7 @@ class AgentHooks:
 
 # Convenience decorators for common hooks
 
+
 def hook(hook_type: HookType) -> Callable[[Callable[P, T]], Callable[P, T]]:
     """Mark a method as a hook handler.
 
@@ -213,9 +213,11 @@ def hook(hook_type: HookType) -> Callable[[Callable[P, T]], Callable[P, T]]:
         ...     def prepare(self, ctx: HookContext):
         ...         self.logger.info("Preparing execution")
     """
+
     def decorator(func: Callable[P, T]) -> Callable[P, T]:
         func._hook_type = hook_type  # type: ignore
         return func
+
     return decorator
 
 
@@ -252,6 +254,7 @@ def with_hooks(
         ... def execute_task(task: str) -> str:
         ...     return f"Completed: {task}"
     """
+
     def decorator(func: Callable[P, T]) -> Callable[P, T]:
         @functools.wraps(func)
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
@@ -263,5 +266,7 @@ def with_hooks(
             except Exception as e:
                 hooks.execute(error_hook, args=args, kwargs=kwargs, error=e)
                 raise
+
         return wrapper
+
     return decorator

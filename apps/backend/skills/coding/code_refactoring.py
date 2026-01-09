@@ -10,14 +10,21 @@ Capabilities:
 - Improve performance
 """
 
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from dataclasses import dataclass
+from typing import Any
 
-from skills.core.base_skill import BaseSkill, SkillContext, SkillResult, SkillCategory, SkillStatus
+from skills.core.base_skill import (
+    BaseSkill,
+    SkillCategory,
+    SkillContext,
+    SkillResult,
+    SkillStatus,
+)
 
 
 class RefactoringType:
     """Types of refactoring operations."""
+
     EXTRACT_FUNCTION = "extract_function"
     EXTRACT_CLASS = "extract_class"
     RENAME = "rename"
@@ -31,21 +38,22 @@ class RefactoringType:
 @dataclass
 class RefactoringChange:
     """A single refactoring change."""
+
     type: str
     description: str
     before: str
     after: str
     line_start: int
     line_end: int
-    file_path: Optional[str] = None
+    file_path: str | None = None
 
 
 class CodeRefactoringSkill(BaseSkill):
     """Refactor existing code for improved quality.
-    
+
     Analyzes code and suggests or applies refactoring operations
     to improve code quality, readability, and maintainability.
-    
+
     Example:
         skill = CodeRefactoringSkill()
         context = SkillContext(
@@ -58,32 +66,32 @@ class CodeRefactoringSkill(BaseSkill):
         )
         result = await skill.run(context)
     """
-    
+
     name = "code_refactoring"
     description = "Refactor code to improve quality and maintainability"
     category = SkillCategory.CODING
     required_tools = ["file_read", "file_edit"]
     required_permissions = {"read_files", "write_files", "llm_access"}
     version = "1.0.0"
-    
-    def validate_input(self, input_data: Dict[str, Any]) -> bool:
+
+    def validate_input(self, input_data: dict[str, Any]) -> bool:
         """Validate input data."""
         if "code" not in input_data:
             return False
         if not input_data.get("code", "").strip():
             return False
         return True
-    
-    def get_dependencies(self) -> List[str]:
+
+    def get_dependencies(self) -> list[str]:
         """Dependencies on other skills."""
         return []  # Could depend on code_explanation for understanding
-    
+
     async def execute(self, context: SkillContext) -> SkillResult:
         """Execute code refactoring.
-        
+
         Args:
             context: Execution context with code to refactor
-            
+
         Returns:
             SkillResult with refactored code
         """
@@ -91,13 +99,13 @@ class CodeRefactoringSkill(BaseSkill):
         code = input_data.get("code", "")
         refactoring_type = input_data.get("refactoring_type", "simplify")
         options = input_data.get("options", {})
-        
+
         # Analyze code and determine refactoring
         changes = self._analyze_refactoring(code, refactoring_type, options)
-        
+
         # Apply refactoring
         refactored_code = self._apply_refactoring(code, changes)
-        
+
         return SkillResult(
             skill_name=self.name,
             status=SkillStatus.COMPLETED,
@@ -109,39 +117,41 @@ class CodeRefactoringSkill(BaseSkill):
             },
             tokens_used=0,
         )
-    
+
     def _analyze_refactoring(
         self,
         code: str,
         refactoring_type: str,
-        options: Dict[str, Any],
-    ) -> List[RefactoringChange]:
+        options: dict[str, Any],
+    ) -> list[RefactoringChange]:
         """Analyze code and determine refactoring changes."""
         # Placeholder - will use LLM for analysis
         changes = []
-        
+
         if refactoring_type == RefactoringType.RENAME and "new_name" in options:
-            changes.append(RefactoringChange(
-                type=RefactoringType.RENAME,
-                description=f"Rename identifier to {options['new_name']}",
-                before="",
-                after="",
-                line_start=1,
-                line_end=1,
-            ))
-        
+            changes.append(
+                RefactoringChange(
+                    type=RefactoringType.RENAME,
+                    description=f"Rename identifier to {options['new_name']}",
+                    before="",
+                    after="",
+                    line_start=1,
+                    line_end=1,
+                )
+            )
+
         return changes
-    
+
     def _apply_refactoring(
         self,
         code: str,
-        changes: List[RefactoringChange],
+        changes: list[RefactoringChange],
     ) -> str:
         """Apply refactoring changes to code."""
         # Placeholder - actual implementation with LLM
         return code
-    
-    def _change_to_dict(self, change: RefactoringChange) -> Dict[str, Any]:
+
+    def _change_to_dict(self, change: RefactoringChange) -> dict[str, Any]:
         """Convert RefactoringChange to dictionary."""
         return {
             "type": change.type,

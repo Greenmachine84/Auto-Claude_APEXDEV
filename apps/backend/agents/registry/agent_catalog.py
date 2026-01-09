@@ -13,7 +13,7 @@ The catalog provides:
 from dataclasses import dataclass, field
 from typing import Any
 
-from ..types import AgentType, AgentCategory, AGENT_CATEGORY_MAP
+from ..types import AGENT_CATEGORY_MAP, AgentCategory, AgentType
 from .agent_registry import get_registry
 
 
@@ -143,10 +143,12 @@ class AgentCatalog:
         Returns:
             List of categories
         """
-        return list(set(
-            AGENT_CATEGORY_MAP.get(agent_type, AgentCategory.CORE)
-            for agent_type in self._registry.list_agents()
-        ))
+        return list(
+            set(
+                AGENT_CATEGORY_MAP.get(agent_type, AgentCategory.CORE)
+                for agent_type in self._registry.list_agents()
+            )
+        )
 
     def to_dict(self) -> dict[str, list[dict[str, Any]]]:
         """Export catalog as dictionary organized by category.

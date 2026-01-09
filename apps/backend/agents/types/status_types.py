@@ -10,7 +10,7 @@ Status lifecycle:
                             ERROR ------------------->
 """
 
-from enum import Enum, auto
+from enum import Enum
 from typing import Final
 
 
@@ -95,9 +95,7 @@ class AgentStatus(Enum):
                 return status
 
         valid = ", ".join(s.name for s in cls)
-        raise ValueError(
-            f"Invalid status '{value}'. Valid values: {valid}"
-        ) from None
+        raise ValueError(f"Invalid status '{value}'. Valid values: {valid}") from None
 
 
 # ═══════════════════════════════════════════════════════════════════════════

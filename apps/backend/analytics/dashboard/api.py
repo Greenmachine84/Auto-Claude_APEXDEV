@@ -10,13 +10,14 @@ World-Class Standards:
 - WebSocket support
 """
 
-from typing import Dict, Any, Optional, List
-from datetime import datetime, timedelta
-from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel
 import logging
+from datetime import datetime
+from typing import Any
 
-from ..models import DashboardData, BudgetStatus, SUPPORTED_PROVIDERS
+from fastapi import APIRouter, HTTPException, Query
+from pydantic import BaseModel
+
+from ..models import SUPPORTED_PROVIDERS
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +29,7 @@ router = APIRouter(prefix="/api/v1/analytics", tags=["analytics"])
 # Request/Response Models
 class DashboardRequest(BaseModel):
     """Dashboard data request."""
+
     user_id: str
     time_range_hours: int = 24
     include_charts: bool = True
@@ -35,14 +37,16 @@ class DashboardRequest(BaseModel):
 
 class DashboardResponse(BaseModel):
     """Dashboard data response."""
+
     success: bool
-    data: Optional[Dict[str, Any]] = None
-    error: Optional[str] = None
+    data: dict[str, Any] | None = None
+    error: str | None = None
     timestamp: str
 
 
 class ProviderStatsResponse(BaseModel):
     """Provider statistics response."""
+
     provider: str
     request_count: int
     total_cost: float
@@ -52,6 +56,7 @@ class ProviderStatsResponse(BaseModel):
 
 class BudgetResponse(BaseModel):
     """Budget status response."""
+
     user_id: str
     total_budget: float
     used: float
@@ -62,29 +67,30 @@ class BudgetResponse(BaseModel):
 
 class CostHistoryResponse(BaseModel):
     """Cost history response."""
+
     user_id: str
     period: str
-    data_points: List[Dict[str, Any]]
+    data_points: list[dict[str, Any]]
 
 
 class DashboardAPI:
     """
     Dashboard API implementation.
-    
+
     Features:
     - RESTful endpoints
     - WebSocket real-time updates
     - Response caching
     - Error handling
     """
-    
+
     def __init__(self) -> None:
         """Initialize API."""
         self._data_builder = None
         self._chart_generator = None
         self._exporter = None
         logger.info("DashboardAPI initialized")
-    
+
     def configure(
         self,
         data_builder,
@@ -95,7 +101,7 @@ class DashboardAPI:
         self._data_builder = data_builder
         self._chart_generator = chart_generator
         self._exporter = exporter
-    
+
     async def get_dashboard(
         self,
         user_id: str,
@@ -106,11 +112,11 @@ class DashboardAPI:
         try:
             if not self._data_builder:
                 raise ValueError("Dashboard API not configured")
-            
+
             dashboard = await self._data_builder.build_dashboard(
                 user_id, time_range_hours
             )
-            
+
             response_data = {
                 "user_id": dashboard.user_id,
                 "time_range_hours": dashboard.time_range_hours,
@@ -139,18 +145,18 @@ class DashboardAPI:
                 ],
                 "last_updated": dashboard.last_updated,
             }
-            
+
             if include_charts and self._chart_generator:
                 response_data["charts"] = self._chart_generator.generate_all_charts(
                     dashboard
                 )
-            
+
             return DashboardResponse(
                 success=True,
                 data=response_data,
                 timestamp=datetime.utcnow().isoformat(),
             )
-            
+
         except Exception as e:
             logger.error("Dashboard API error: %s", e)
             return DashboardResponse(
@@ -158,52 +164,55 @@ class DashboardAPI:
                 error=str(e),
                 timestamp=datetime.utcnow().isoformat(),
             )
-    
+
     async def get_provider_stats(
         self,
         user_id: str,
-        provider: Optional[str] = None,
-    ) -> List[ProviderStatsResponse]:
+        provider: str | None = None,
+    ) -> list[ProviderStatsResponse]:
         """Get statistics for providers."""
         if provider and provider not in SUPPORTED_PROVIDERS:
             raise HTTPException(
                 status_code=400,
                 detail=f"Unknown provider: {provider}. "
-                       f"Must be one of: {', '.join(SUPPORTED_PROVIDERS)}"
+                f"Must be one of: {', '.join(SUPPORTED_PROVIDERS)}",
             )
-        
+
         if not self._data_builder:
             raise HTTPException(status_code=500, detail="API not configured")
-        
+
         dashboard = await self._data_builder.build_dashboard(user_id)
-        
+
         stats = []
         for pm in dashboard.provider_metrics:
             if provider and pm.provider != provider:
                 continue
             if pm.request_count > 0:
-                stats.append(ProviderStatsResponse(
-                    provider=pm.provider,
-                    request_count=pm.request_count,
-                    total_cost=pm.total_cost,
-                    total_tokens=pm.total_prompt_tokens + pm.total_completion_tokens,
-                    average_latency_ms=pm.average_latency_ms,
-                ))
-        
+                stats.append(
+                    ProviderStatsResponse(
+                        provider=pm.provider,
+                        request_count=pm.request_count,
+                        total_cost=pm.total_cost,
+                        total_tokens=pm.total_prompt_tokens
+                        + pm.total_completion_tokens,
+                        average_latency_ms=pm.average_latency_ms,
+                    )
+                )
+
         return stats
-    
+
     async def get_budget_status(
         self,
         user_id: str,
-        provider: Optional[str] = None,
+        provider: str | None = None,
     ) -> BudgetResponse:
         """Get budget status."""
         if not self._data_builder:
             raise HTTPException(status_code=500, detail="API not configured")
-        
+
         dashboard = await self._data_builder.build_dashboard(user_id)
         bs = dashboard.budget_status
-        
+
         return BudgetResponse(
             user_id=user_id,
             total_budget=bs.total_budget,
@@ -212,7 +221,7 @@ class DashboardAPI:
             percentage_used=bs.percentage_used,
             status=bs.status,
         )
-    
+
     async def get_cost_history(
         self,
         user_id: str,
@@ -228,15 +237,14 @@ class DashboardAPI:
             hours = 24 * 30
         else:
             raise HTTPException(
-                status_code=400,
-                detail="Invalid period. Use: 24h, 7d, or 30d"
+                status_code=400, detail="Invalid period. Use: 24h, 7d, or 30d"
             )
-        
+
         if not self._data_builder:
             raise HTTPException(status_code=500, detail="API not configured")
-        
+
         dashboard = await self._data_builder.build_dashboard(user_id, hours)
-        
+
         return CostHistoryResponse(
             user_id=user_id,
             period=period,
@@ -249,29 +257,29 @@ class DashboardAPI:
                 for tp in dashboard.cost_time_series
             ],
         )
-    
+
     async def export_dashboard(
         self,
         user_id: str,
         format: str = "json",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Export dashboard data."""
         from .export import ExportFormat
-        
+
         if not self._data_builder or not self._exporter:
             raise HTTPException(status_code=500, detail="API not configured")
-        
+
         try:
             export_format = ExportFormat(format.lower())
         except ValueError:
             raise HTTPException(
                 status_code=400,
-                detail=f"Invalid format. Use: json, csv, markdown, or html"
+                detail="Invalid format. Use: json, csv, markdown, or html",
             )
-        
+
         dashboard = await self._data_builder.build_dashboard(user_id)
         result = self._exporter.export(dashboard, export_format)
-        
+
         return {
             "filename": result.filename,
             "content_type": result.content_type,
@@ -297,8 +305,8 @@ async def get_dashboard(
 @router.get("/providers/{user_id}")
 async def get_provider_stats(
     user_id: str,
-    provider: Optional[str] = Query(default=None),
-) -> List[ProviderStatsResponse]:
+    provider: str | None = Query(default=None),
+) -> list[ProviderStatsResponse]:
     """Get provider statistics."""
     return await api_instance.get_provider_stats(user_id, provider)
 
@@ -322,12 +330,12 @@ async def get_history(
 async def export_data(
     user_id: str,
     format: str = Query(default="json"),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Export dashboard data."""
     return await api_instance.export_dashboard(user_id, format)
 
 
 @router.get("/providers")
-async def list_providers() -> Dict[str, List[str]]:
+async def list_providers() -> dict[str, list[str]]:
     """List all supported providers."""
     return {"providers": list(SUPPORTED_PROVIDERS)}

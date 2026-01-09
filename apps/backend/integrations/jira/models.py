@@ -7,7 +7,7 @@ Pydantic models for JIRA API entities.
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Optional
 
 from pydantic import BaseModel, Field, HttpUrl
 
@@ -37,11 +37,13 @@ class IssuePriority(str, Enum):
 class JiraConfig(BaseModel):
     """JIRA integration configuration."""
 
-    base_url: str = Field(..., description="JIRA instance URL (e.g., https://company.atlassian.net)")
+    base_url: str = Field(
+        ..., description="JIRA instance URL (e.g., https://company.atlassian.net)"
+    )
     email: str = Field(..., description="JIRA user email")
     api_token: str = Field(..., description="JIRA API token")
-    project_key: Optional[str] = Field(None, description="Default project key")
-    webhook_secret: Optional[str] = Field(None, description="Webhook secret")
+    project_key: str | None = Field(None, description="Default project key")
+    webhook_secret: str | None = Field(None, description="Webhook secret")
 
 
 class JiraUser(BaseModel):
@@ -49,10 +51,10 @@ class JiraUser(BaseModel):
 
     account_id: str
     display_name: str
-    email_address: Optional[str] = None
-    avatar_urls: Optional[dict[str, str]] = None
+    email_address: str | None = None
+    avatar_urls: dict[str, str] | None = None
     active: bool = True
-    time_zone: Optional[str] = None
+    time_zone: str | None = None
 
 
 class JiraStatus(BaseModel):
@@ -60,9 +62,9 @@ class JiraStatus(BaseModel):
 
     id: str
     name: str
-    description: Optional[str] = None
+    description: str | None = None
     category_key: str = "undefined"  # todo, indeterminate, done
-    icon_url: Optional[str] = None
+    icon_url: str | None = None
 
 
 class JiraTransition(BaseModel):
@@ -83,11 +85,11 @@ class JiraSprint(BaseModel):
     id: int
     name: str
     state: str  # future, active, closed
-    board_id: Optional[int] = None
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
-    complete_date: Optional[datetime] = None
-    goal: Optional[str] = None
+    board_id: int | None = None
+    start_date: datetime | None = None
+    end_date: datetime | None = None
+    complete_date: datetime | None = None
+    goal: str | None = None
 
 
 class JiraProject(BaseModel):
@@ -96,12 +98,12 @@ class JiraProject(BaseModel):
     id: str
     key: str
     name: str
-    description: Optional[str] = None
-    lead: Optional[JiraUser] = None
-    url: Optional[HttpUrl] = None
+    description: str | None = None
+    lead: JiraUser | None = None
+    url: HttpUrl | None = None
     project_type_key: str = "software"
-    avatar_urls: Optional[dict[str, str]] = None
-    category: Optional[dict] = None
+    avatar_urls: dict[str, str] | None = None
+    category: dict | None = None
 
 
 class JiraComment(BaseModel):
@@ -112,7 +114,7 @@ class JiraComment(BaseModel):
     author: JiraUser
     created: datetime
     updated: datetime
-    visibility: Optional[dict] = None
+    visibility: dict | None = None
 
 
 class JiraIssue(BaseModel):
@@ -120,27 +122,27 @@ class JiraIssue(BaseModel):
 
     id: str
     key: str  # e.g., "PROJ-123"
-    self_url: Optional[HttpUrl] = Field(None, alias="self")
+    self_url: HttpUrl | None = Field(None, alias="self")
     summary: str
-    description: Optional[str] = None
+    description: str | None = None
     issue_type: str
     status: JiraStatus
-    priority: Optional[str] = None
-    assignee: Optional[JiraUser] = None
-    reporter: Optional[JiraUser] = None
-    creator: Optional[JiraUser] = None
-    project: Optional[JiraProject] = None
+    priority: str | None = None
+    assignee: JiraUser | None = None
+    reporter: JiraUser | None = None
+    creator: JiraUser | None = None
+    project: JiraProject | None = None
     parent: Optional["JiraIssue"] = None
     subtasks: list["JiraIssue"] = Field(default_factory=list)
     labels: list[str] = Field(default_factory=list)
     components: list[dict] = Field(default_factory=list)
     fix_versions: list[dict] = Field(default_factory=list)
-    sprint: Optional[JiraSprint] = None
-    story_points: Optional[float] = None
+    sprint: JiraSprint | None = None
+    story_points: float | None = None
     created: datetime
     updated: datetime
-    resolved: Optional[datetime] = None
-    due_date: Optional[str] = None
+    resolved: datetime | None = None
+    due_date: str | None = None
     comments: list[JiraComment] = Field(default_factory=list)
 
     class Config:

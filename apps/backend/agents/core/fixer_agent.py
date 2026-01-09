@@ -11,18 +11,17 @@ Responsibilities:
 """
 
 import logging
-from typing import ClassVar, Any
-from enum import Enum, auto
 from dataclasses import dataclass, field
+from enum import Enum, auto
+from typing import Any, ClassVar
 
-from ..types import AgentType, AgentResult, SuccessResult, ErrorResult, ErrorCode
 from ..base import (
-    BaseAgent,
     AgentConfig,
+    BaseAgent,
     ExecutionContext,
-    CODER_CAPABILITIES,
 )
 from ..base.agent_hooks import HookType
+from ..types import AgentResult, AgentType, ErrorCode, ErrorResult, SuccessResult
 
 logger = logging.getLogger(__name__)
 
@@ -134,9 +133,7 @@ class FixerAgent(BaseAgent):
                 result=fix_results,
             )
 
-            success_count = sum(
-                1 for f in fix_results if f.status == FixStatus.SUCCESS
-            )
+            success_count = sum(1 for f in fix_results if f.status == FixStatus.SUCCESS)
 
             return SuccessResult(
                 data={"fixes": [f.to_dict() for f in fix_results]},

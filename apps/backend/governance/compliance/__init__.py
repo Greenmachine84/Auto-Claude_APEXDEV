@@ -4,30 +4,29 @@ Compliance Module - Phase 9 Implementation.
 Provides compliance logging, audit trail, and reporting.
 """
 
-from .compliance_logger import (
-    LogLevel,
-    ComplianceLogEntry,
-    ComplianceLogger,
-)
 from .audit_trail import (
     AuditEntry,
     AuditTrail,
 )
+from .compliance_logger import (
+    ComplianceLogEntry,
+    ComplianceLogger,
+    LogLevel,
+)
+from .data_retention import (
+    DataCategory,
+    DataRetentionManager,
+    DeletionRecord,
+    RetentionPeriod,
+    RetentionPolicy,
+)
 from .reporting import (
+    ComplianceReporter,
+    GovernanceReport,
     ReportFormat,
     ReportPeriod,
     ReportSection,
-    GovernanceReport,
-    ComplianceReporter,
 )
-from .data_retention import (
-    RetentionPeriod,
-    DataCategory,
-    RetentionPolicy,
-    DeletionRecord,
-    DataRetentionManager,
-)
-
 
 __all__ = [
     # Compliance Logger

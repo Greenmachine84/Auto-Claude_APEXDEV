@@ -3,9 +3,9 @@
 Provides workflow execution.
 """
 
-from orchestrator.workflow.engine import WorkflowEngine
 from orchestrator.workflow.definition import WorkflowDefinition, WorkflowStep
-from orchestrator.workflow.state import WorkflowState, StepState
+from orchestrator.workflow.engine import WorkflowEngine
+from orchestrator.workflow.state import StepState, WorkflowState
 from orchestrator.workflow.step_executor import StepExecutor
 from orchestrator.workflow.templates import WorkflowTemplates
 

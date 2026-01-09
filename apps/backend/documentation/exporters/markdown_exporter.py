@@ -4,15 +4,13 @@ Markdown exporter.
 Exports documentation entries to Markdown files.
 """
 
-import os
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 from ..config import ExportConfig
 from ..models import DocumentationEntry, DocumentationIndex
+from ..templates.base import TemplateConfig, TemplateContext
 from ..templates.markdown_template import MarkdownTemplate
-from ..templates.base import TemplateContext, TemplateConfig
 
 
 class MarkdownExporter:
@@ -34,9 +32,7 @@ class MarkdownExporter:
         self.config.output_dir.mkdir(parents=True, exist_ok=True)
 
     def export_entry(
-        self,
-        entry: DocumentationEntry,
-        filename: Optional[str] = None
+        self, entry: DocumentationEntry, filename: str | None = None
     ) -> Path:
         """
         Export a single documentation entry.
@@ -75,9 +71,7 @@ class MarkdownExporter:
         return output_path
 
     def export_entries(
-        self,
-        entries: list[DocumentationEntry],
-        subdir: str = ""
+        self, entries: list[DocumentationEntry], subdir: str = ""
     ) -> list[Path]:
         """
         Export multiple documentation entries.
@@ -109,9 +103,7 @@ class MarkdownExporter:
         return paths
 
     def export_index(
-        self,
-        index: DocumentationIndex,
-        filename: str = "index.md"
+        self, index: DocumentationIndex, filename: str = "index.md"
     ) -> Path:
         """
         Export documentation index.
@@ -143,7 +135,7 @@ version: {index.version}
         self,
         index: DocumentationIndex,
         project_name: str = "",
-        project_version: str = ""
+        project_version: str = "",
     ) -> list[Path]:
         """
         Export full documentation including all entries and index.
@@ -180,7 +172,7 @@ version: {index.version}
             for category, entry_ids in index.categories.items():
                 category_index = self._create_category_index(
                     category,
-                    [index.entries[eid] for eid in entry_ids if eid in index.entries]
+                    [index.entries[eid] for eid in entry_ids if eid in index.entries],
                 )
                 category_path = self.config.output_dir / category / "index.md"
                 category_path.parent.mkdir(parents=True, exist_ok=True)
@@ -190,9 +182,7 @@ version: {index.version}
         return paths
 
     def _create_category_index(
-        self,
-        category: str,
-        entries: list[DocumentationEntry]
+        self, category: str, entries: list[DocumentationEntry]
     ) -> str:
         """Create index page for a category."""
         lines = [
@@ -210,9 +200,7 @@ version: {index.version}
         return "\n".join(lines)
 
     def export_sidebar(
-        self,
-        index: DocumentationIndex,
-        filename: str = "_sidebar.md"
+        self, index: DocumentationIndex, filename: str = "_sidebar.md"
     ) -> Path:
         """
         Export sidebar navigation.
@@ -246,7 +234,7 @@ version: {index.version}
         self,
         index: DocumentationIndex,
         project_name: str,
-        project_description: str = ""
+        project_description: str = "",
     ) -> Path:
         """
         Export README file.
@@ -270,27 +258,31 @@ version: {index.version}
             lines.append(project_description)
             lines.append("")
 
-        lines.extend([
-            "## Quick Links",
-            "",
-            "- [Getting Started](guides/getting-started.md)",
-            "- [API Reference](api/index.md)",
-            "- [Configuration](reference/configuration.md)",
-            "",
-            "## Categories",
-            "",
-        ])
+        lines.extend(
+            [
+                "## Quick Links",
+                "",
+                "- [Getting Started](guides/getting-started.md)",
+                "- [API Reference](api/index.md)",
+                "- [Configuration](reference/configuration.md)",
+                "",
+                "## Categories",
+                "",
+            ]
+        )
 
         for category, entry_ids in index.categories.items():
             count = len(entry_ids)
             lines.append(f"- [{category.title()}]({category}/index.md) ({count} pages)")
 
-        lines.extend([
-            "",
-            "---",
-            "",
-            f"*Generated on {datetime.now().strftime('%Y-%m-%d %H:%M')}*",
-        ])
+        lines.extend(
+            [
+                "",
+                "---",
+                "",
+                f"*Generated on {datetime.now().strftime('%Y-%m-%d %H:%M')}*",
+            ]
+        )
 
         output_path.write_text("\n".join(lines), encoding="utf-8")
 

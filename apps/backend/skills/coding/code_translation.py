@@ -10,29 +10,36 @@ Capabilities:
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from skills.core.base_skill import BaseSkill, SkillContext, SkillResult, SkillCategory, SkillStatus
+from skills.core.base_skill import (
+    BaseSkill,
+    SkillCategory,
+    SkillContext,
+    SkillResult,
+    SkillStatus,
+)
 
 
 @dataclass
 class TranslationOutput:
     """Output from code translation."""
+
     translated_code: str
     source_language: str
     target_language: str
-    notes: List[str] = field(default_factory=list)
-    library_mappings: Dict[str, str] = field(default_factory=dict)
-    untranslatable_sections: List[str] = field(default_factory=list)
+    notes: list[str] = field(default_factory=list)
+    library_mappings: dict[str, str] = field(default_factory=dict)
+    untranslatable_sections: list[str] = field(default_factory=list)
 
 
 class CodeTranslationSkill(BaseSkill):
     """Translate code between programming languages.
-    
+
     Uses LLM to translate code from one programming language
     to another while preserving semantics and adapting to
     target language idioms.
-    
+
     Example:
         skill = CodeTranslationSkill()
         context = SkillContext(
@@ -45,19 +52,30 @@ class CodeTranslationSkill(BaseSkill):
         )
         result = await skill.run(context)
     """
-    
+
     name = "code_translation"
     description = "Translate code between programming languages"
     category = SkillCategory.CODING
     required_tools = ["file_read", "file_write"]
     required_permissions = {"read_files", "write_files", "llm_access"}
     version = "1.0.0"
-    
+
     SUPPORTED_LANGUAGES = [
-        "python", "javascript", "typescript", "java", "csharp",
-        "go", "rust", "cpp", "c", "ruby", "php", "swift", "kotlin",
+        "python",
+        "javascript",
+        "typescript",
+        "java",
+        "csharp",
+        "go",
+        "rust",
+        "cpp",
+        "c",
+        "ruby",
+        "php",
+        "swift",
+        "kotlin",
     ]
-    
+
     # Common library mappings between languages
     LIBRARY_MAPPINGS = {
         ("python", "javascript"): {
@@ -70,8 +88,8 @@ class CodeTranslationSkill(BaseSkill):
             "lodash": "itertools",
         },
     }
-    
-    def validate_input(self, input_data: Dict[str, Any]) -> bool:
+
+    def validate_input(self, input_data: dict[str, Any]) -> bool:
         """Validate input data."""
         if "code" not in input_data:
             return False
@@ -86,13 +104,13 @@ class CodeTranslationSkill(BaseSkill):
         if source == target:
             return False
         return True
-    
+
     async def execute(self, context: SkillContext) -> SkillResult:
         """Execute code translation.
-        
+
         Args:
             context: Execution context with code to translate
-            
+
         Returns:
             SkillResult with translated code
         """
@@ -100,17 +118,15 @@ class CodeTranslationSkill(BaseSkill):
         code = input_data.get("code", "")
         source_language = input_data.get("source_language", "python")
         target_language = input_data.get("target_language", "javascript")
-        
+
         # Get library mappings
-        mappings = self.LIBRARY_MAPPINGS.get(
-            (source_language, target_language), {}
-        )
-        
+        mappings = self.LIBRARY_MAPPINGS.get((source_language, target_language), {})
+
         # Translate code (placeholder for LLM)
         translated = self._translate_code(
             code, source_language, target_language, mappings
         )
-        
+
         return SkillResult(
             skill_name=self.name,
             status=SkillStatus.COMPLETED,
@@ -124,18 +140,18 @@ class CodeTranslationSkill(BaseSkill):
             },
             tokens_used=0,
         )
-    
+
     def _translate_code(
         self,
         code: str,
         source: str,
         target: str,
-        mappings: Dict[str, str],
+        mappings: dict[str, str],
     ) -> TranslationOutput:
         """Translate code (placeholder for LLM)."""
         # Placeholder translation
         translated = f"// Translated from {source} to {target}\n{code}"
-        
+
         return TranslationOutput(
             translated_code=translated,
             source_language=source,

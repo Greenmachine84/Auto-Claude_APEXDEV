@@ -6,32 +6,32 @@ Defines types for workflows.
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class WorkflowType(str, Enum):
     """Workflow type classification."""
-    
+
     # Development workflows
     BUILD_AND_TEST = "build_and_test"
     CODE_REVIEW = "code_review"
     DEPLOYMENT = "deployment"
-    
+
     # CI/CD workflows
     CONTINUOUS_INTEGRATION = "ci"
     CONTINUOUS_DEPLOYMENT = "cd"
-    
+
     # Data workflows
     DATA_PIPELINE = "data_pipeline"
     ETL = "etl"
-    
+
     # Custom
     CUSTOM = "custom"
 
 
 class WorkflowPhase(str, Enum):
     """Workflow phase values."""
-    
+
     INITIALIZATION = "initialization"
     SETUP = "setup"
     EXECUTION = "execution"
@@ -44,18 +44,18 @@ class WorkflowPhase(str, Enum):
 @dataclass
 class WorkflowEvent:
     """An event in workflow execution."""
-    
+
     event_type: str
     workflow_id: str
     timestamp: datetime = field(default_factory=datetime.now)
-    
+
     # Event data
-    step_id: Optional[str] = None
-    phase: Optional[WorkflowPhase] = None
-    message: Optional[str] = None
-    data: Dict[str, Any] = field(default_factory=dict)
-    
-    def to_dict(self) -> Dict[str, Any]:
+    step_id: str | None = None
+    phase: WorkflowPhase | None = None
+    message: str | None = None
+    data: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "event_type": self.event_type,
@@ -71,30 +71,30 @@ class WorkflowEvent:
 @dataclass
 class WorkflowConfig:
     """Configuration for workflow execution."""
-    
+
     # Execution
     timeout: float = 3600.0
     max_parallel_steps: int = 4
-    
+
     # Error handling
     fail_fast: bool = True
     continue_on_step_failure: bool = False
     max_step_retries: int = 2
-    
+
     # Notifications
     notify_on_start: bool = False
     notify_on_complete: bool = True
     notify_on_failure: bool = True
-    notification_channels: List[str] = field(default_factory=list)
-    
+    notification_channels: list[str] = field(default_factory=list)
+
     # Persistence
     persist_state: bool = True
     checkpoint_interval: int = 0  # 0 = disabled
-    
+
     # Custom settings
-    custom: Dict[str, Any] = field(default_factory=dict)
-    
-    def to_dict(self) -> Dict[str, Any]:
+    custom: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "timeout": self.timeout,

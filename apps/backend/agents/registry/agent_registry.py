@@ -8,10 +8,10 @@ Provides singleton pattern for global agent registry.
 
 import logging
 import threading
-from typing import Type, Iterator
+from collections.abc import Iterator
 
-from ..types import AgentType, AgentCategory, AGENT_CATEGORY_MAP
 from ..base import BaseAgent
+from ..types import AGENT_CATEGORY_MAP, AgentCategory, AgentType
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +45,7 @@ class AgentRegistry:
 
     def _initialize(self) -> None:
         """Initialize registry state."""
-        self._agents: dict[AgentType, Type[BaseAgent]] = {}
+        self._agents: dict[AgentType, type[BaseAgent]] = {}
         self._metadata: dict[AgentType, dict] = {}
         self._initialized = True
 
@@ -67,7 +67,8 @@ class AgentRegistry:
         Raises:
             ValueError: If agent_type already registered and not override
         """
-        def decorator(cls: Type[BaseAgent]) -> Type[BaseAgent]:
+
+        def decorator(cls: type[BaseAgent]) -> type[BaseAgent]:
             if agent_type in self._agents and not override:
                 raise ValueError(
                     f"Agent type {agent_type.value} already registered. "
@@ -75,16 +76,18 @@ class AgentRegistry:
                 )
 
             if not issubclass(cls, BaseAgent):
-                raise TypeError(
-                    f"Agent class must inherit from BaseAgent, got {cls}"
-                )
+                raise TypeError(f"Agent class must inherit from BaseAgent, got {cls}")
 
             self._agents[agent_type] = cls
             self._metadata[agent_type] = {
                 "class_name": cls.__name__,
                 "module": cls.__module__,
-                "description": cls.get_description() if hasattr(cls, 'get_description') else "",
-                "category": AGENT_CATEGORY_MAP.get(agent_type, AgentCategory.CORE).value,
+                "description": cls.get_description()
+                if hasattr(cls, "get_description")
+                else "",
+                "category": AGENT_CATEGORY_MAP.get(
+                    agent_type, AgentCategory.CORE
+                ).value,
             }
 
             # Set the AGENT_TYPE class variable
@@ -98,7 +101,7 @@ class AgentRegistry:
     def register_class(
         self,
         agent_type: AgentType,
-        cls: Type[BaseAgent],
+        cls: type[BaseAgent],
         *,
         override: bool = False,
     ) -> None:
@@ -111,7 +114,7 @@ class AgentRegistry:
         """
         self.register(agent_type, override=override)(cls)
 
-    def get(self, agent_type: AgentType) -> Type[BaseAgent] | None:
+    def get(self, agent_type: AgentType) -> type[BaseAgent] | None:
         """Get an agent class by type.
 
         Args:
@@ -122,7 +125,7 @@ class AgentRegistry:
         """
         return self._agents.get(agent_type)
 
-    def get_or_raise(self, agent_type: AgentType) -> Type[BaseAgent]:
+    def get_or_raise(self, agent_type: AgentType) -> type[BaseAgent]:
         """Get an agent class, raising if not found.
 
         Args:
@@ -199,7 +202,7 @@ class AgentRegistry:
         """
         return self._metadata.get(agent_type)
 
-    def __iter__(self) -> Iterator[tuple[AgentType, Type[BaseAgent]]]:
+    def __iter__(self) -> Iterator[tuple[AgentType, type[BaseAgent]]]:
         """Iterate over registered agents."""
         return iter(self._agents.items())
 

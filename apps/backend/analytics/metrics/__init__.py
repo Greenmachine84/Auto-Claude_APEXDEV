@@ -4,10 +4,10 @@ Metrics Module - Phase 8 Implementation.
 Event collection and aggregation for multi-provider analytics.
 """
 
-from .collector import MetricsCollector
 from .aggregator import MetricsAggregator
-from .time_series import TimeSeriesManager
+from .collector import MetricsCollector
 from .storage import MetricsStorage
+from .time_series import TimeSeriesManager
 
 __all__ = [
     "MetricsCollector",

@@ -11,20 +11,25 @@ Responsibilities:
 """
 
 import logging
-from typing import ClassVar, Any
 from dataclasses import dataclass, field
 from enum import Enum, auto
+from typing import Any, ClassVar
 
-from ..types import AgentType, AgentResult, SuccessResult, ErrorResult, ErrorCode, PartialResult
 from ..base import (
-    BaseAgent,
     AgentConfig,
+    BaseAgent,
     ExecutionContext,
-    AgentCapabilities,
-    ORCHESTRATOR_CAPABILITIES,
 )
 from ..base.agent_hooks import HookType
 from ..registry import AgentFactory
+from ..types import (
+    AgentResult,
+    AgentType,
+    ErrorCode,
+    ErrorResult,
+    PartialResult,
+    SuccessResult,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +99,8 @@ class OrchestrationPlan:
             t.task_id for t in self.tasks if t.status == TaskStatus.COMPLETED
         }
         return [
-            t for t in self.tasks
+            t
+            for t in self.tasks
             if t.status == TaskStatus.PENDING
             and all(d in completed_ids for d in t.dependencies)
         ]
@@ -191,9 +197,7 @@ class OrchestratorAgent(BaseAgent):
                 result=results,
             )
 
-            completed = sum(
-                1 for t in plan.tasks if t.status == TaskStatus.COMPLETED
-            )
+            completed = sum(1 for t in plan.tasks if t.status == TaskStatus.COMPLETED)
 
             if plan.is_complete() and all(
                 t.status == TaskStatus.COMPLETED for t in plan.tasks
@@ -206,7 +210,9 @@ class OrchestratorAgent(BaseAgent):
                 return PartialResult(
                     data={"plan": plan.to_dict(), "results": results},
                     message=f"Orchestration partially completed: {completed}/{len(plan.tasks)} tasks",
-                    completed_percentage=completed / len(plan.tasks) * 100 if plan.tasks else 0,
+                    completed_percentage=completed / len(plan.tasks) * 100
+                    if plan.tasks
+                    else 0,
                 )
 
         except Exception as e:
@@ -230,6 +236,7 @@ class OrchestratorAgent(BaseAgent):
         """
         # Placeholder - in production this uses LLM to create plan
         import uuid
+
         plan = OrchestrationPlan(plan_id=str(uuid.uuid4()))
         self._plans[plan.plan_id] = plan
         return plan
@@ -257,10 +264,12 @@ class OrchestratorAgent(BaseAgent):
 
             for task in ready_tasks:
                 result = self._execute_task(task, context)
-                results.append({
-                    "task_id": task.task_id,
-                    "status": task.status.name,
-                })
+                results.append(
+                    {
+                        "task_id": task.task_id,
+                        "status": task.status.name,
+                    }
+                )
 
         return results
 
@@ -289,6 +298,7 @@ class OrchestratorAgent(BaseAgent):
 
             # Create child context
             from ..base.agent_context import TaskReference
+
             child_context = parent_context.with_task(
                 TaskReference.create(task.description)
             ).with_parent(self)
