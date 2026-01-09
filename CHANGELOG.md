@@ -1,5 +1,52 @@
 # Changelog
 
+## 3.7.6 - Code Quality & Test Infrastructure Refactoring
+
+### Automated Lint Fixes (Python Backend)
+
+- **99.1% Error Reduction**
+  - Reduced ruff lint errors from 4,812 to 41
+  - Applied uff format across 404 Python files
+  - Modernized type annotations (List→list, Dict→dict, Optional→|)
+  - Sorted and organized imports (isort compliance)
+
+- **Syntax Error Fixes**
+  - Fixed client.py (line 806): Removed misplaced ) in dictionary literal
+  - Fixed security_review.py (line 80): Corrected malformed regex pattern
+
+### Frontend Type Definition Fixes
+
+- **Type Export Corrections**
+  - Added Agent type exports to agent-api.ts
+  - Exposed 'apex' as alias for electronAPI in preload
+  - Added apex property to global Window interface
+  - Fixed AppSettingsDialog export in settings module
+  - Fixed ViewType import in Sidebar component
+
+### Test Infrastructure Alignment
+
+- **100% Test Pass Rate Achieved**
+  - Fixed 15 failing tests (2296→2311 passing)
+  - Updated 9 test files for .apexdev directory convention
+  - Aligned test assertions with APEXDEV branding migration
+
+- **Test Files Updated**
+  - test_workspace.py, test_worktree.py, test_spec_pipeline.py
+  - test_project_analyzer.py, test_security_cache.py
+  - test_agent_configs.py (MCP server: auto-claude→apexdev)
+  - test_graphiti.py (db_path assertion)
+  - test_github_pr_e2e.py, test_github_pr_review.py
+
+### Validation Evidence
+
+- **Test Results**: 2311 passed, 0 failed, 1 skipped
+- **Lint Results**: 41 remaining (manual fixes required)
+- **TypeScript**: 197 errors (architectural - ElectronAPI type gaps)
+
+### Documentation
+
+- ADR-062: Code Quality Refactoring and Test Infrastructure Alignment
+
 ## 3.7.5 - Virtual GitHub Repository Connection
 
 ### New Features

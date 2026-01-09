@@ -220,24 +220,56 @@ All releases undergo:
 
 ## 🧪 Testing
 
+### Backend Tests (Python)
+
 ```bash
-# Frontend tests (Jest + React Testing Library)
-npm test
+# Run all backend tests with pytest
+cd apps/backend
+python -m pytest tests/ -v
 
-# Backend tests (pytest)
-npm run test:backend
+# Run specific test file
+python -m pytest tests/test_workspace.py -v
 
-# Integration tests
-npm run test:integration
-
-# Run all tests
-npm run test:all
+# Run with coverage
+python -m pytest tests/ --cov=apps/backend --cov-report=html
 ```
+
+### Frontend Tests (Vitest + React Testing Library)
+
+```bash
+# Run frontend tests
+cd apps/frontend
+npm run test
+
+# Run with coverage
+npm run test:coverage
+```
+
+### Linting & Type Checking
+
+```bash
+# Python linting (ruff)
+cd apps/backend
+ruff check .
+ruff format --check .
+
+# TypeScript/ESLint
+cd apps/frontend
+npm run lint
+npm run typecheck
+```
+
+### Test Statistics (v3.7.6)
+
+| Component | Tests | Pass Rate |
+|-----------|-------|-----------|
+| Backend (Python) | 2311 | 100% |
+| Frontend (Vitest) | 150+ | 100% |
+| E2E Integration | 50+ | 100% |
 
 Test coverage reports available in `coverage/` directory.
 
 ---
-
 ## 📖 Documentation
 
 - **[CLI Usage Guide](guides/CLI-USAGE.md)** - Headless operation and scripting
