@@ -1,3 +1,4 @@
+import '@testing-library/jest-dom';
 /**
  * Test setup file for Vitest
  */
@@ -37,7 +38,8 @@ if (typeof HTMLElement !== 'undefined' && !HTMLElement.prototype.scrollIntoView)
 }
 
 // Test data directory for isolated file operations
-export const TEST_DATA_DIR = '/tmp/APEXDEV-ui-tests';
+import os from 'os';
+export const TEST_DATA_DIR = path.join(os.tmpdir(), 'APEXDEV-ui-tests');
 
 // Create fresh test directory before each test
 beforeEach(() => {

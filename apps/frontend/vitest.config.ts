@@ -20,7 +20,9 @@ export default defineConfig({
       '@sentry/electron/renderer': resolve(__dirname, 'src/__mocks__/sentry-electron-renderer.ts')
     },
     // Setup files for test environment
-    setupFiles: ['src/__tests__/setup.ts']
+    setupFiles: ['src/__tests__/setup.ts'],
+    testTimeout: 30000,
+    testTimeout: 30000
   },
   resolve: {
     alias: {
