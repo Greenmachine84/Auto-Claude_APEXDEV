@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import type { ViewType } from '../../App';
+import type { ViewType } from '../../store/appStore';
 
 /** Top bar props */
 export interface TopBarProps {
@@ -28,7 +28,7 @@ const viewTitles: Record<ViewType, string> = {
  * Top Bar Component
  */
 export const TopBar: React.FC<TopBarProps> = ({ currentView, onMenuClick, onSettingsClick }) => {
-  const isMac = window.apex.platform.isMac;
+  const isMac = (typeof window.apex?.platform === 'object' && window.apex.platform?.isMac) || false;
 
   return (
     <header className={`apex-topbar ${isMac ? 'apex-topbar--mac' : ''}`}>
@@ -105,3 +105,4 @@ export const TopBar: React.FC<TopBarProps> = ({ currentView, onMenuClick, onSett
     </header>
   );
 };
+

@@ -24,20 +24,20 @@ export const AgentDetail: React.FC<AgentDetailProps> = ({
   onClose,
 }) => {
   const [activeTab, setActiveTab] = useState<'info' | 'logs' | 'metrics'>('info');
-  const [logs, setLogs] = useState<string[]>([]);
+  const [logs, setLogs] = useState<import("../../../preload/api/agent-api").AgentLog[]>([]);
 
   // Fetch logs
   useEffect(() => {
     const fetchLogs = async () => {
-      const agentLogs = await window.apex.agents.logs(agent.id, 100);
-      setLogs(agentLogs);
+      const agentLogs = await window.apex.agents.logs(agent.id, { limit: 100 });
+      setLogs(agentLogs as import("../../../preload/api/agent-api").AgentLog[]);
     };
     fetchLogs();
 
     // Subscribe to new logs
     const unsubscribe = window.apex.agents.onAgentLog((agentId, log) => {
       if (agentId === agent.id) {
-        setLogs((prev) => [...prev.slice(-99), log]);
+        setLogs((prev) => [...prev.slice(-99), log as import("../../../preload/api/agent-api").AgentLog]);
       }
     });
 
@@ -128,13 +128,13 @@ export const AgentDetail: React.FC<AgentDetailProps> = ({
                 Avg Duration
               </span>
               <span className="apex-agent-detail__metric-value">
-                {Math.round(agent.metrics.avgTaskDuration / 1000)}s
+                {Math.round((agent.metrics.avgTaskDuration ?? 0) / 1000)}s
               </span>
             </div>
             <div className="apex-agent-detail__metric">
               <span className="apex-agent-detail__metric-label">Token Usage</span>
               <span className="apex-agent-detail__metric-value">
-                {agent.metrics.tokenUsage.toLocaleString()}
+                {(agent.metrics.tokenUsage ?? 0).toLocaleString()}
               </span>
             </div>
             <div className="apex-agent-detail__metric">
@@ -142,7 +142,7 @@ export const AgentDetail: React.FC<AgentDetailProps> = ({
                 Est. Cost
               </span>
               <span className="apex-agent-detail__metric-value">
-                ${agent.metrics.costEstimate.toFixed(4)}
+                ${(agent.metrics.costEstimate ?? 0).toFixed(4)}
               </span>
             </div>
           </div>
@@ -160,3 +160,4 @@ export const AgentDetail: React.FC<AgentDetailProps> = ({
     </div>
   );
 };
+

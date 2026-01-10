@@ -284,9 +284,59 @@ export interface GitHubAPI {
   onPRReviewComplete: (
     callback: (projectId: string, result: PRReviewResult) => void
   ) => IpcListenerCleanup;
-  onPRReviewError: (
+    onPRReviewError: (
     callback: (projectId: string, error: { prNumber: number; error: string }) => void
   ) => IpcListenerCleanup;
+
+  // Virtual Repository Operations (no local clone)
+  virtualListFiles: (projectId: string, path?: string) => Promise<IPCResult<Array<{
+    name: string;
+    path: string;
+    sha: string;
+    size: number;
+    type: 'file' | 'dir' | 'symlink' | 'submodule';
+    download_url?: string;
+  }>>>;
+  virtualGetFile: (projectId: string, path: string) => Promise<IPCResult<{
+    content: string;
+    sha: string;
+    encoding: string;
+  }>>;
+  virtualCreateFile: (projectId: string, path: string, content: string, message?: string) => Promise<IPCResult<{ sha: string }>>;
+  virtualUpdateFile: (projectId: string, path: string, content: string, sha: string, message?: string) => Promise<IPCResult<{ sha: string }>>;
+  virtualDeleteFile: (projectId: string, path: string, sha: string, message?: string) => Promise<IPCResult<boolean>>;
+  virtualListBranches: (projectId: string) => Promise<IPCResult<string[]>>;
+    virtualCreateBranch: (projectId: string, branchName: string, sourceBranch?: string) => Promise<IPCResult<{ name: string }>>;
+  virtualGetTree: (projectId: string) => Promise<IPCResult<Array<{
+    path: string;
+    mode: string;
+    type: 'blob' | 'tree';
+    sha: string;
+    size?: number;
+  }>>>;
+  validatePat: (token: string) => Promise<IPCResult<{ login: string; name: string; avatar_url: string }>>;
+  listReposWithPat: (token: string) => Promise<IPCResult<Array<{
+    id: number;
+    name: string;
+    full_name: string;
+    description: string | null;
+    private: boolean;
+    default_branch: string;
+    clone_url: string;
+    html_url: string;
+    updated_at: string;
+  }>>>;
+  getRepoWithPat: (token: string, owner: string, repo: string) => Promise<IPCResult<{
+    id: number;
+    name: string;
+    full_name: string;
+    description: string | null;
+    private: boolean;
+    default_branch: string;
+    clone_url: string;
+    html_url: string;
+    updated_at: string;
+  }>>;
 }
 
 /**
@@ -720,7 +770,7 @@ export const createGitHubAPI = (): GitHubAPI => ({
   /**
    * Delete a file from a virtual GitHub repo
    */
-  virtualDeleteFile: (projectId: string, path: string, sha: string, message?: string): Promise<IPCResult<void>> =>
+  virtualDeleteFile: (projectId: string, path: string, sha: string, message?: string): Promise<IPCResult<boolean>> =>
     invokeIpc(IPC_CHANNELS.GITHUB_VIRTUAL_DELETE_FILE, projectId, path, sha, message || `Delete ${path}`),
 
   /**
@@ -734,6 +784,18 @@ export const createGitHubAPI = (): GitHubAPI => ({
     size?: number;
   }>>> =>
     invokeIpc(IPC_CHANNELS.GITHUB_VIRTUAL_GET_TREE, projectId),
+
+  /**
+   * List branches in a virtual GitHub repo
+   */
+  virtualListBranches: (projectId: string): Promise<IPCResult<string[]>> =>
+    invokeIpc(IPC_CHANNELS.GITHUB_VIRTUAL_LIST_BRANCHES, projectId),
+
+  /**
+   * Create a branch in a virtual GitHub repo
+   */
+  virtualCreateBranch: (projectId: string, branchName: string, sourceBranch?: string): Promise<IPCResult<{ name: string }>> =>
+    invokeIpc(IPC_CHANNELS.GITHUB_VIRTUAL_CREATE_BRANCH, projectId, branchName, sourceBranch),
 
   /**
    * Validate a GitHub PAT token

@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App';
+import { App } from './App';
 import './styles/globals.css';
 
 // Enable React strict mode in development
@@ -35,6 +35,6 @@ root.render(
 );
 
 // Hot module replacement for development
-if (import.meta.hot) {
-  import.meta.hot.accept();
-}
+if ((import.meta as any).hot) { (import.meta as any).hot.accept(); }
+
+

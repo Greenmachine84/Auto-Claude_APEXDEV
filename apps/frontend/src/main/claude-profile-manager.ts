@@ -557,7 +557,7 @@ export async function initializeClaudeProfileManager(): Promise<void> {
   try {
     // Creating the singleton triggers initialization
     const manager = getClaudeProfileManager();
-    const profiles = manager.getProfiles();
+    const profiles = manager.getSettings().profiles;
     console.log(`[Claude Profile Manager] Initialized with ${profiles.length} profile(s)`);
   } catch (error) {
     console.warn('[Claude Profile Manager] Pre-initialization failed:', error);

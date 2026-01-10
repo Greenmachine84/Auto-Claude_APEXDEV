@@ -57,8 +57,8 @@ export const NotificationToast: React.FC = () => {
   // Subscribe to notification events
   useEffect(() => {
     const unsubscribers = [
-      window.apex.events.on('notification:show', (data: Omit<Notification, 'id'>) => {
-        addNotification(data);
+      window.apex.events.on('notification:show', (data: unknown) => {
+        addNotification(data as Omit<Notification, "id">);
       }),
       window.apex.events.on('notification:clear', () => {
         setNotifications([]);
@@ -113,3 +113,4 @@ export const showNotification = (notification: Omit<Notification, 'id'>): void =
     new CustomEvent('apex:notification', { detail: notification })
   );
 };
+

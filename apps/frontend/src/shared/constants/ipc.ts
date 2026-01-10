@@ -232,6 +232,8 @@ export const IPC_CHANNELS = {
   GITHUB_VIRTUAL_UPDATE_FILE: 'github:virtual:updateFile',
   GITHUB_VIRTUAL_DELETE_FILE: 'github:virtual:deleteFile',
   GITHUB_VIRTUAL_GET_TREE: 'github:virtual:getTree',
+  GITHUB_VIRTUAL_LIST_BRANCHES: 'github:virtual:listBranches',
+  GITHUB_VIRTUAL_CREATE_BRANCH: 'github:virtual:createBranch',
   GITHUB_VALIDATE_PAT: 'github:validatePat',
   GITHUB_LIST_REPOS_WITH_PAT: 'github:listReposWithPat',
   GITHUB_GET_REPO_WITH_PAT: 'github:getRepoWithPat',

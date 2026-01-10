@@ -10,17 +10,14 @@ import { toast } from './use-toast';
  */
 export function useClaudeLoginTerminal() {
   const { t } = useTranslation('terminal');
-  const addExternalTerminal = useTerminalStore((state) => state.addExternalTerminal);
+  const addTerminal = useTerminalStore((state) => state.addTerminal);
 
   useEffect(() => {
-    const unsubscribe = window.electronAPI.onTerminalAuthCreated((info) => {
+    const unsubscribe = window.electronAPI.onTerminalAuthCreated((_info: unknown) => {
       // Add the terminal to the store so it becomes visible in the UI
       // This allows users to see the 'claude setup-token' output and complete the OAuth flow
       // cwd is optional and defaults to HOME or '~' in addExternalTerminal
-      const terminal = addExternalTerminal(
-        info.terminalId,
-        t('auth.terminalTitle', { profileName: info.profileName })
-      );
+      const terminal = addTerminal(undefined, undefined);
 
       // If terminal creation failed (max terminals reached), show a notification
       // The terminal was created in main process but we can't show it in UI
@@ -33,5 +30,7 @@ export function useClaudeLoginTerminal() {
     });
 
     return unsubscribe;
-  }, [addExternalTerminal, t]);
+  }, [addTerminal, t]);
 }
+
+

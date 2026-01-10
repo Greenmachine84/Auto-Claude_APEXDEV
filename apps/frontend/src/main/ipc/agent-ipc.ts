@@ -10,11 +10,23 @@ import { IPCChannels } from './index';
 import { createIPCSuccess, createIPCError, IPCResponse } from './ipc-handler';
 import { BackendService } from '../services/backend-service';
 
-/** Agent types */
-export type AgentType = 'coder' | 'reviewer' | 'fixer' | 'planner';
+/** Agent types - includes analyst for UI components */
+export type AgentType = 'coder' | 'reviewer' | 'fixer' | 'planner' | 'analyst';
 
-/** Agent status */
-export type AgentStatus = 'idle' | 'busy' | 'starting' | 'stopping' | 'error';
+/** Agent status - includes running for UI components */
+export type AgentStatus = 'idle' | 'busy' | 'starting' | 'stopping' | 'error' | 'running' | 'paused' | 'stopped';
+
+/** Agent metrics for UI display */
+export interface AgentMetrics {
+  tasksCompleted: number;
+  tasksFailed?: number;
+  tokensUsed: number;
+  tokenUsage?: number;  // Alias for tokensUsed
+  averageDuration: number;
+  avgTaskDuration?: number;  // Alias for averageDuration
+  successRate: number;
+  costEstimate?: number;
+}
 
 /** Agent definition */
 export interface Agent {
@@ -23,11 +35,18 @@ export interface Agent {
   name: string;
   status: AgentStatus;
   currentTaskId?: string;
+  taskId?: string;  // Alias for currentTaskId used by UI
   startedAt?: string;
   lastActivityAt?: string;
+  lastActiveAt?: string;  // Alias for lastActivityAt used by UI
   tasksCompleted: number;
   tokensUsed: number;
+  metrics?: AgentMetrics;
   config: AgentConfig;
+  description?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  logs?: AgentLog[];
 }
 
 /** Agent configuration */
@@ -46,6 +65,8 @@ export interface AgentPoolStatus {
   idleAgents: number;
   queuedTasks: number;
   utilizationPercent: number;
+  runningAgents?: number;  // For UI components
+  agentsByType?: Record<AgentType, number>;  // For UI components
 }
 
 /** Agent log entry */

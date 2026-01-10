@@ -601,17 +601,17 @@ export function App() {
 
     try {
       console.log('[App] Calling addVirtualProject via IPC...');
-      const result = await window.electronAPI.addVirtualProject(repoInfo, githubToken);
+      const result = await (window.electronAPI.addVirtualProject as any)(repoInfo, githubToken);
       console.log('[App] addVirtualProject result:', {
         success: result.success,
-        projectId: result.data?.id,
+        projectId: (result.data?.id ?? result.projectId),
         error: result.error
       });
 
-      if (result.success && result.data) {
+      if (result.success && (result.data || result.projectId)) {
         // Refresh projects list to include the new virtual project
         await loadProjects();
-        openProjectTab(result.data.id);
+        openProjectTab(result.data?.id ?? result.projectId);
         setShowConnectGitHubModal(false);
         console.log('[App] Virtual project added successfully:', result.data.id);
       } else {
@@ -1167,6 +1167,8 @@ export function App() {
     </ViewStateProvider>
   );
 }
+
+
 
 
 

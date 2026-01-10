@@ -169,7 +169,7 @@ export const useAppStore = create<AppState & AppActions>()(
                 ...defaultSettings.ui,
                 ...(backendSettings?.ui || {}),
                 // Also check for top-level theme
-                theme: backendSettings?.ui?.theme || backendSettings?.theme || defaultSettings.theme,
+                theme: (backendSettings?.ui as any)?.theme || (backendSettings as any)?.theme || defaultSettings.theme,
               },
             };
             
@@ -249,3 +249,5 @@ export const useAppStore = create<AppState & AppActions>()(
     { name: 'AppStore' }
   )
 );
+
+

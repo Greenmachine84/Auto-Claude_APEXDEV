@@ -5,6 +5,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
+export type NodeType = 'start' | 'task' | 'decision' | 'parallel' | 'end' | 'condition' | 'agent';
+
 import { GitBranch, Play, Pause, RotateCcw, Plus, CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
@@ -12,7 +14,7 @@ import { Badge } from '../ui/badge';
 import { ScrollArea } from '../ui/scroll-area';
 import { Progress } from '../ui/progress';
 
-interface WorkflowNode {
+export interface WorkflowNode {
   id: string;
   name: string;
   type: 'start' | 'task' | 'decision' | 'parallel' | 'end';
@@ -20,13 +22,13 @@ interface WorkflowNode {
   duration?: string;
 }
 
-interface Workflow {
+export interface Workflow {
   id: string;
   name: string;
   description: string;
   status: 'active' | 'paused' | 'completed' | 'failed';
   progress: number;
-  nodes: WorkflowNode[];
+  nodes: WorkflowNode[]; edges?: { id: string; source: string; target: string; }[];
   lastRun: string;
 }
 
@@ -232,3 +234,6 @@ function getMockWorkflows(): Workflow[] {
 }
 
 export default WorkflowView;
+
+
+

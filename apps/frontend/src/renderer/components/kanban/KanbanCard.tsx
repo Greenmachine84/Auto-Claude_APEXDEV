@@ -54,8 +54,8 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
     onDragStart();
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+  const formatDate = (dateValue: string | Date) => {
+    const date = typeof dateValue === "string" ? new Date(dateValue) : dateValue;
     return date.toLocaleDateString(undefined, {
       month: 'short',
       day: 'numeric',
@@ -111,3 +111,4 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
     </div>
   );
 };
+

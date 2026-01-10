@@ -66,7 +66,7 @@ export const useMemoryStore = create<MemoryState & MemoryActions>()(
             window.apex.memory.getInsights(),
             window.apex.memory.getStats(),
           ]);
-          set({ episodes, insights, stats, loading: false });
+          set({ episodes: episodes as Episode[], insights: insights as MemoryInsight[], stats: stats as MemoryStats | null, loading: false });
         } catch (error) {
           set({
             loading: false,
@@ -77,7 +77,7 @@ export const useMemoryStore = create<MemoryState & MemoryActions>()(
 
       // Search
       search: async (options) => {
-        const results = await window.apex.memory.search(options);
+        const results = await window.apex.memory.search(options as Record<string, unknown>) as MemorySearchResult[];
         set({ searchResults: results });
         return results;
       },
@@ -88,7 +88,7 @@ export const useMemoryStore = create<MemoryState & MemoryActions>()(
       // Add episode
       addEpisode: async (content, metadata) => {
         const episode = await window.apex.memory.add(content, metadata);
-        set((state) => ({ episodes: [episode, ...state.episodes] }));
+        set((state) => ({ episodes: [episode as Episode, ...state.episodes] }));
         return episode;
       },
 
@@ -130,3 +130,4 @@ export const useMemoryStore = create<MemoryState & MemoryActions>()(
     { name: 'MemoryStore' }
   )
 );
+

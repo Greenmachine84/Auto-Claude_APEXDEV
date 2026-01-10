@@ -38,7 +38,7 @@ export function useTasks(initialFilter?: TaskFilter): UseTasksReturn {
     setError(null);
     try {
       const result = await window.apex.tasks.list(filter);
-      setTasks(result);
+      setTasks(result as Task[]);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to load tasks'));
     } finally {
@@ -54,11 +54,11 @@ export function useTasks(initialFilter?: TaskFilter): UseTasksReturn {
   // Subscribe to task events
   useEffect(() => {
     const unsubscribeCreated = window.apex.tasks.onCreated((task) => {
-      setTasks((prev) => [...prev, task]);
+      setTasks((prev) => [...prev, task as Task]);
     });
 
     const unsubscribeUpdated = window.apex.tasks.onUpdated((task) => {
-      setTasks((prev) => prev.map((t) => (t.id === task.id ? task : t)));
+      setTasks((prev) => prev.map((t) => (t.id === (task as Task).id ? task as Task : t)));
     });
 
     const unsubscribeDeleted = window.apex.tasks.onDeleted((taskId) => {
@@ -74,13 +74,13 @@ export function useTasks(initialFilter?: TaskFilter): UseTasksReturn {
 
   // Create task
   const createTask = useCallback(async (input: CreateTaskInput): Promise<Task> => {
-    const task = await window.apex.tasks.create(input);
+    const task = await window.apex.tasks.create(input) as Task;
     return task;
   }, []);
 
   // Update task
   const updateTask = useCallback(async (id: string, updates: TaskUpdate): Promise<Task> => {
-    const task = await window.apex.tasks.update(id, updates);
+    const task = await window.apex.tasks.update(id, updates) as Task;
     return task;
   }, []);
 
@@ -110,3 +110,8 @@ export function useTasks(initialFilter?: TaskFilter): UseTasksReturn {
     getById,
   };
 }
+
+
+
+
+

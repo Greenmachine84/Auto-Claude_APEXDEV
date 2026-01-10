@@ -77,19 +77,19 @@ const SettingsView: React.FC = () => {
       {/* Content */}
       <div className="apex-settings-view__content">
         {activeSection === 'general' && (
-          <GeneralSettings settings={settings} onUpdate={updateSettings} />
+          <GeneralSettings settings={settings as any} onUpdate={updateSettings} />
         )}
         {activeSection === 'llm' && (
-          <LLMSettings settings={settings} onUpdate={updateSettings} />
+          <LLMSettings settings={settings as any} onUpdate={updateSettings} />
         )}
         {activeSection === 'agents' && (
-          <AgentSettings settings={settings} onUpdate={updateSettings} />
+          <AgentSettings settings={settings as any} onUpdate={updateSettings} />
         )}
         {activeSection === 'integrations' && (
-          <IntegrationSettings settings={settings} onUpdate={updateSettings} />
+          <IntegrationSettings settings={settings as any} onSettingsChange={(s: any) => updateSettings(s)} isOpen={true} />
         )}
         {activeSection === 'keybinds' && (
-          <KeybindSettings settings={settings} onUpdate={updateSettings} />
+          <KeybindSettings settings={settings as any} onUpdate={updateSettings} />
         )}
       </div>
     </div>
@@ -97,3 +97,5 @@ const SettingsView: React.FC = () => {
 };
 
 export default SettingsView;
+
+

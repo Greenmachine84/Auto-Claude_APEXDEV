@@ -86,10 +86,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="apex-sidebar__footer">
         {isOpen && (
           <div className="apex-sidebar__version">
-            v{window.apex.platform.versions.electron}
+            v{(typeof window.apex?.platform === 'object' && window.apex.platform?.versions?.electron) || '0.0.0'}
           </div>
         )}
       </div>
     </aside>
   );
 };
+

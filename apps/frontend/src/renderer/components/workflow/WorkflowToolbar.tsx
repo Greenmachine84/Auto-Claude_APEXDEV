@@ -34,7 +34,7 @@ export const WorkflowToolbar: React.FC<WorkflowToolbarProps> = ({
       <div className="apex-workflow-toolbar__info">
         <h3>{workflow.name}</h3>
         <span className="apex-workflow-toolbar__stats">
-          {workflow.nodes.length} nodes • {workflow.edges.length} edges
+          {workflow.nodes.length} nodes • {(workflow.edges?.length ?? 0)} edges
         </span>
       </div>
 
@@ -73,3 +73,4 @@ export const WorkflowToolbar: React.FC<WorkflowToolbarProps> = ({
     </div>
   );
 };
+

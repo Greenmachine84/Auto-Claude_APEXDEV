@@ -1,3 +1,4 @@
+import { ipcRenderer } from 'electron';
 import { ProjectAPI, createProjectAPI } from './project-api';
 import { TerminalAPI, createTerminalAPI } from './terminal-api';
 import { TaskAPI, createTaskAPI } from './task-api';
@@ -90,6 +91,12 @@ export interface ElectronAPI extends
   window: WindowAPI;
   platform: string;
   onTerminalAuthCreated: (callback: (info: unknown) => void) => () => void;
+  // Task event listeners
+  onTaskProgress: (callback: (taskId: string, plan: unknown) => void) => () => void;
+  onTaskError: (callback: (taskId: string, error: string) => void) => () => void;
+  onTaskLog: (callback: (taskId: string, log: string) => void) => () => void;
+  onTaskStatusChange: (callback: (taskId: string, status: string) => void) => () => void;
+  onTaskExecutionProgress: (callback: (taskId: string, progress: unknown) => void) => () => void;
 }
 
 // Create stub namespaced APIs
@@ -161,6 +168,33 @@ export const createElectronAPI = (): ElectronAPI => ({
   window: createWindowAPI(),
   platform: process.platform,
   onTerminalAuthCreated: () => () => {},
+  
+  // Task event listeners for IPC bridge tests
+  onTaskProgress: (callback: (taskId: string, plan: unknown) => void) => {
+    const handler = (_: unknown, taskId: string, plan: unknown) => callback(taskId, plan);
+    ipcRenderer.on('task:progress', handler);
+    return () => ipcRenderer.removeListener('task:progress', handler);
+  },
+  onTaskError: (callback: (taskId: string, error: string) => void) => {
+    const handler = (_: unknown, taskId: string, error: string) => callback(taskId, error);
+    ipcRenderer.on('task:error', handler);
+    return () => ipcRenderer.removeListener('task:error', handler);
+  },
+  onTaskLog: (callback: (taskId: string, log: string) => void) => {
+    const handler = (_: unknown, taskId: string, log: string) => callback(taskId, log);
+    ipcRenderer.on('task:log', handler);
+    return () => ipcRenderer.removeListener('task:log', handler);
+  },
+  onTaskStatusChange: (callback: (taskId: string, status: string) => void) => {
+    const handler = (_: unknown, taskId: string, status: string) => callback(taskId, status);
+    ipcRenderer.on('task:statusChange', handler);
+    return () => ipcRenderer.removeListener('task:statusChange', handler);
+  },
+  onTaskExecutionProgress: (callback: (taskId: string, progress: unknown) => void) => {
+    const handler = (_: unknown, taskId: string, progress: unknown) => callback(taskId, progress);
+    ipcRenderer.on('task:executionProgress', handler);
+    return () => ipcRenderer.removeListener('task:executionProgress', handler);
+  },
 });
 
 // Export individual API creators for potential use in tests or specialized contexts

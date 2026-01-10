@@ -858,6 +858,7 @@ export interface ElectronAPI {
   // Terminal auth created event
   onTerminalAuthCreated: (callback: (info: unknown) => void) => () => void;
 
+
   // Virtual project support
   addVirtualProject: (options: { fullName: string; defaultBranch?: string }) => Promise<{ success: boolean; projectId?: string; error?: string }>;
 }

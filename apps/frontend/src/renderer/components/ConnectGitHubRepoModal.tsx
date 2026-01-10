@@ -69,7 +69,7 @@ export function ConnectGitHubRepoModal({
 
     try {
       // Validate token via IPC
-      const validateResult = await window.electronAPI.github.validatePat(token);
+      const validateResult = await (window.electronAPI.github as any).validatePat(token);
 
       if (!validateResult.success) {
         throw new Error(validateResult.error || 'Invalid token or token lacks required permissions');
@@ -79,7 +79,7 @@ export function ConnectGitHubRepoModal({
       setIsLoadingRepos(true);
 
       // Fetch repos via IPC
-      const reposResult = await window.electronAPI.github.listReposWithPat(token);
+      const reposResult = await (window.electronAPI.github as any).listReposWithPat(token);
 
       if (reposResult.success && reposResult.data) {
         setRepos(reposResult.data);
@@ -116,7 +116,7 @@ export function ConnectGitHubRepoModal({
     setError(null);
 
     try {
-      const result = await window.electronAPI.github.getRepoWithPat(token, owner, repoName);
+      const result = await (window.electronAPI.github as any).getRepoWithPat(token, owner, repoName);
 
       if (!result.success) {
         throw new Error(result.error || 'Failed to fetch repository');
@@ -351,3 +351,4 @@ export function ConnectGitHubRepoModal({
     </Dialog>
   );
 }
+

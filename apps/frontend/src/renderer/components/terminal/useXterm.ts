@@ -10,8 +10,7 @@ import { terminalBufferManager } from '../../lib/terminal-buffer-manager';
  * Uses modern Navigator API with fallback for older browsers
  */
 const getPlatform = (): string => {
-  if (navigator.userAgentData?.platform) {
-    return navigator.userAgentData.platform.toLowerCase();
+  if ((navigator as any).userAgentData?.platform) { return ((navigator as any).userAgentData.platform as string).toLowerCase();
   }
   return navigator.platform.toLowerCase();
 };
@@ -375,3 +374,4 @@ export function useXterm({ terminalId, onCommandEnter, onResize, onDimensionsRea
     dimensionsReady: dimensionsReadyCalledRef.current,
   };
 }
+

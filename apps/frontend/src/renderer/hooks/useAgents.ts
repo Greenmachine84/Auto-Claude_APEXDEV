@@ -43,8 +43,8 @@ export function useAgents(): UseAgentsReturn {
         window.apex.agents.list(),
         window.apex.agents.getPoolStatus(),
       ]);
-      setAgents(agentList);
-      setPoolStatus(status);
+      setAgents(agentList as Agent[]);
+      setPoolStatus(status as AgentPoolStatus | null);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to load agents'));
     } finally {
@@ -60,21 +60,21 @@ export function useAgents(): UseAgentsReturn {
   // Subscribe to agent events
   useEffect(() => {
     const unsubscribeStarted = window.apex.agents.onStarted((agent) => {
-      setAgents((prev) => [...prev, agent]);
+      setAgents((prev) => [...prev, agent as Agent]);
     });
 
     const unsubscribeStopped = window.apex.agents.onStopped((agentId) => {
-      setAgents((prev) => prev.filter((a) => a.id !== agentId));
+      setAgents((prev) => prev.filter((a) => a.id !== agentId) as Agent[]);
     });
 
     const unsubscribeStatusChanged = window.apex.agents.onStatusChanged(({ agentId, status }) => {
       setAgents((prev) =>
-        prev.map((a) => (a.id === agentId ? { ...a, status } : a))
+        prev.map((a) => (a.id === agentId ? { ...a, status: status as import('../../preload/api/agent-api').AgentStatus } : a))
       );
     });
 
     const unsubscribePoolUpdated = window.apex.agents.onPoolUpdated((status) => {
-      setPoolStatus(status);
+      setPoolStatus(status as AgentPoolStatus | null);
     });
 
     return () => {
@@ -87,7 +87,7 @@ export function useAgents(): UseAgentsReturn {
 
   // Start agent
   const startAgent = useCallback(async (input: CreateAgentInput): Promise<Agent> => {
-    const agent = await window.apex.agents.start(input);
+    const agent = await window.apex.agents.start(input) as Agent;
     return agent;
   }, []);
 
@@ -142,3 +142,5 @@ export function useAgents(): UseAgentsReturn {
     refresh: loadAgents,
   };
 }
+
+

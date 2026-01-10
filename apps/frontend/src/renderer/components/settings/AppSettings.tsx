@@ -57,6 +57,7 @@ import { ProjectSelector } from './ProjectSelector';
 import { ProjectSettingsContent, ProjectSettingsSection } from './ProjectSettingsContent';
 import { useProjectStore } from '../../stores/project-store';
 import type { UseProjectSettingsReturn } from '../project-settings/hooks/useProjectSettings';
+import type { AppSettings as AppSettingsType } from '../../../shared/types';
 
 interface AppSettingsDialogProps {
   open: boolean;
@@ -181,25 +182,25 @@ export function AppSettingsDialog({ open, onOpenChange, initialSection, initialP
   const renderAppSection = () => {
     switch (appSection) {
       case 'appearance':
-        return <ThemeSettings settings={settings} onSettingsChange={setSettings} />;
+        return <ThemeSettings settings={settings as any} onSettingsChange={setSettings} />;
       case 'display':
-        return <DisplaySettings settings={settings} onSettingsChange={setSettings} />;
+        return <DisplaySettings settings={settings as any} onSettingsChange={setSettings} />;
       case 'language':
-        return <LanguageSettings settings={settings} onSettingsChange={setSettings} />;
+        return <LanguageSettings settings={settings as any} onSettingsChange={setSettings} />;
       case 'devtools':
-        return <DevToolsSettings settings={settings} onSettingsChange={setSettings} />;
+        return <DevToolsSettings settings={settings as any} onSettingsChange={setSettings} />;
       case 'agent':
-        return <GeneralSettings settings={settings} onSettingsChange={setSettings} section="agent" />;
+        return <GeneralSettings settings={settings as any} onUpdate={(u: any) => setSettings(({...settings, ...u}) as AppSettingsType)} />;
       case 'paths':
-        return <GeneralSettings settings={settings} onSettingsChange={setSettings} section="paths" />;
+        return <GeneralSettings settings={settings as any} onUpdate={(u: any) => setSettings(({...settings, ...u}) as AppSettingsType)} />;
       case 'integrations':
-        return <IntegrationSettings settings={settings} onSettingsChange={setSettings} isOpen={open} />;
+        return <IntegrationSettings settings={settings as any} onSettingsChange={setSettings} isOpen={open} />;
       case 'api-profiles':
         return <ProfileList />;
       case 'updates':
-        return <AdvancedSettings settings={settings} onSettingsChange={setSettings} section="updates" version={version} />;
+        return <AdvancedSettings settings={settings as any} onSettingsChange={setSettings} section="updates" version={version} />;
       case 'notifications':
-        return <AdvancedSettings settings={settings} onSettingsChange={setSettings} section="notifications" version={version} />;
+        return <AdvancedSettings settings={settings as any} onSettingsChange={setSettings} section="notifications" version={version} />;
       case 'debug':
         return <DebugSettings />;
       default:
@@ -405,3 +406,10 @@ export function AppSettingsDialog({ open, onOpenChange, initialSection, initialP
     </FullScreenDialog>
   );
 }
+
+
+
+
+
+
+

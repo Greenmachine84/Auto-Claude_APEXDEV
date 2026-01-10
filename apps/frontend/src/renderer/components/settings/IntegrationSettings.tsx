@@ -36,7 +36,7 @@ import { loadClaudeProfiles as loadGlobalClaudeProfiles } from '../../stores/cla
 import { useClaudeLoginTerminal } from '../../hooks/useClaudeLoginTerminal';
 import type { AppSettings, ClaudeProfile, ClaudeAutoSwitchSettings } from '../../../shared/types';
 
-interface IntegrationSettingsProps {
+export interface IntegrationSettingsProps {
   settings: AppSettings;
   onSettingsChange: (settings: AppSettings) => void;
   isOpen: boolean;
@@ -809,4 +809,5 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
     </SettingsSection>
   );
 }
+
 
