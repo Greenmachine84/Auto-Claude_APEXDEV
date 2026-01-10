@@ -9,8 +9,8 @@ Provides centralized agent instantiation with configuration.
 import logging
 from typing import Any
 
+from ..base import AgentConfig, BaseAgent
 from ..types import AgentType
-from ..base import BaseAgent, AgentConfig
 from .agent_registry import get_registry
 
 logger = logging.getLogger(__name__)
@@ -66,9 +66,7 @@ class AgentFactory:
         # Create instance
         agent = agent_class(config=config, agent_id=agent_id)
 
-        logger.debug(
-            f"Created agent: {agent.id} (type={agent_type.value})"
-        )
+        logger.debug(f"Created agent: {agent.id} (type={agent_type.value})")
 
         return agent
 

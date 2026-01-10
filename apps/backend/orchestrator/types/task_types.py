@@ -6,34 +6,34 @@ Defines types for tasks.
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 
 
 class TaskType(str, Enum):
     """Task type classification."""
-    
+
     # Code tasks
     CODE_GENERATION = "code_generation"
     CODE_REVIEW = "code_review"
     CODE_REFACTOR = "code_refactor"
-    
+
     # Test tasks
     TEST_GENERATION = "test_generation"
     TEST_EXECUTION = "test_execution"
-    
+
     # Analysis tasks
     STATIC_ANALYSIS = "static_analysis"
     SECURITY_SCAN = "security_scan"
     DEPENDENCY_CHECK = "dependency_check"
-    
+
     # Documentation tasks
     DOC_GENERATION = "doc_generation"
     DOC_UPDATE = "doc_update"
-    
+
     # Build tasks
     BUILD = "build"
     DEPLOY = "deploy"
-    
+
     # Utility tasks
     SHELL_COMMAND = "shell_command"
     FILE_OPERATION = "file_operation"
@@ -42,7 +42,7 @@ class TaskType(str, Enum):
 
 class TaskState(str, Enum):
     """Task state values."""
-    
+
     CREATED = "created"
     QUEUED = "queued"
     SCHEDULED = "scheduled"
@@ -59,19 +59,19 @@ class TaskState(str, Enum):
 @dataclass
 class TaskMetadata:
     """Metadata for a task."""
-    
+
     created_by: str = "system"
     created_at: datetime = field(default_factory=datetime.now)
-    tags: List[str] = field(default_factory=list)
-    labels: Dict[str, str] = field(default_factory=dict)
-    annotations: Dict[str, Any] = field(default_factory=dict)
-    
+    tags: list[str] = field(default_factory=list)
+    labels: dict[str, str] = field(default_factory=dict)
+    annotations: dict[str, Any] = field(default_factory=dict)
+
     # Tracking
-    source: Optional[str] = None
-    correlation_id: Optional[str] = None
-    trace_id: Optional[str] = None
-    
-    def to_dict(self) -> Dict[str, Any]:
+    source: str | None = None
+    correlation_id: str | None = None
+    trace_id: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "created_by": self.created_by,
@@ -88,26 +88,26 @@ class TaskMetadata:
 @dataclass
 class TaskConfig:
     """Configuration for task execution."""
-    
+
     # Execution
     timeout: float = 300.0
     retries: int = 3
     retry_delay: float = 1.0
-    
+
     # Resources
     memory_limit_mb: int = 512
     cpu_limit: float = 1.0
-    
+
     # Capabilities
-    required_capabilities: Set[str] = field(default_factory=set)
-    preferred_agent: Optional[str] = None
-    
+    required_capabilities: set[str] = field(default_factory=set)
+    preferred_agent: str | None = None
+
     # Behavior
     continue_on_error: bool = False
     capture_output: bool = True
     stream_output: bool = False
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "timeout": self.timeout,

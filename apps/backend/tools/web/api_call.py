@@ -9,25 +9,24 @@ Capabilities:
 - Rate limiting
 """
 
-from typing import Any, Dict, List, Optional
-import json
-import urllib.request
-import urllib.error
 import base64
+import json
+import urllib.error
+import urllib.request
 
 from tools.core.base_tool import (
     BaseTool,
     ToolCategory,
     ToolContext,
+    ToolParameter,
     ToolResult,
     ToolStatus,
-    ToolParameter,
 )
 
 
 class ApiCallTool(BaseTool):
     """Make structured API calls.
-    
+
     Example:
         tool = ApiCallTool()
         result = await tool.run(ToolContext(
@@ -39,14 +38,14 @@ class ApiCallTool(BaseTool):
             }
         ))
     """
-    
+
     name = "api_call"
     description = "Make structured API calls"
     category = ToolCategory.WEB
     required_permissions = {"http_requests"}
     version = "1.0.0"
-    
-    def get_parameters(self) -> List[ToolParameter]:
+
+    def get_parameters(self) -> list[ToolParameter]:
         """Get parameter definitions."""
         return [
             ToolParameter(
@@ -106,7 +105,7 @@ class ApiCallTool(BaseTool):
                 default=30,
             ),
         ]
-    
+
     async def execute(self, context: ToolContext) -> ToolResult:
         """Execute API call."""
         base_url = context.parameters.get("base_url").rstrip("/")
@@ -117,17 +116,17 @@ class ApiCallTool(BaseTool):
         auth_type = context.parameters.get("auth_type")
         auth_value = context.parameters.get("auth_value")
         timeout = context.parameters.get("timeout", 30)
-        
+
         try:
             # Build URL
             url = f"{base_url}{endpoint}"
             if params:
                 query = "&".join(f"{k}={v}" for k, v in params.items())
                 url = f"{url}?{query}"
-            
+
             # Prepare headers
             headers = {"Content-Type": "application/json"}
-            
+
             # Add authentication
             if auth_type and auth_value:
                 if auth_type == "bearer":
@@ -137,12 +136,12 @@ class ApiCallTool(BaseTool):
                     headers["Authorization"] = f"Basic {encoded}"
                 elif auth_type == "api_key":
                     headers["X-API-Key"] = auth_value
-            
+
             # Prepare body
             body = None
             if data:
                 body = json.dumps(data).encode("utf-8")
-            
+
             # Make request
             req = urllib.request.Request(
                 url,
@@ -150,17 +149,17 @@ class ApiCallTool(BaseTool):
                 method=method,
                 headers=headers,
             )
-            
+
             with urllib.request.urlopen(req, timeout=timeout) as response:
                 response_body = response.read().decode("utf-8")
                 status_code = response.status
-            
+
             # Parse JSON response
             try:
                 response_data = json.loads(response_body)
             except Exception:
                 response_data = response_body
-            
+
             return ToolResult(
                 tool_name=self.name,
                 status=ToolStatus.COMPLETED,
@@ -171,14 +170,14 @@ class ApiCallTool(BaseTool):
                     "method": method,
                 },
             )
-            
+
         except urllib.error.HTTPError as e:
             try:
                 error_body = e.read().decode("utf-8")
                 error_data = json.loads(error_body)
             except Exception:
                 error_data = error_body if error_body else str(e)
-            
+
             return ToolResult(
                 tool_name=self.name,
                 status=ToolStatus.COMPLETED,

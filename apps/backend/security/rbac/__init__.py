@@ -6,15 +6,16 @@ Provides enterprise-grade RBAC with:
 - Policy enforcement
 - Audit integration
 """
-from .role_manager import RoleManager
+
 from .permission_checker import PermissionChecker
 from .policy_enforcer import PolicyEnforcer
 from .role_definitions import (
+    PROVIDER_PERMISSIONS,
     DefaultRoles,
     Permission,
     RoleDefinition,
-    PROVIDER_PERMISSIONS,
 )
+from .role_manager import RoleManager
 
 __all__ = [
     "RoleManager",

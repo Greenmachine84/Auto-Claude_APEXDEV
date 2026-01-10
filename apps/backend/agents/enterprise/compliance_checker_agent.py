@@ -4,17 +4,18 @@ Compliance verification agent.
 Follows PHASE1_AGENT_SYSTEM_ARCHITECTURE.md specification.
 """
 
-from typing import ClassVar, Any
 from enum import Enum, auto
+from typing import Any, ClassVar
 
-from ..types import AgentResult, SuccessResult, ErrorResult, ErrorCode
-from .types import EnterpriseAgentType
 from ..base import ExecutionContext
+from ..types import AgentResult, ErrorCode, ErrorResult, SuccessResult
 from .base_enterprise_agent import BaseEnterpriseAgent
+from .types import EnterpriseAgentType
 
 
 class ComplianceStandard(Enum):
     """Compliance standards."""
+
     SOC2 = auto()
     HIPAA = auto()
     GDPR = auto()

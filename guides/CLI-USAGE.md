@@ -1,12 +1,12 @@
-# Auto Claude CLI Usage
+# DEVAPEX CLI Usage
 
-This document covers terminal-only usage of Auto Claude. **For most users, we recommend using the [Desktop UI](#) instead** - it provides a better experience with visual task management, progress tracking, and automatic Python environment setup.
+This document covers terminal-only usage of DEVAPEX. **For most users, we recommend using the [Desktop UI](#) instead** - it provides a better experience with visual task management, progress tracking, and automatic Python environment setup.
 
 ## When to Use CLI
 
 - You prefer terminal workflows
 - You're running on a headless server
-- You're integrating Auto Claude into scripts or CI/CD
+- You're integrating DEVAPEX into scripts or CI/CD
 
 ## Prerequisites
 
@@ -74,16 +74,16 @@ All commands below should be run from the `apps/backend/` directory:
 source .venv/bin/activate
 
 # Create a spec interactively
-python spec_runner.py --interactive
+python runners/spec_runner.py --interactive
 
 # Or with a task description
-python spec_runner.py --task "Add user authentication with OAuth"
+python runners/spec_runner.py --task "Add user authentication with OAuth"
 
 # Force a specific complexity level
-python spec_runner.py --task "Fix button color" --complexity simple
+python runners/spec_runner.py --task "Fix button color" --complexity simple
 
 # Continue an interrupted spec
-python spec_runner.py --continue 001-feature
+python runners/spec_runner.py --continue 001-feature
 ```
 
 ### Complexity Tiers
@@ -133,11 +133,11 @@ The QA validation loop:
 
 ## Workspace Management
 
-Auto Claude uses Git worktrees for isolated builds:
+DEVAPEX uses Git worktrees for isolated builds:
 
 ```bash
 # Test the feature in the isolated workspace
-cd .worktrees/auto-claude/
+cd .worktrees/DEVAPEX/
 npm run dev  # or your project's run command
 
 # Return to backend directory to run management commands
@@ -214,3 +214,6 @@ cp .env.example .env
 | `GRAPHITI_EMBEDDER_PROVIDER` | No | Embedder: openai, voyage, ollama, google, openrouter |
 
 See `.env.example` for complete configuration options including provider-specific settings.
+
+
+

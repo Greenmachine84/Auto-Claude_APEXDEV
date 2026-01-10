@@ -122,13 +122,13 @@ class TestGetRequiredMcpServers:
         servers = get_required_mcp_servers("spec_researcher")
         assert "context7" in servers
 
-    def test_coder_has_context7_and_auto_claude(self):
-        """coder should require context7 and auto-claude."""
+    def test_coder_has_context7_and_apexdev(self):
+        """coder should require context7 and apexdev MCP server."""
         from agents.tools_pkg.models import get_required_mcp_servers
 
         servers = get_required_mcp_servers("coder")
         assert "context7" in servers
-        assert "auto-claude" in servers
+        assert "apexdev" in servers
 
     def test_linear_optional_not_included_by_default(self):
         """Linear should not be included unless linear_enabled=True."""

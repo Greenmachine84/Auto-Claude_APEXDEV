@@ -86,3 +86,6 @@ export function buildMemoryEnvVars(settings: AppSettings): Record<string, string
 
   return env;
 }
+
+
+

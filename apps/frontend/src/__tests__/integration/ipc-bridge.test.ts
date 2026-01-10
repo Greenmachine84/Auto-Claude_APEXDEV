@@ -24,6 +24,7 @@ const mockContextBridge = {
 };
 
 vi.mock('electron', () => ({
+  app: { getName: () => 'APEXDEV', getPath: () => '/tmp', isPackaged: false },
   ipcRenderer: mockIpcRenderer,
   contextBridge: mockContextBridge
 }));
@@ -320,3 +321,6 @@ describe('IPC Bridge Integration', () => {
     });
   });
 });
+
+
+

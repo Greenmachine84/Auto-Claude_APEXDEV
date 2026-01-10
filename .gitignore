@@ -14,6 +14,7 @@ Desktop.ini
 .env
 .env.*
 !.env.example
+/config.json
 *.pem
 *.key
 *.crt
@@ -50,16 +51,18 @@ lerna-debug.log*
 # Git Worktrees (parallel builds)
 # ===========================
 .worktrees/
+/config.json
 
 # ===========================
 # Auto Claude Generated
 # ===========================
-.auto-claude/
+.apexdev/
 .auto-build-security.json
-.auto-claude-security.json
-.auto-claude-status
+.apexdev-security.json
+.apexdev-status
 .claude_settings.json
 .update-metadata.json
+/config.json
 
 # ===========================
 # Python (apps/backend)
@@ -164,3 +167,4 @@ _bmad-output/
 /docs
 OPUS_ANALYSIS_AND_IDEAS.md
 /.github/agents
+/config.json

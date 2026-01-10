@@ -16,6 +16,7 @@ import copy
 import json
 import logging
 import os
+import platform
 import threading
 import time
 from pathlib import Path
@@ -302,7 +303,7 @@ def _validate_custom_mcp_server(server: dict) -> bool:
 
 def load_project_mcp_config(project_dir: Path) -> dict:
     """
-    Load MCP configuration from project's .auto-claude/.env file.
+    Load MCP configuration from project's .apexdev/.env file.
 
     Returns a dict of MCP-related env vars:
     - CONTEXT7_ENABLED (default: true)
@@ -319,7 +320,7 @@ def load_project_mcp_config(project_dir: Path) -> dict:
     Returns:
         Dict of MCP configuration values (string values, except CUSTOM_MCP_SERVERS which is parsed JSON)
     """
-    env_path = project_dir / ".auto-claude" / ".env"
+    env_path = project_dir / ".apexdev" / ".env"
     if not env_path.exists():
         return {}
 
@@ -488,6 +489,12 @@ def create_client(
     # Collect env vars to pass to SDK (ANTHROPIC_BASE_URL, etc.)
     sdk_env = get_sdk_env_vars()
 
+    # Debug: Log git-bash path detection on Windows
+    if "CLAUDE_CODE_GIT_BASH_PATH" in sdk_env:
+        logger.info(f"Git Bash path found: {sdk_env['CLAUDE_CODE_GIT_BASH_PATH']}")
+    elif platform.system() == "Windows":
+        logger.warning("Git Bash path not detected on Windows!")
+
     # Check if Linear integration is enabled
     linear_enabled = is_linear_enabled()
     linear_api_key = os.environ.get("LINEAR_API_KEY", "")
@@ -500,7 +507,7 @@ def create_client(
     # Uses caching to avoid reloading on every create_client() call
     project_index, project_capabilities = _get_cached_project_data(project_dir)
 
-    # Load per-project MCP configuration from .auto-claude/.env
+    # Load per-project MCP configuration from .apexdev/.env
     mcp_config = load_project_mcp_config(project_dir)
 
     # Get allowed tools using phase-aware configuration
@@ -538,6 +545,48 @@ def create_client(
     # cases where Claude uses absolute paths for file operations
     project_path_str = str(project_dir.resolve())
     spec_path_str = str(spec_dir.resolve())
+
+    # Detect if we're running in a worktree and get the original project directory
+    # Worktrees are located in either:
+    # - .apexdev/worktrees/tasks/{spec-name}/ (new location)
+    # - .worktrees/{spec-name}/ (legacy location)
+    # When running in a worktree, we need to allow access to both the worktree
+    # and the original project's .apexdev/ directory for spec files
+    original_project_permissions = []
+    resolved_project_path = project_dir.resolve()
+
+    # Check for worktree paths and extract original project directory
+    # This handles spec worktrees, PR review worktrees, and legacy worktrees
+    # Note: Windows paths are normalized to forward slashes before comparison
+    worktree_markers = [
+        "/.apexdev/worktrees/tasks/",  # Spec/task worktrees
+        "/.apexdev/github/pr/worktrees/",  # PR review worktrees
+        "/.worktrees/",  # Legacy worktree location
+    ]
+    project_path_posix = str(resolved_project_path).replace("\\", "/")
+
+    for marker in worktree_markers:
+        if marker in project_path_posix:
+            # Extract the original project directory (parent of worktree location)
+            # Use rsplit to get the rightmost occurrence (handles nested projects)
+            original_project_str = project_path_posix.rsplit(marker, 1)[0]
+            original_project_dir = Path(original_project_str)
+
+            # Grant permissions for relevant directories in the original project
+            permission_ops = ["Read", "Write", "Edit", "Glob", "Grep"]
+            dirs_to_permit = [
+                original_project_dir / ".apexdev",
+                original_project_dir / ".worktrees",  # Legacy support
+            ]
+
+            for dir_path in dirs_to_permit:
+                if dir_path.exists():
+                    path_str = str(dir_path.resolve())
+                    original_project_permissions.extend(
+                        [f"{op}({path_str}/**)" for op in permission_ops]
+                    )
+            break
+
     security_settings = {
         "sandbox": {"enabled": True, "autoAllowBashIfSandboxed": True},
         "permissions": {
@@ -560,6 +609,9 @@ def create_client(
                 f"Read({spec_path_str}/**)",
                 f"Write({spec_path_str}/**)",
                 f"Edit({spec_path_str}/**)",
+                # Allow original project's .apexdev/ and .worktrees/ directories
+                # when running in a worktree (fixes issue #385 - permission errors)
+                *original_project_permissions,
                 # Bash permission granted here, but actual commands are validated
                 # by the bash_security_hook (see security.py for allowed commands)
                 "Bash(*)",
@@ -596,6 +648,8 @@ def create_client(
     print(f"Security settings: {settings_file}")
     print("   - Sandbox enabled (OS-level bash isolation)")
     print(f"   - Filesystem restricted to: {project_dir.resolve()}")
+    if original_project_permissions:
+        print("   - Worktree permissions: granted for original project directories")
     print("   - Bash commands restricted to allowlist")
     if max_thinking_tokens:
         print(f"   - Extended thinking: {max_thinking_tokens:,} tokens")
@@ -616,7 +670,7 @@ def create_client(
         mcp_servers_list.append("linear (project management)")
     if graphiti_mcp_enabled:
         mcp_servers_list.append("graphiti-memory (knowledge graph)")
-    if "auto-claude" in required_servers and auto_claude_tools_enabled:
+    if "apexdev" in required_servers and auto_claude_tools_enabled:
         mcp_servers_list.append(f"auto-claude ({agent_type} tools)")
     if mcp_servers_list:
         print(f"   - MCP servers: {', '.join(mcp_servers_list)}")
@@ -673,10 +727,10 @@ def create_client(
         }
 
     # Add custom auto-claude MCP server if required and available
-    if "auto-claude" in required_servers and auto_claude_tools_enabled:
+    if "apexdev" in required_servers and auto_claude_tools_enabled:
         auto_claude_mcp_server = create_auto_claude_mcp_server(spec_dir, project_dir)
         if auto_claude_mcp_server:
-            mcp_servers["auto-claude"] = auto_claude_mcp_server
+            mcp_servers["apexdev"] = auto_claude_mcp_server
 
     # Add custom MCP servers from project config
     custom_servers = mcp_config.get("CUSTOM_MCP_SERVERS", [])
@@ -742,6 +796,12 @@ def create_client(
         "settings": str(settings_file.resolve()),
         "env": sdk_env,  # Pass ANTHROPIC_BASE_URL etc. to subprocess
         "max_thinking_tokens": max_thinking_tokens,  # Extended thinking budget
+        "max_buffer_size": 10
+        * 1024
+        * 1024,  # 10MB buffer (default: 1MB) - fixes large tool results
+        # Enable file checkpointing to track file read/write state across tool calls
+        # This prevents "File has not been read yet" errors in recovery sessions
+        "enable_file_checkpointing": True,
     }
 
     # Add structured output format if specified

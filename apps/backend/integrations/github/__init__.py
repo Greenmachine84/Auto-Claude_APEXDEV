@@ -7,17 +7,17 @@ GitHub API integration for repository, PR, and issue management.
 
 from .client import GitHubClient
 from .models import (
-    GitHubConfig,
-    GitHubRepository,
-    GitHubPullRequest,
-    GitHubIssue,
-    GitHubReview,
     GitHubComment,
-    GitHubUser,
+    GitHubConfig,
+    GitHubIssue,
     GitHubLabel,
     GitHubMilestone,
-    PullRequestState,
+    GitHubPullRequest,
+    GitHubRepository,
+    GitHubReview,
+    GitHubUser,
     IssueState,
+    PullRequestState,
     ReviewState,
 )
 from .service import GitHubService

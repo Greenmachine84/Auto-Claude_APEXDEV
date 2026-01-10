@@ -2,10 +2,23 @@ import { app } from 'electron';
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, Dirent } from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import type { Project, ProjectSettings, Task, TaskStatus, TaskMetadata, ImplementationPlan, ReviewReason, PlanSubtask } from '../shared/types';
+import type { Project, ProjectSettings, Task, TaskStatus, TaskMetadata, ImplementationPlan, ReviewReason, PlanSubtask, VirtualRepoInfo } from '../shared/types';
 import { DEFAULT_PROJECT_SETTINGS, AUTO_BUILD_PATHS, getSpecsDir } from '../shared/constants';
 import { getAutoBuildPath, isInitialized } from './project-initializer';
 import { getTaskWorktreeDir } from './worktree-paths';
+
+// Debug logging for store operations
+const DEBUG_STORE = process.env.DEBUG === 'true' || process.env.NODE_ENV === 'development';
+function debugLog(message: string, data?: unknown): void {
+  if (DEBUG_STORE) {
+    const timestamp = new Date().toISOString();
+    if (data !== undefined) {
+      console.log(`[ProjectStore ${timestamp}] ${message}`, data);
+    } else {
+      console.log(`[ProjectStore ${timestamp}] ${message}`);
+    }
+  }
+}
 
 interface TabState {
   openProjectIds: string[];
@@ -31,13 +44,77 @@ export class ProjectStore {
     const userDataPath = app.getPath('userData');
     const storeDir = path.join(userDataPath, 'store');
 
+    debugLog('Initializing ProjectStore', {
+      userDataPath,
+      storeDir,
+      appName: app.getName(),
+      isPackaged: app.isPackaged
+    });
+
     // Ensure directory exists
     if (!existsSync(storeDir)) {
+      debugLog('Creating store directory', { storeDir });
       mkdirSync(storeDir, { recursive: true });
     }
 
     this.storePath = path.join(storeDir, 'projects.json');
     this.data = this.load();
+
+    // Migrate from old store locations if current store is empty
+    if (this.data.projects.length === 0) {
+      this.migrateFromOldStores(userDataPath);
+    }
+
+    debugLog('Store initialized', {
+      storePath: this.storePath,
+      projectCount: this.data.projects.length,
+      existingProjects: this.data.projects.map(p => ({ id: p.id, name: p.name, hasToken: !!p.githubToken }))
+    });
+  }
+
+
+
+  /**
+   * Migrate data from old store locations (Electron, auto-claude-ui)
+   */
+  private migrateFromOldStores(currentUserDataPath: string): void {
+    const appDataPath = path.dirname(currentUserDataPath);
+    const oldStoreLocations = [
+      path.join(appDataPath, 'Electron', 'store', 'projects.json'),
+      path.join(appDataPath, 'auto-claude-ui', 'store', 'projects.json'),
+    ];
+
+    for (const oldStorePath of oldStoreLocations) {
+      if (existsSync(oldStorePath)) {
+        debugLog('Found old store, migrating', { oldStorePath });
+        try {
+          const oldContent = readFileSync(oldStorePath, 'utf-8');
+          const oldData = JSON.parse(oldContent) as StoreData;
+          
+          if (oldData.projects && oldData.projects.length > 0) {
+            // Convert dates and merge projects
+            oldData.projects = oldData.projects.map((p: Project) => ({
+              ...p,
+              createdAt: new Date(p.createdAt),
+              updatedAt: new Date(p.updatedAt)
+            }));
+            
+            this.data.projects = oldData.projects;
+            this.data.settings = oldData.settings || {};
+            this.data.tabState = oldData.tabState;
+            this.save();
+            
+            debugLog('Migration complete', {
+              projectCount: this.data.projects.length,
+              migratedFrom: oldStorePath
+            });
+            return; // Only migrate from first found store
+          }
+        } catch (error) {
+          console.error('[ProjectStore] Failed to migrate from old store:', oldStorePath, error);
+        }
+      }
+    }
   }
 
   /**
@@ -66,7 +143,17 @@ export class ProjectStore {
    * Save store to disk
    */
   private save(): void {
-    writeFileSync(this.storePath, JSON.stringify(this.data, null, 2));
+    try {
+      debugLog('Saving store to disk', {
+        storePath: this.storePath,
+        projectCount: this.data.projects.length
+      });
+      writeFileSync(this.storePath, JSON.stringify(this.data, null, 2));
+      debugLog('Store saved successfully');
+    } catch (error) {
+      console.error('[ProjectStore] Failed to save store:', error);
+      throw error;
+    }
   }
 
   /**
@@ -76,10 +163,10 @@ export class ProjectStore {
     // Check if project already exists
     const existing = this.data.projects.find((p) => p.path === projectPath);
     if (existing) {
-      // Validate that .auto-claude folder still exists for existing project
+      // Validate that .APEXDEV folder still exists for existing project
       // If manually deleted, reset autoBuildPath so UI prompts for reinitialization
       if (existing.autoBuildPath && !isInitialized(existing.path)) {
-        console.warn(`[ProjectStore] .auto-claude folder was deleted for project "${existing.name}" - resetting autoBuildPath`);
+        console.warn(`[ProjectStore] .APEXDEV folder was deleted for project "${existing.name}" - resetting autoBuildPath`);
         existing.autoBuildPath = '';
         existing.updatedAt = new Date();
         this.save();
@@ -90,7 +177,7 @@ export class ProjectStore {
     // Derive name from path if not provided
     const projectName = name || path.basename(projectPath);
 
-    // Determine auto-claude path (supports both 'auto-claude' and '.auto-claude')
+    // Determine APEXDEV path (supports both 'APEXDEV' and '.APEXDEV')
     const autoBuildPath = getAutoBuildPath(projectPath) || '';
 
     const project: Project = {
@@ -106,6 +193,56 @@ export class ProjectStore {
     this.data.projects.push(project);
     this.save();
 
+    return project;
+  }
+
+  /**
+   * Add a virtual GitHub project (no local clone)
+   */
+  addVirtualProject(repoInfo: VirtualRepoInfo, githubToken: string): Project {
+    debugLog('addVirtualProject called', {
+      repoFullName: repoInfo.fullName,
+      repoName: repoInfo.name,
+      hasToken: !!githubToken,
+      tokenLength: githubToken?.length
+    });
+
+    // Check if project already exists by full name
+    const existing = this.data.projects.find(
+      (p) => p.virtualRepo?.fullName === repoInfo.fullName
+    );
+    if (existing) {
+      debugLog('Updating existing virtual project', { projectId: existing.id });
+      // Update token if changed
+      existing.githubToken = githubToken;
+      existing.updatedAt = new Date();
+      this.save();
+      return existing;
+    }
+
+    const project: Project = {
+      id: uuidv4(),
+      name: repoInfo.name,
+      path: `github://${repoInfo.fullName}`, // Virtual path identifier (fixed template literal)
+      autoBuildPath: '', // No local autoBuildPath for virtual projects
+      settings: { ...DEFAULT_PROJECT_SETTINGS },
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      sourceType: 'github',
+      virtualRepo: repoInfo,
+      githubToken: githubToken,
+    };
+
+    debugLog('Creating new virtual project', {
+      projectId: project.id,
+      projectName: project.name,
+      projectPath: project.path
+    });
+
+    this.data.projects.push(project);
+    this.save();
+
+    debugLog('Virtual project created and saved', { projectId: project.id });
     return project;
   }
 
@@ -143,6 +280,20 @@ export class ProjectStore {
   }
 
   /**
+   * Get the store file path (useful for debugging)
+   */
+  getStorePath(): string {
+    return this.storePath;
+  }
+
+  /**
+   * Get all virtual (GitHub-connected) projects
+   */
+  getVirtualProjects(): Project[] {
+    return this.data.projects.filter(p => p.sourceType === 'github' && p.virtualRepo);
+  }
+
+  /**
    * Get tab state
    */
   getTabState(): TabState {
@@ -171,11 +322,11 @@ export class ProjectStore {
   }
 
   /**
-   * Validate all projects to ensure their .auto-claude folders still exist.
+   * Validate all projects to ensure their .APEXDEV folders still exist.
    * If a project has autoBuildPath set but the folder was deleted,
    * reset autoBuildPath to empty string so the UI prompts for reinitialization.
    *
-   * @returns Array of project IDs that were reset due to missing .auto-claude folder
+   * @returns Array of project IDs that were reset due to missing .APEXDEV folder
    */
   validateProjects(): string[] {
     const resetProjectIds: string[] = [];
@@ -193,9 +344,9 @@ export class ProjectStore {
         continue; // Don't reset - let user handle this case
       }
 
-      // Check if .auto-claude folder still exists
+      // Check if .APEXDEV folder still exists
       if (!isInitialized(project.path)) {
-        console.warn(`[ProjectStore] .auto-claude folder missing for project "${project.name}" at ${project.path}`);
+        console.warn(`[ProjectStore] .APEXDEV folder missing for project "${project.name}" at ${project.path}`);
         project.autoBuildPath = '';
         project.updatedAt = new Date();
         resetProjectIds.push(project.id);
@@ -205,7 +356,7 @@ export class ProjectStore {
 
     if (hasChanges) {
       this.save();
-      console.warn(`[ProjectStore] Reset ${resetProjectIds.length} project(s) due to missing .auto-claude folder`);
+      console.warn(`[ProjectStore] Reset ${resetProjectIds.length} project(s) due to missing .APEXDEV folder`);
     }
 
     return resetProjectIds;
@@ -360,27 +511,8 @@ export class ProjectStore {
               const reqContent = readFileSync(requirementsPath, 'utf-8');
               const requirements = JSON.parse(reqContent);
               if (requirements.task_description) {
-                // Extract a clean summary from task_description (first line or first ~200 chars)
-                const taskDesc = requirements.task_description;
-                const firstLine = taskDesc.split('\n')[0].trim();
-                // If the first line is a title like "Investigate GitHub Issue #36", use the next meaningful line
-                if (firstLine.toLowerCase().startsWith('investigate') && taskDesc.includes('\n\n')) {
-                  const sections = taskDesc.split('\n\n');
-                  // Find the first paragraph that's not a title
-                  for (const section of sections) {
-                    const trimmed = section.trim();
-                    // Skip headers and short lines
-                    if (trimmed.startsWith('#') || trimmed.length < 20) continue;
-                    // Skip the "Please analyze" instruction at the end
-                    if (trimmed.startsWith('Please analyze')) continue;
-                    description = trimmed.substring(0, 200).split('\n')[0];
-                    break;
-                  }
-                }
-                // If still no description, use a shortened version of task_description
-                if (!description) {
-                  description = firstLine.substring(0, 150);
-                }
+                // Use the full task description for the modal view
+                description = requirements.task_description;
               }
             } catch {
               // Ignore parse errors
@@ -788,3 +920,7 @@ export class ProjectStore {
 
 // Singleton instance
 export const projectStore = new ProjectStore();
+
+
+
+

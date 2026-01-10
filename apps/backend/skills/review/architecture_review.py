@@ -10,14 +10,21 @@ Capabilities:
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
 from enum import Enum
+from typing import Any
 
-from skills.core.base_skill import BaseSkill, SkillContext, SkillResult, SkillCategory, SkillStatus
+from skills.core.base_skill import (
+    BaseSkill,
+    SkillCategory,
+    SkillContext,
+    SkillResult,
+    SkillStatus,
+)
 
 
 class ArchitecturePattern(Enum):
     """Common architecture patterns."""
+
     MVC = "mvc"
     MVVM = "mvvm"
     LAYERED = "layered"
@@ -30,6 +37,7 @@ class ArchitecturePattern(Enum):
 
 class DesignPrinciple(Enum):
     """Design principles to check."""
+
     SINGLE_RESPONSIBILITY = "srp"
     OPEN_CLOSED = "ocp"
     LISKOV_SUBSTITUTION = "lsp"
@@ -43,20 +51,21 @@ class DesignPrinciple(Enum):
 @dataclass
 class ArchitectureFinding:
     """An architecture review finding."""
+
     title: str
     description: str
-    principle: Optional[DesignPrinciple] = None
+    principle: DesignPrinciple | None = None
     severity: str = "medium"
-    suggestion: Optional[str] = None
-    affected_files: List[str] = field(default_factory=list)
+    suggestion: str | None = None
+    affected_files: list[str] = field(default_factory=list)
 
 
 class ArchitectureReviewSkill(BaseSkill):
     """Assess code architecture and design.
-    
+
     Evaluates code against architecture patterns and
     design principles like SOLID.
-    
+
     Example:
         skill = ArchitectureReviewSkill()
         context = SkillContext(
@@ -68,44 +77,44 @@ class ArchitectureReviewSkill(BaseSkill):
         )
         result = await skill.run(context)
     """
-    
+
     name = "architecture_review"
     description = "Architecture and design assessment"
     category = SkillCategory.REVIEW
     required_tools = ["file_read", "directory_list"]
     required_permissions = {"read_files", "llm_access"}
     version = "1.0.0"
-    
-    def validate_input(self, input_data: Dict[str, Any]) -> bool:
+
+    def validate_input(self, input_data: dict[str, Any]) -> bool:
         """Validate input data."""
         if "files" not in input_data and "code" not in input_data:
             return False
         return True
-    
+
     async def execute(self, context: SkillContext) -> SkillResult:
         """Execute architecture review.
-        
+
         Args:
             context: Execution context with files to review
-            
+
         Returns:
             SkillResult with architecture findings
         """
         input_data = context.input_data
         files = input_data.get("files", [])
         check_solid = input_data.get("check_solid", True)
-        
+
         # Detect architecture pattern
         pattern = self._detect_pattern(files)
-        
+
         # Check design principles
         findings = []
         if check_solid:
             findings.extend(self._check_solid_principles(files))
-        
+
         # Calculate architecture score
         score = self._calculate_score(findings)
-        
+
         return SkillResult(
             skill_name=self.name,
             status=SkillStatus.COMPLETED,
@@ -118,27 +127,29 @@ class ArchitectureReviewSkill(BaseSkill):
             },
             tokens_used=0,
         )
-    
-    def _detect_pattern(self, files: List[str]) -> Optional[ArchitecturePattern]:
+
+    def _detect_pattern(self, files: list[str]) -> ArchitecturePattern | None:
         """Detect architecture pattern from file structure."""
         # Placeholder - will analyze file structure
         return None
-    
-    def _check_solid_principles(self, files: List[str]) -> List[ArchitectureFinding]:
+
+    def _check_solid_principles(self, files: list[str]) -> list[ArchitectureFinding]:
         """Check SOLID principles compliance."""
         # Placeholder - will use LLM for analysis
         return []
-    
-    def _calculate_score(self, findings: List[ArchitectureFinding]) -> float:
+
+    def _calculate_score(self, findings: list[ArchitectureFinding]) -> float:
         """Calculate architecture score."""
         if not findings:
             return 100.0
-        
+
         deductions = {"critical": 20, "high": 12, "medium": 6, "low": 2}
         total = sum(deductions.get(f.severity, 0) for f in findings)
         return max(0.0, 100.0 - total)
-    
-    def _calculate_solid_compliance(self, findings: List[ArchitectureFinding]) -> Dict[str, bool]:
+
+    def _calculate_solid_compliance(
+        self, findings: list[ArchitectureFinding]
+    ) -> dict[str, bool]:
         """Calculate compliance for each SOLID principle."""
         violations = {f.principle for f in findings if f.principle}
         return {
@@ -148,8 +159,8 @@ class ArchitectureReviewSkill(BaseSkill):
             "isp": DesignPrinciple.INTERFACE_SEGREGATION not in violations,
             "dip": DesignPrinciple.DEPENDENCY_INVERSION not in violations,
         }
-    
-    def _finding_to_dict(self, finding: ArchitectureFinding) -> Dict[str, Any]:
+
+    def _finding_to_dict(self, finding: ArchitectureFinding) -> dict[str, Any]:
         """Convert ArchitectureFinding to dictionary."""
         return {
             "title": finding.title,

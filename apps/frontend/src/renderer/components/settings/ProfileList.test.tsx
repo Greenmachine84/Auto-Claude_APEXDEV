@@ -307,3 +307,6 @@ describe('ProfileList - Switch to OAuth Button', () => {
     expect(mockStore.setActiveProfile).toHaveBeenCalledWith(null);
   });
 });
+
+
+

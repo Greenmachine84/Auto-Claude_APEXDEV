@@ -25,7 +25,7 @@ const typeColors: Record<string, string> = {
  */
 export const AgentPoolStatus: React.FC<AgentPoolStatusProps> = ({ status }) => {
   const utilizationPercent = status.totalAgents > 0
-    ? Math.round((status.runningAgents / status.totalAgents) * 100)
+    ? Math.round(((status.runningAgents ?? 0) / status.totalAgents) * 100)
     : 0;
 
   return (
@@ -76,7 +76,7 @@ export const AgentPoolStatus: React.FC<AgentPoolStatusProps> = ({ status }) => {
       <div className="apex-agent-pool-status__by-type">
         <h4>Agents by Type</h4>
         <div className="apex-agent-pool-status__type-grid">
-          {Object.entries(status.agentsByType).map(([type, count]) => (
+          {Object.entries(status.agentsByType ?? {}).map(([type, count]) => (
             <div key={type} className="apex-agent-pool-status__type">
               <span
                 className="apex-agent-pool-status__type-indicator"
@@ -91,3 +91,5 @@ export const AgentPoolStatus: React.FC<AgentPoolStatusProps> = ({ status }) => {
     </div>
   );
 };
+
+

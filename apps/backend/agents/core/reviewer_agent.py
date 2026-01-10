@@ -11,19 +11,17 @@ Responsibilities:
 """
 
 import logging
-from typing import ClassVar, Any
-from enum import Enum, auto
 from dataclasses import dataclass, field
+from enum import Enum, auto
+from typing import Any, ClassVar
 
-from ..types import AgentType, AgentResult, SuccessResult, ErrorResult, ErrorCode
 from ..base import (
-    BaseAgent,
     AgentConfig,
+    BaseAgent,
     ExecutionContext,
-    AgentCapabilities,
-    REVIEWER_CAPABILITIES,
 )
 from ..base.agent_hooks import HookType
+from ..types import AgentResult, AgentType, ErrorCode, ErrorResult, SuccessResult
 
 logger = logging.getLogger(__name__)
 
@@ -94,9 +92,7 @@ class ReviewResult:
             "reviewed_files": self.reviewed_files,
             "score": self.score,
             "finding_counts": {
-                severity.name: sum(
-                    1 for f in self.findings if f.severity == severity
-                )
+                severity.name: sum(1 for f in self.findings if f.severity == severity)
                 for severity in FindingSeverity
             },
         }

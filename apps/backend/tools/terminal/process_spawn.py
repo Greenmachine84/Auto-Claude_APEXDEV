@@ -8,28 +8,26 @@ Capabilities:
 - Manage process lifecycle
 """
 
-from typing import Any, Dict, List, Optional
-import subprocess
 import os
 import shlex
+import subprocess
 
 from tools.core.base_tool import (
     BaseTool,
     ToolCategory,
     ToolContext,
+    ToolParameter,
     ToolResult,
     ToolStatus,
-    ToolParameter,
 )
 
-
 # Track spawned processes
-_spawned_processes: Dict[int, subprocess.Popen] = {}
+_spawned_processes: dict[int, subprocess.Popen] = {}
 
 
 class ProcessSpawnTool(BaseTool):
     """Spawn background processes.
-    
+
     Example:
         tool = ProcessSpawnTool()
         result = await tool.run(ToolContext(
@@ -39,14 +37,14 @@ class ProcessSpawnTool(BaseTool):
             }
         ))
     """
-    
+
     name = "process_spawn"
     description = "Spawn background processes"
     category = ToolCategory.TERMINAL
     required_permissions = {"spawn_processes"}
     version = "1.0.0"
-    
-    def get_parameters(self) -> List[ToolParameter]:
+
+    def get_parameters(self) -> list[ToolParameter]:
         """Get parameter definitions."""
         return [
             ToolParameter(
@@ -77,30 +75,30 @@ class ProcessSpawnTool(BaseTool):
                 default=None,
             ),
         ]
-    
+
     async def execute(self, context: ToolContext) -> ToolResult:
         """Spawn process."""
         command = context.parameters.get("command")
         cwd = context.parameters.get("cwd", context.working_directory)
         shell = context.parameters.get("shell", True)
         env = context.parameters.get("env")
-        
+
         if cwd and not os.path.isabs(cwd):
             cwd = os.path.join(context.working_directory, cwd)
-        
+
         try:
             # Merge environment
             process_env = os.environ.copy()
             process_env.update(context.environment)
             if env:
                 process_env.update(env)
-            
+
             # Spawn process
             if shell:
                 args = command
             else:
                 args = shlex.split(command)
-            
+
             process = subprocess.Popen(
                 args,
                 shell=shell,
@@ -109,10 +107,10 @@ class ProcessSpawnTool(BaseTool):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
-            
+
             # Track process
             _spawned_processes[process.pid] = process
-            
+
             return ToolResult(
                 tool_name=self.name,
                 status=ToolStatus.COMPLETED,
@@ -122,7 +120,7 @@ class ProcessSpawnTool(BaseTool):
                     "status": "running",
                 },
             )
-            
+
         except Exception as e:
             return ToolResult(
                 tool_name=self.name,

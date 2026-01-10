@@ -6,8 +6,8 @@ in various formats including Markdown and HTML.
 """
 
 from .base import BaseTemplate
-from .markdown_template import MarkdownTemplate
 from .html_template import HtmlTemplate
+from .markdown_template import MarkdownTemplate
 
 __all__ = [
     "BaseTemplate",

@@ -117,3 +117,7 @@ export function WelcomeStep({ onGetStarted, onSkip }: WelcomeStepProps) {
     </div>
   );
 }
+
+
+
+

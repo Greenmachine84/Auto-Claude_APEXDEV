@@ -10,9 +10,9 @@ The registry is the central point for:
 - Managing agent metadata
 """
 
+from .agent_catalog import AgentCatalog, AgentMetadata
 from .agent_factory import AgentFactory, create_agent
 from .agent_registry import AgentRegistry, get_registry
-from .agent_catalog import AgentCatalog, AgentMetadata
 
 __all__ = [
     # Factory

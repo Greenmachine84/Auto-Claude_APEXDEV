@@ -3,22 +3,24 @@
 Phase 7 Implementation: Enterprise Agents Architecture
 Reference: PHASE7_ENTERPRISE_AGENTS_ARCHITECTURE.md
 """
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Set
+
 import re
+from dataclasses import dataclass, field
+from typing import Any
 
 
 @dataclass
 class ArchitectureMap:
     """Architecture map of a project."""
-    patterns: List[str] = field(default_factory=list)
-    layers: List[str] = field(default_factory=list)
-    modules: Dict[str, List[str]] = field(default_factory=dict)  # module -> files
-    entry_points: List[str] = field(default_factory=list)
-    interfaces: List[str] = field(default_factory=list)
-    abstractions: List[str] = field(default_factory=list)
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    patterns: list[str] = field(default_factory=list)
+    layers: list[str] = field(default_factory=list)
+    modules: dict[str, list[str]] = field(default_factory=dict)  # module -> files
+    entry_points: list[str] = field(default_factory=list)
+    interfaces: list[str] = field(default_factory=list)
+    abstractions: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "patterns": self.patterns,
@@ -32,11 +34,11 @@ class ArchitectureMap:
 
 class ArchitectureExtractor:
     """Extracts architecture patterns from code.
-    
+
     Analyzes project structure and code to identify
     architectural patterns and organization.
     """
-    
+
     # Common layer names
     LAYER_PATTERNS = {
         "presentation": ["views", "templates", "pages", "components", "ui"],
@@ -45,7 +47,7 @@ class ArchitectureExtractor:
         "infrastructure": ["repositories", "adapters", "database", "external"],
         "api": ["api", "routes", "endpoints", "rest"],
     }
-    
+
     # Architecture pattern indicators
     PATTERN_INDICATORS = {
         "mvc": {
@@ -73,74 +75,74 @@ class ArchitectureExtractor:
             "files": [],
         },
     }
-    
+
     def __init__(self):
         """Initialize extractor."""
-        self._patterns: List[str] = []
-    
+        self._patterns: list[str] = []
+
     def extract(
         self,
-        files: Dict[str, str],
+        files: dict[str, str],
     ) -> ArchitectureMap:
         """Extract architecture from files.
-        
+
         Args:
             files: Map of file paths to contents
-            
+
         Returns:
             Architecture map
         """
         arch_map = ArchitectureMap()
-        
+
         file_paths = list(files.keys())
-        
+
         # Detect patterns
         arch_map.patterns = self._detect_patterns(file_paths)
-        
+
         # Detect layers
         arch_map.layers = self._detect_layers(file_paths)
-        
+
         # Group files into modules
         arch_map.modules = self._group_modules(file_paths)
-        
+
         # Find entry points
         arch_map.entry_points = self._find_entry_points(files)
-        
+
         # Find interfaces/abstractions
         arch_map.interfaces, arch_map.abstractions = self._find_abstractions(files)
-        
+
         return arch_map
-    
+
     def _detect_patterns(
         self,
-        file_paths: List[str],
-    ) -> List[str]:
+        file_paths: list[str],
+    ) -> list[str]:
         """Detect architecture patterns from file paths."""
-        detected: List[str] = []
-        
+        detected: list[str] = []
+
         # Extract folder names
-        folders: Set[str] = set()
+        folders: set[str] = set()
         for path in file_paths:
             parts = path.replace("\\", "/").split("/")
             folders.update(parts[:-1])  # Exclude filename
-        
+
         folder_lower = {f.lower() for f in folders}
-        
+
         # Check each pattern
         for pattern, indicators in self.PATTERN_INDICATORS.items():
             pattern_folders = set(indicators["folders"])
             matches = folder_lower & pattern_folders
-            
+
             if len(matches) >= 2:  # At least 2 folder matches
                 detected.append(pattern)
-        
+
         # Check file patterns
         file_names = [p.split("/")[-1] for p in file_paths]
-        
+
         for pattern, indicators in self.PATTERN_INDICATORS.items():
             if pattern in detected:
                 continue
-            
+
             for file_pattern in indicators["files"]:
                 regex = file_pattern.replace("*", ".*").replace(".", "\\.")
                 for file_name in file_names:
@@ -148,37 +150,37 @@ class ArchitectureExtractor:
                         if pattern not in detected:
                             detected.append(pattern)
                         break
-        
+
         return detected if detected else ["monolithic"]
-    
+
     def _detect_layers(
         self,
-        file_paths: List[str],
-    ) -> List[str]:
+        file_paths: list[str],
+    ) -> list[str]:
         """Detect architectural layers."""
-        layers: List[str] = []
-        
-        folders: Set[str] = set()
+        layers: list[str] = []
+
+        folders: set[str] = set()
         for path in file_paths:
             parts = path.replace("\\", "/").split("/")
             folders.update(p.lower() for p in parts[:-1])
-        
+
         for layer, indicators in self.LAYER_PATTERNS.items():
             if any(ind in folders for ind in indicators):
                 layers.append(layer)
-        
+
         return layers
-    
+
     def _group_modules(
         self,
-        file_paths: List[str],
-    ) -> Dict[str, List[str]]:
+        file_paths: list[str],
+    ) -> dict[str, list[str]]:
         """Group files into modules."""
-        modules: Dict[str, List[str]] = {}
-        
+        modules: dict[str, list[str]] = {}
+
         for path in file_paths:
             parts = path.replace("\\", "/").split("/")
-            
+
             # Use first-level directory as module
             if len(parts) >= 2:
                 module = parts[0]
@@ -189,44 +191,56 @@ class ArchitectureExtractor:
                 if "root" not in modules:
                     modules["root"] = []
                 modules["root"].append(path)
-        
+
         return modules
-    
+
     def _find_entry_points(
         self,
-        files: Dict[str, str],
-    ) -> List[str]:
+        files: dict[str, str],
+    ) -> list[str]:
         """Find application entry points."""
-        entry_points: List[str] = []
-        
+        entry_points: list[str] = []
+
         entry_indicators = [
-            "main.py", "app.py", "__main__.py", "index.py",
-            "main.js", "index.js", "app.js", "server.js",
-            "main.ts", "index.ts", "app.ts", "server.ts",
+            "main.py",
+            "app.py",
+            "__main__.py",
+            "index.py",
+            "main.js",
+            "index.js",
+            "app.js",
+            "server.js",
+            "main.ts",
+            "index.ts",
+            "app.ts",
+            "server.ts",
         ]
-        
+
         for path in files:
             file_name = path.split("/")[-1]
             if file_name in entry_indicators:
                 entry_points.append(path)
-        
+
         # Also check for if __name__ == "__main__" patterns
         for path, content in files.items():
             if path.endswith(".py"):
-                if 'if __name__ == "__main__"' in content or "if __name__ == '__main__'" in content:
+                if (
+                    'if __name__ == "__main__"' in content
+                    or "if __name__ == '__main__'" in content
+                ):
                     if path not in entry_points:
                         entry_points.append(path)
-        
+
         return entry_points
-    
+
     def _find_abstractions(
         self,
-        files: Dict[str, str],
-    ) -> tuple[List[str], List[str]]:
+        files: dict[str, str],
+    ) -> tuple[list[str], list[str]]:
         """Find interfaces and abstract classes."""
-        interfaces: List[str] = []
-        abstractions: List[str] = []
-        
+        interfaces: list[str] = []
+        abstractions: list[str] = []
+
         for path, content in files.items():
             if path.endswith(".py"):
                 # Python ABC
@@ -235,7 +249,7 @@ class ArchitectureExtractor:
                 # Python Protocol
                 if "Protocol" in content:
                     interfaces.append(path)
-            
+
             elif path.endswith(".ts"):
                 # TypeScript interface
                 if re.search(r"\binterface\s+\w+", content):
@@ -243,15 +257,15 @@ class ArchitectureExtractor:
                 # TypeScript abstract
                 if re.search(r"\babstract\s+class\s+\w+", content):
                     abstractions.append(path)
-            
+
             elif path.endswith(".java"):
                 if re.search(r"\binterface\s+\w+", content):
                     interfaces.append(path)
                 if re.search(r"\babstract\s+class\s+\w+", content):
                     abstractions.append(path)
-        
+
         return interfaces, abstractions
-    
+
     def get_architecture_summary(
         self,
         arch_map: ArchitectureMap,
@@ -267,5 +281,5 @@ class ArchitectureExtractor:
             f"**Interfaces:** {len(arch_map.interfaces)}",
             f"**Abstract Classes:** {len(arch_map.abstractions)}",
         ]
-        
+
         return "\n".join(lines)

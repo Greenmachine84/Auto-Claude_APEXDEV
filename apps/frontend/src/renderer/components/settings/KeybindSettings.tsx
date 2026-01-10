@@ -150,14 +150,14 @@ export const KeybindSettings: React.FC<KeybindSettingsProps> = ({
                   <>
                     <Button
                       variant="primary"
-                      size="sm"
+                      size="small"
                       onClick={() => handleSaveKeybind(action)}
                     >
                       Save
                     </Button>
                     <Button
                       variant="ghost"
-                      size="sm"
+                      size="small"
                       onClick={() => setRecording(null)}
                     >
                       Cancel
@@ -167,7 +167,7 @@ export const KeybindSettings: React.FC<KeybindSettingsProps> = ({
                   <>
                     <Button
                       variant="ghost"
-                      size="sm"
+                      size="small"
                       onClick={() => handleStartRecording(action)}
                     >
                       Edit
@@ -175,7 +175,7 @@ export const KeybindSettings: React.FC<KeybindSettingsProps> = ({
                     {isCustom && (
                       <Button
                         variant="ghost"
-                        size="sm"
+                        size="small"
                         onClick={() => handleResetKeybind(action)}
                       >
                         Reset
@@ -198,3 +198,4 @@ export const KeybindSettings: React.FC<KeybindSettingsProps> = ({
     </div>
   );
 };
+

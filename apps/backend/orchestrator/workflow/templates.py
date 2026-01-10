@@ -8,19 +8,19 @@ Provides:
 - Template customization
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from orchestrator.workflow.definition import WorkflowDefinition, WorkflowStep
 
 
 class WorkflowTemplates:
     """Pre-defined workflow templates.
-    
+
     Example:
         templates = WorkflowTemplates()
         workflow = templates.create("build-test-deploy")
     """
-    
+
     @staticmethod
     def build_and_test(
         project_path: str,
@@ -55,10 +55,10 @@ class WorkflowTemplates:
             ],
             inputs={"project_path": project_path},
         )
-    
+
     @staticmethod
     def code_review(
-        files: List[str],
+        files: list[str],
         review_type: str = "comprehensive",
     ) -> WorkflowDefinition:
         """Create code review workflow."""
@@ -95,15 +95,15 @@ class WorkflowTemplates:
             ],
             inputs={"files": files},
         )
-    
+
     @staticmethod
     def pipeline(
-        stages: List[Dict[str, Any]],
+        stages: list[dict[str, Any]],
     ) -> WorkflowDefinition:
         """Create custom pipeline workflow."""
         steps = []
         prev_id = None
-        
+
         for i, stage in enumerate(stages):
             step = WorkflowStep(
                 id=stage.get("id", f"stage_{i}"),
@@ -114,22 +114,22 @@ class WorkflowTemplates:
             )
             steps.append(step)
             prev_id = step.id
-        
+
         return WorkflowDefinition(
             name="custom-pipeline",
             description="Custom pipeline workflow",
             steps=steps,
         )
-    
+
     @staticmethod
     def parallel_tasks(
-        tasks: List[Dict[str, Any]],
-        final_step: Optional[Dict[str, Any]] = None,
+        tasks: list[dict[str, Any]],
+        final_step: dict[str, Any] | None = None,
     ) -> WorkflowDefinition:
         """Create parallel tasks workflow."""
         steps = []
         task_ids = []
-        
+
         for i, task in enumerate(tasks):
             step = WorkflowStep(
                 id=task.get("id", f"task_{i}"),
@@ -139,24 +139,26 @@ class WorkflowTemplates:
             )
             steps.append(step)
             task_ids.append(step.id)
-        
+
         if final_step:
-            steps.append(WorkflowStep(
-                id=final_step.get("id", "final"),
-                name=final_step.get("name", "Final"),
-                type=final_step.get("type", "shell"),
-                inputs=final_step.get("inputs", {}),
-                depends_on=task_ids,
-            ))
-        
+            steps.append(
+                WorkflowStep(
+                    id=final_step.get("id", "final"),
+                    name=final_step.get("name", "Final"),
+                    type=final_step.get("type", "shell"),
+                    inputs=final_step.get("inputs", {}),
+                    depends_on=task_ids,
+                )
+            )
+
         return WorkflowDefinition(
             name="parallel-tasks",
             description="Parallel tasks with optional final step",
             steps=steps,
             parallel=True,
         )
-    
+
     @staticmethod
-    def from_dict(data: Dict[str, Any]) -> WorkflowDefinition:
+    def from_dict(data: dict[str, Any]) -> WorkflowDefinition:
         """Create workflow from template dictionary."""
         return WorkflowDefinition.from_dict(data)

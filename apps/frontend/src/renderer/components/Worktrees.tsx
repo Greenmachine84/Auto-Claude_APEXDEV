@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+﻿import { useEffect, useState, useCallback } from 'react';
 import {
   GitBranch,
   RefreshCw,
@@ -237,7 +237,7 @@ export function Worktrees({ projectId }: WorktreesProps) {
             Worktrees
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Manage isolated workspaces for your Auto Claude tasks
+            Manage isolated workspaces for your APEXDEV tasks
           </p>
         </div>
         <Button
@@ -279,7 +279,7 @@ export function Worktrees({ projectId }: WorktreesProps) {
           </div>
           <h3 className="text-lg font-semibold text-foreground">No Worktrees</h3>
           <p className="text-sm text-muted-foreground mt-2 max-w-md">
-            Worktrees are created automatically when Auto Claude builds features.
+            Worktrees are created automatically when APEXDEV builds features.
             You can also create terminal worktrees from the Agent Terminals tab.
           </p>
         </div>
@@ -649,3 +649,4 @@ export function Worktrees({ projectId }: WorktreesProps) {
     </div>
   );
 }
+

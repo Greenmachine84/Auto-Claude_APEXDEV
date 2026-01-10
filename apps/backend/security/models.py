@@ -6,16 +6,18 @@ World-Class Standards:
 - Provider-aware credential management for all 8 LLM providers
 - Immutable audit events with integrity checksums
 """
-from dataclasses import dataclass, field
-from typing import Optional, List, Dict, Any, Set
-from datetime import datetime
-from enum import Enum
+
 import hashlib
 import uuid
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum
+from typing import Any
 
 
 class ThreatType(Enum):
     """Comprehensive threat classification taxonomy."""
+
     SECRET_EXPOSED = "secret_exposed"
     PROMPT_INJECTION = "prompt_injection"
     CODE_INJECTION = "code_injection"
@@ -29,9 +31,10 @@ class ThreatType(Enum):
 
 class Severity(Enum):
     """Threat severity levels aligned with CVSS."""
-    LOW = "low"          # CVSS 0.1-3.9
-    MEDIUM = "medium"    # CVSS 4.0-6.9
-    HIGH = "high"        # CVSS 7.0-8.9
+
+    LOW = "low"  # CVSS 0.1-3.9
+    MEDIUM = "medium"  # CVSS 4.0-6.9
+    HIGH = "high"  # CVSS 7.0-8.9
     CRITICAL = "critical"  # CVSS 9.0-10.0
 
     @classmethod
@@ -48,42 +51,43 @@ class Severity(Enum):
 
 class AuditAction(Enum):
     """Auditable security actions for complete event tracking."""
+
     # Authentication events
     LOGIN = "login"
     LOGOUT = "logout"
     LOGIN_FAILED = "login_failed"
     SESSION_CREATED = "session_created"
     SESSION_EXPIRED = "session_expired"
-    
+
     # Credential events
     CREDENTIAL_ADDED = "credential_added"
     CREDENTIAL_ACCESSED = "credential_accessed"
     CREDENTIAL_REMOVED = "credential_removed"
     CREDENTIAL_ROTATED = "credential_rotated"
-    
+
     # Agent events
     AGENT_CREATED = "agent_created"
     AGENT_DELETED = "agent_deleted"
     AGENT_STARTED = "agent_started"
     AGENT_STOPPED = "agent_stopped"
-    
+
     # Task events
     TASK_CREATED = "task_created"
     TASK_EXECUTED = "task_executed"
     TASK_COMPLETED = "task_completed"
     TASK_FAILED = "task_failed"
-    
+
     # Permission events
     PERMISSION_GRANTED = "permission_granted"
     PERMISSION_REVOKED = "permission_revoked"
     PERMISSION_CHANGED = "permission_changed"
     PERMISSION_DENIED = "permission_denied"
-    
+
     # Security events
     SECRET_DETECTED = "secret_detected"
     INJECTION_BLOCKED = "injection_blocked"
     THREAT_DETECTED = "threat_detected"
-    
+
     # Provider events
     LLM_PROVIDER_CHANGED = "llm_provider_changed"
     LLM_CALL_MADE = "llm_call_made"
@@ -92,6 +96,7 @@ class AuditAction(Enum):
 
 class PermissionScope(Enum):
     """Permission scope levels for RBAC."""
+
     READ = "read"
     WRITE = "write"
     EXECUTE = "execute"
@@ -102,34 +107,35 @@ class PermissionScope(Enum):
 @dataclass
 class SecurityFinding:
     """Security scan finding with comprehensive metadata.
-    
+
     Represents a detected security issue with full context
     for investigation and remediation.
     """
+
     id: str
     threat_type: ThreatType
     severity: Severity
     message: str
     source: str
-    line_number: Optional[int] = None
-    column_number: Optional[int] = None
-    evidence: Optional[str] = None
-    remediation: Optional[str] = None
-    cwe_id: Optional[str] = None  # Common Weakness Enumeration
-    cvss_score: Optional[float] = None
-    provider: Optional[str] = None  # LLM provider if applicable
+    line_number: int | None = None
+    column_number: int | None = None
+    evidence: str | None = None
+    remediation: str | None = None
+    cwe_id: str | None = None  # Common Weakness Enumeration
+    cvss_score: float | None = None
+    provider: str | None = None  # LLM provider if applicable
     detected_at: str = ""
     false_positive: bool = False
     acknowledged: bool = False
     resolved: bool = False
-    
+
     def __post_init__(self):
         if not self.id:
             self.id = str(uuid.uuid4())
         if not self.detected_at:
             self.detected_at = datetime.utcnow().isoformat()
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
             "id": self.id,
@@ -154,25 +160,26 @@ class SecurityFinding:
 @dataclass
 class AuditEvent:
     """Immutable audit log entry with integrity verification.
-    
+
     Each event includes a checksum for tamper detection.
     Events are append-only and cannot be modified.
     """
+
     id: str
     action: AuditAction
-    user_id: Optional[str] = None
-    agent_id: Optional[str] = None
-    resource: Optional[str] = None
-    details: Dict[str, Any] = field(default_factory=dict)
-    ip_address: Optional[str] = None
-    user_agent: Optional[str] = None
-    provider: Optional[str] = None  # LLM provider if applicable
+    user_id: str | None = None
+    agent_id: str | None = None
+    resource: str | None = None
+    details: dict[str, Any] = field(default_factory=dict)
+    ip_address: str | None = None
+    user_agent: str | None = None
+    provider: str | None = None  # LLM provider if applicable
     timestamp: str = ""
     success: bool = True
-    error_message: Optional[str] = None
-    checksum: Optional[str] = None
-    previous_checksum: Optional[str] = None  # Chain integrity
-    
+    error_message: str | None = None
+    checksum: str | None = None
+    previous_checksum: str | None = None  # Chain integrity
+
     def __post_init__(self):
         if not self.id:
             self.id = str(uuid.uuid4())
@@ -180,7 +187,7 @@ class AuditEvent:
             self.timestamp = datetime.utcnow().isoformat()
         if not self.checksum:
             self.checksum = self._compute_checksum()
-    
+
     def _compute_checksum(self) -> str:
         """Compute SHA-256 checksum for integrity verification."""
         content = f"{self.id}{self.action.value}{self.user_id}{self.agent_id}"
@@ -188,12 +195,12 @@ class AuditEvent:
         if self.previous_checksum:
             content += self.previous_checksum
         return hashlib.sha256(content.encode()).hexdigest()
-    
+
     def verify_integrity(self) -> bool:
         """Verify event has not been tampered with."""
         return self.checksum == self._compute_checksum()
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
             "id": self.id,
@@ -216,20 +223,21 @@ class AuditEvent:
 @dataclass
 class Role:
     """User/agent role with fine-grained permissions.
-    
+
     Supports hierarchical permissions with inheritance
     and provider-specific access control.
     """
+
     id: str
     name: str
     description: str = ""
-    permissions: Set[str] = field(default_factory=set)
+    permissions: set[str] = field(default_factory=set)
     is_system: bool = False
-    parent_role: Optional[str] = None  # For inheritance
-    provider_access: Set[str] = field(default_factory=set)  # LLM providers
+    parent_role: str | None = None  # For inheritance
+    provider_access: set[str] = field(default_factory=set)  # LLM providers
     created_at: str = ""
     updated_at: str = ""
-    
+
     def __post_init__(self):
         if not self.id:
             self.id = str(uuid.uuid4())
@@ -237,7 +245,7 @@ class Role:
             self.created_at = datetime.utcnow().isoformat()
         if not self.updated_at:
             self.updated_at = self.created_at
-    
+
     def has_permission(self, permission: str) -> bool:
         """Check if role has a specific permission."""
         if "*" in self.permissions or "*:*" in self.permissions:
@@ -253,14 +261,14 @@ class Role:
             if f"*:{action}" in self.permissions:
                 return True
         return False
-    
+
     def can_access_provider(self, provider: str) -> bool:
         """Check if role can access an LLM provider."""
         if "*" in self.provider_access:
             return True
         return provider in self.provider_access
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
             "id": self.id,
@@ -278,10 +286,11 @@ class Role:
 @dataclass
 class EncryptedCredential:
     """Encrypted credential with full metadata.
-    
+
     Stores encrypted API keys and secrets for LLM providers
     with rotation tracking and expiration support.
     """
+
     id: str
     provider: str
     credential_name: str
@@ -290,16 +299,16 @@ class EncryptedCredential:
     auth_tag: bytes
     user_id: str
     created_at: str = ""
-    rotated_at: Optional[str] = None
-    expires_at: Optional[str] = None
+    rotated_at: str | None = None
+    expires_at: str | None = None
     version: int = 1
-    
+
     def __post_init__(self):
         if not self.id:
             self.id = str(uuid.uuid4())
         if not self.created_at:
             self.created_at = datetime.utcnow().isoformat()
-    
+
     def is_expired(self) -> bool:
         """Check if credential has expired."""
         if not self.expires_at:
@@ -311,12 +320,13 @@ class EncryptedCredential:
 @dataclass
 class ValidationResult:
     """Result of input/output validation."""
+
     valid: bool
-    errors: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
-    sanitized_value: Optional[str] = None
-    findings: List[SecurityFinding] = field(default_factory=list)
-    
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    sanitized_value: str | None = None
+    findings: list[SecurityFinding] = field(default_factory=list)
+
     def __bool__(self) -> bool:
         return self.valid
 
@@ -324,7 +334,7 @@ class ValidationResult:
 # LLM Provider Constants - All 8 providers with equal support
 SUPPORTED_PROVIDERS = [
     "copilot",
-    "openrouter", 
+    "openrouter",
     "ollama",
     "lmstudio",
     "gemini",

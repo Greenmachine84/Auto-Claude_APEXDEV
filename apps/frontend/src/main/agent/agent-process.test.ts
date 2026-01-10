@@ -97,6 +97,7 @@ vi.mock('../python-detector', () => ({
 
 vi.mock('electron', () => ({
   app: {
+    getName: vi.fn(() => 'APEXDEV'),
     getAppPath: vi.fn(() => '/fake/app/path')
   }
 }));
@@ -492,3 +493,6 @@ describe('AgentProcessManager - API Profile Env Injection (Story 2.3)', () => {
     });
   });
 });
+
+
+

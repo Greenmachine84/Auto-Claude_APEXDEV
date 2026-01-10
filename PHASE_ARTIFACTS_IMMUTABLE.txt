@@ -1,0 +1,59 @@
+# APEXDEV Phase Artifacts - IMMUTABLE
+# These files/folders MUST NOT be deleted or overwritten
+
+## Dashboard (Phase 1)
+apps/frontend/src/renderer/components/dashboard/DashboardView.tsx
+apps/frontend/src/renderer/components/dashboard/index.ts
+
+## Memory View (Phase 2)
+apps/frontend/src/renderer/components/memory/MemoryView.tsx
+
+## Workflow View (Phase 3)
+apps/frontend/src/renderer/components/workflow/WorkflowView.tsx
+apps/frontend/src/renderer/components/workflow/WorkflowCanvas.tsx
+apps/frontend/src/renderer/components/workflow/WorkflowNode.tsx
+apps/frontend/src/renderer/components/workflow/WorkflowEdge.tsx
+apps/frontend/src/renderer/components/workflow/WorkflowSidebar.tsx
+apps/frontend/src/renderer/components/workflow/WorkflowToolbar.tsx
+apps/frontend/src/renderer/components/workflow/index.ts
+apps/frontend/src/renderer/components/workflow/types.ts
+
+## Analytics View (Phase 4)
+apps/frontend/src/renderer/components/analytics/AnalyticsView.tsx
+apps/frontend/src/renderer/components/analytics/MetricsDashboard.tsx
+apps/frontend/src/renderer/components/analytics/CostTracker.tsx
+apps/frontend/src/renderer/components/analytics/TaskMetrics.tsx
+apps/frontend/src/renderer/components/analytics/AgentPerformance.tsx
+apps/frontend/src/renderer/components/analytics/UsageChart.tsx
+apps/frontend/src/renderer/components/analytics/index.ts
+
+## Agents View (Phase 5)
+apps/frontend/src/renderer/components/agents/AgentView.tsx
+apps/frontend/src/renderer/components/agents/AgentCard.tsx
+apps/frontend/src/renderer/components/agents/AgentDetail.tsx
+apps/frontend/src/renderer/components/agents/AgentList.tsx
+apps/frontend/src/renderer/components/agents/AgentLogs.tsx
+apps/frontend/src/renderer/components/agents/AgentPoolStatus.tsx
+apps/frontend/src/renderer/components/agents/index.ts
+
+## Security View (Phase 6)
+apps/frontend/src/renderer/components/security/SecurityView.tsx
+
+## Governance View (Phase 7)
+apps/frontend/src/renderer/components/governance/GovernanceView.tsx
+
+## Backend Agent Architecture (Phases 5-8)
+apps/backend/agents/base/
+apps/backend/agents/core/
+apps/backend/agents/enterprise/
+apps/backend/orchestration/
+apps/backend/tools/
+
+## Common UI Components
+apps/frontend/src/renderer/components/common/
+
+## Terminal Components (Phase extensions)
+apps/frontend/src/renderer/components/terminal/TerminalPane.tsx
+apps/frontend/src/renderer/components/terminal/TerminalTabs.tsx
+apps/frontend/src/renderer/components/terminal/TerminalToolbar.tsx
+apps/frontend/src/renderer/components/terminal/TerminalView.tsx

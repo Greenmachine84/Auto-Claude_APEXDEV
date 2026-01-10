@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Download, RefreshCw, AlertCircle } from 'lucide-react';
+import { debugLog } from '../shared/utils/debug-logger';
 import {
   DndContext,
   DragOverlay,
@@ -51,6 +52,7 @@ import { SecurityView } from './components/security';
 import { GovernanceView } from './components/governance';
 import { DashboardView } from './components/dashboard';
 import { WelcomeScreen } from './components/WelcomeScreen';
+import { ConnectGitHubRepoModal } from './components/ConnectGitHubRepoModal';
 import { RateLimitModal } from './components/RateLimitModal';
 import { SDKRateLimitModal } from './components/SDKRateLimitModal';
 import { OnboardingWizard } from './components/onboarding';
@@ -67,7 +69,7 @@ import { initDownloadProgressListener } from './stores/download-store';
 import { GlobalDownloadIndicator } from './components/GlobalDownloadIndicator';
 import { useIpcListeners } from './hooks/useIpc';
 import { COLOR_THEMES, UI_SCALE_MIN, UI_SCALE_MAX, UI_SCALE_DEFAULT } from '../shared/constants';
-import type { Task, Project, ColorTheme } from '../shared/types';
+import type { Task, Project, ColorTheme, VirtualRepoInfo } from '../shared/types';
 import { ProjectTabBar } from './components/ProjectTabBar';
 import { AddProjectModal } from './components/AddProjectModal';
 import { ViewStateProvider } from './contexts/ViewStateContext';
@@ -144,8 +146,9 @@ export function App() {
   const [initError, setInitError] = useState<string | null>(null);
   const [skippedInitProjectId, setSkippedInitProjectId] = useState<string | null>(null);
   const [showAddProjectModal, setShowAddProjectModal] = useState(false);
+  const [showConnectGitHubModal, setShowConnectGitHubModal] = useState(false);
 
-  // GitHub setup state (shown after Auto Claude init)
+  // GitHub setup state (shown after APEXDEV init)
   const [showGitHubSetup, setShowGitHubSetup] = useState(false);
   const [gitHubSetupProject, setGitHubSetupProject] = useState<Project | null>(null);
 
@@ -309,7 +312,7 @@ export function App() {
     setInitError(null);
   }, [selectedProjectId]);
 
-  // Check if selected project needs initialization (e.g., .auto-claude folder was deleted)
+  // Check if selected project needs initialization (e.g., .APEXDEV folder was deleted)
   useEffect(() => {
     // Don't show dialog while initialization is in progress
     if (isInitializing) return;
@@ -446,13 +449,84 @@ export function App() {
 
   // Update selected task when tasks change (for real-time updates)
   useEffect(() => {
-    if (selectedTask) {
-      const updatedTask = tasks.find(
-        (t) => t.id === selectedTask.id || t.specId === selectedTask.specId
-      );
-      if (updatedTask && updatedTask !== selectedTask) {
-        setSelectedTask(updatedTask);
-      }
+    if (!selectedTask) {
+      debugLog('[App] No selected task to update');
+      return;
+    }
+
+    const updatedTask = tasks.find(
+      (t) => t.id === selectedTask.id || t.specId === selectedTask.specId
+    );
+
+    debugLog('[App] Task lookup result', {
+      found: !!updatedTask,
+      updatedTaskId: updatedTask?.id,
+      selectedTaskId: selectedTask.id,
+    });
+
+    if (!updatedTask) {
+      debugLog('[App] Updated task not found in tasks array');
+      return;
+    }
+
+    // Compare all mutable fields that affect UI state
+    const subtasksChanged =
+      JSON.stringify(selectedTask.subtasks || []) !==
+      JSON.stringify(updatedTask.subtasks || []);
+    const statusChanged = selectedTask.status !== updatedTask.status;
+    const titleChanged = selectedTask.title !== updatedTask.title;
+    const descriptionChanged = selectedTask.description !== updatedTask.description;
+    const metadataChanged =
+      JSON.stringify(selectedTask.metadata || {}) !==
+      JSON.stringify(updatedTask.metadata || {});
+    const executionProgressChanged =
+      JSON.stringify(selectedTask.executionProgress || {}) !==
+      JSON.stringify(updatedTask.executionProgress || {});
+    const qaReportChanged =
+      JSON.stringify(selectedTask.qaReport || {}) !==
+      JSON.stringify(updatedTask.qaReport || {});
+    const reviewReasonChanged = selectedTask.reviewReason !== updatedTask.reviewReason;
+    const logsChanged =
+      JSON.stringify(selectedTask.logs || []) !==
+      JSON.stringify(updatedTask.logs || []);
+
+    const hasChanged =
+      subtasksChanged || statusChanged || titleChanged || descriptionChanged ||
+      metadataChanged || executionProgressChanged || qaReportChanged ||
+      reviewReasonChanged || logsChanged;
+
+    debugLog('[App] Task comparison', {
+      hasChanged,
+      changes: {
+        subtasks: subtasksChanged,
+        status: statusChanged,
+        title: titleChanged,
+        description: descriptionChanged,
+        metadata: metadataChanged,
+        executionProgress: executionProgressChanged,
+        qaReport: qaReportChanged,
+        reviewReason: reviewReasonChanged,
+        logs: logsChanged,
+      },
+    });
+
+    if (hasChanged) {
+      const reasons = [];
+      if (subtasksChanged) reasons.push('Subtasks');
+      if (statusChanged) reasons.push('Status');
+      if (titleChanged) reasons.push('Title');
+      if (descriptionChanged) reasons.push('Description');
+      if (metadataChanged) reasons.push('Metadata');
+      if (executionProgressChanged) reasons.push('ExecutionProgress');
+      if (qaReportChanged) reasons.push('QAReport');
+      if (reviewReasonChanged) reasons.push('ReviewReason');
+      if (logsChanged) reasons.push('Logs');
+
+      debugLog('[App] Updating selectedTask', {
+        taskId: updatedTask.id,
+        reason: reasons.join(', '),
+      });
+      setSelectedTask(updatedTask);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentionally omit selectedTask object to prevent infinite re-render loop
   }, [tasks, selectedTask?.id, selectedTask?.specId]);
@@ -510,6 +584,43 @@ export function App() {
       setInitError(null);
       setInitSuccess(false);
       setShowInitDialog(true);
+    }
+  };
+
+  const handleConnectGitHub = () => {
+    setShowConnectGitHubModal(true);
+  };
+
+  const handleGitHubRepoConnected = async (repoInfo: VirtualRepoInfo, githubToken: string) => {
+    console.log('[App] handleGitHubRepoConnected called', {
+      repoFullName: repoInfo.fullName,
+      repoName: repoInfo.name,
+      hasToken: !!githubToken,
+      tokenLength: githubToken?.length
+    });
+
+    try {
+      console.log('[App] Calling addVirtualProject via IPC...');
+      const result = await (window.electronAPI.addVirtualProject as any)(repoInfo, githubToken);
+      console.log('[App] addVirtualProject result:', {
+        success: result.success,
+        projectId: (result.data?.id ?? result.projectId),
+        error: result.error
+      });
+
+      if (result.success && (result.data || result.projectId)) {
+        // Refresh projects list to include the new virtual project
+        await loadProjects();
+        openProjectTab(result.data?.id ?? result.projectId);
+        setShowConnectGitHubModal(false);
+        console.log('[App] Virtual project added successfully:', result.data.id);
+      } else {
+        console.error('[App] Failed to add virtual project:', result.error);
+        // TODO: Show error toast to user
+      }
+    } catch (error) {
+      console.error('[App] Error connecting GitHub repo:', error);
+      // TODO: Show error toast to user
     }
   };
 
@@ -611,7 +722,7 @@ export function App() {
       } else {
         // Initialization failed - show error but keep dialog open
         console.log('[InitDialog] Initialization failed, showing error');
-        const errorMessage = result?.error || 'Failed to initialize Auto Claude. Please try again.';
+        const errorMessage = result?.error || 'Failed to initialize APEXDEV. Please try again.';
         setInitError(errorMessage);
         setIsInitializing(false);
       }
@@ -845,6 +956,7 @@ export function App() {
                 onSelectProject={(projectId) => {
                   openProjectTab(projectId);
                 }}
+                onConnectGitHub={handleConnectGitHub}
               />
             )}
           </main>
@@ -897,7 +1009,14 @@ export function App() {
           onProjectAdded={handleProjectAdded}
         />
 
-        {/* Initialize Auto Claude Dialog */}
+        {/* Connect GitHub Repository Modal */}
+        <ConnectGitHubRepoModal
+          open={showConnectGitHubModal}
+          onOpenChange={setShowConnectGitHubModal}
+          onConnect={handleGitHubRepoConnected}
+        />
+
+        {/* Initialize APEXDEV Dialog */}
         <Dialog open={showInitDialog} onOpenChange={(open) => {
           console.log('[InitDialog] onOpenChange called', { open, pendingProject: !!pendingProject, isInitializing, initSuccess });
           // Only trigger skip if user manually closed the dialog
@@ -976,7 +1095,7 @@ export function App() {
           </DialogContent>
         </Dialog>
 
-        {/* GitHub Setup Modal - shows after Auto Claude init to configure GitHub */}
+        {/* GitHub Setup Modal - shows after APEXDEV init to configure GitHub */}
         {gitHubSetupProject && (
           <GitHubSetupModal
             open={showGitHubSetup}
@@ -1048,4 +1167,16 @@ export function App() {
     </ViewStateProvider>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
 

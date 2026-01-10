@@ -6,7 +6,7 @@ HTTP client for GitLab API interactions.
 """
 
 import logging
-from typing import Any, Optional
+from typing import Any
 from urllib.parse import quote
 
 import httpx
@@ -19,7 +19,12 @@ logger = logging.getLogger(__name__)
 class GitLabClientError(Exception):
     """GitLab client error."""
 
-    def __init__(self, message: str, status_code: Optional[int] = None, response: Optional[dict] = None):
+    def __init__(
+        self,
+        message: str,
+        status_code: int | None = None,
+        response: dict | None = None,
+    ):
         super().__init__(message)
         self.status_code = status_code
         self.response = response
@@ -31,7 +36,7 @@ class GitLabClient:
     def __init__(self, config: GitLabConfig):
         self.config = config
         self.base_url = config.base_url.rstrip("/")
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
 
     async def _get_client(self) -> httpx.AsyncClient:
         """Get or create HTTP client."""
@@ -63,8 +68,8 @@ class GitLabClient:
         self,
         method: str,
         path: str,
-        params: Optional[dict] = None,
-        json: Optional[dict] = None,
+        params: dict | None = None,
+        json: dict | None = None,
     ) -> Any:
         """Make API request."""
         client = await self._get_client()
@@ -83,21 +88,23 @@ class GitLabClient:
             message = error_data.get("message", str(e)) if error_data else str(e)
             if isinstance(message, dict):
                 message = str(message)
-            logger.error(f"GitLab API error: {message} (status={e.response.status_code})")
+            logger.error(
+                f"GitLab API error: {message} (status={e.response.status_code})"
+            )
             raise GitLabClientError(message, e.response.status_code, error_data) from e
         except httpx.RequestError as e:
             logger.error(f"GitLab API request failed: {e}")
             raise GitLabClientError(str(e)) from e
 
-    async def get(self, path: str, params: Optional[dict] = None) -> Any:
+    async def get(self, path: str, params: dict | None = None) -> Any:
         """GET request."""
         return await self._request("GET", path, params=params)
 
-    async def post(self, path: str, json: Optional[dict] = None) -> Any:
+    async def post(self, path: str, json: dict | None = None) -> Any:
         """POST request."""
         return await self._request("POST", path, json=json)
 
-    async def put(self, path: str, json: Optional[dict] = None) -> Any:
+    async def put(self, path: str, json: dict | None = None) -> Any:
         """PUT request."""
         return await self._request("PUT", path, json=json)
 
@@ -108,7 +115,7 @@ class GitLabClient:
     async def paginate(
         self,
         path: str,
-        params: Optional[dict] = None,
+        params: dict | None = None,
         max_pages: int = 10,
     ) -> list[Any]:
         """Paginate through API results."""

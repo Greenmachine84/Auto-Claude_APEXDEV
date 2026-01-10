@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 
 from merge import FileTimelineTracker
+from security.constants import ALLOWLIST_FILENAME, PROFILE_FILENAME
 from ui import (
     Icons,
     MenuOption,
@@ -200,9 +201,9 @@ def copy_spec_to_worktree(
         Path to the spec directory inside the worktree
     """
     # Determine target location inside worktree
-    # Use .auto-claude/specs/{spec_name}/ as the standard location
-    # Note: auto-claude/ is source code, .auto-claude/ is the installed instance
-    target_spec_dir = worktree_path / ".auto-claude" / "specs" / spec_name
+    # Use .apexdev/specs/{spec_name}/ as the standard location
+    # Note: auto-claude/ is source code, .apexdev/ is the installed instance
+    target_spec_dir = worktree_path / ".apexdev" / "specs" / spec_name
 
     # Create parent directories if needed
     target_spec_dir.parent.mkdir(parents=True, exist_ok=True)
@@ -267,14 +268,42 @@ def setup_workspace(
             f"Environment files copied: {', '.join(copied_env_files)}", "success"
         )
 
-    # Ensure .auto-claude/ is in the worktree's .gitignore
+    # Copy security configuration files if they exist
+    # Note: Unlike env files, security files always overwrite to ensure
+    # the worktree uses the same security rules as the main project.
+    # This prevents security bypasses through stale worktree configs.
+    security_files = [
+        ALLOWLIST_FILENAME,
+        PROFILE_FILENAME,
+    ]
+    security_files_copied = []
+
+    for filename in security_files:
+        source_file = project_dir / filename
+        if source_file.is_file():
+            target_file = worktree_info.path / filename
+            try:
+                shutil.copy2(source_file, target_file)
+                security_files_copied.append(filename)
+            except (OSError, PermissionError) as e:
+                debug_warning(MODULE, f"Failed to copy {filename}: {e}")
+                print_status(
+                    f"Warning: Could not copy {filename} to worktree", "warning"
+                )
+
+    if security_files_copied:
+        print_status(
+            f"Security config copied: {', '.join(security_files_copied)}", "success"
+        )
+
+    # Ensure .apexdev/ is in the worktree's .gitignore
     # This is critical because the worktree inherits .gitignore from the base branch,
-    # which may not have .auto-claude/ if that change wasn't committed/pushed.
+    # which may not have .apexdev/ if that change wasn't committed/pushed.
     # Without this, spec files would be committed to the worktree's branch.
     from init import ensure_gitignore_entry
 
-    if ensure_gitignore_entry(worktree_info.path, ".auto-claude/"):
-        debug(MODULE, "Added .auto-claude/ to worktree's .gitignore")
+    if ensure_gitignore_entry(worktree_info.path, ".apexdev/"):
+        debug(MODULE, "Added .apexdev/ to worktree's .gitignore")
 
     # Copy spec files to worktree if provided
     localized_spec_dir = None

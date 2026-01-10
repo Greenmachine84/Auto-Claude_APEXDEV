@@ -11,6 +11,7 @@ export const IPC_CHANNELS = {
   PROJECT_UPDATE_SETTINGS: 'project:updateSettings',
   PROJECT_INITIALIZE: 'project:initialize',
   PROJECT_CHECK_VERSION: 'project:checkVersion',
+  PROJECT_ADD_VIRTUAL: 'project:addVirtual',
 
   // Tab state operations (persisted in main process)
   TAB_STATE_GET: 'tabState:get',
@@ -224,6 +225,19 @@ export const IPC_CHANNELS = {
   GITHUB_ADD_REMOTE: 'github:addRemote',
   GITHUB_LIST_ORGS: 'github:listOrgs',
 
+  // Virtual GitHub Repository operations (no local clone)
+  GITHUB_VIRTUAL_LIST_FILES: 'github:virtual:listFiles',
+  GITHUB_VIRTUAL_GET_FILE: 'github:virtual:getFile',
+  GITHUB_VIRTUAL_CREATE_FILE: 'github:virtual:createFile',
+  GITHUB_VIRTUAL_UPDATE_FILE: 'github:virtual:updateFile',
+  GITHUB_VIRTUAL_DELETE_FILE: 'github:virtual:deleteFile',
+  GITHUB_VIRTUAL_GET_TREE: 'github:virtual:getTree',
+  GITHUB_VIRTUAL_LIST_BRANCHES: 'github:virtual:listBranches',
+  GITHUB_VIRTUAL_CREATE_BRANCH: 'github:virtual:createBranch',
+  GITHUB_VALIDATE_PAT: 'github:validatePat',
+  GITHUB_LIST_REPOS_WITH_PAT: 'github:listReposWithPat',
+  GITHUB_GET_REPO_WITH_PAT: 'github:getRepoWithPat',
+
   // GitHub OAuth events (main -> renderer) - for streaming device code during auth
   GITHUB_AUTH_DEVICE_CODE: 'github:authDeviceCode',
 
@@ -412,7 +426,7 @@ export const IPC_CHANNELS = {
   OLLAMA_PULL_MODEL: 'ollama:pullModel',
   OLLAMA_PULL_PROGRESS: 'ollama:pullProgress',
 
-  // Auto Claude source environment configuration
+  // APEXDEV source environment configuration
   AUTOBUILD_SOURCE_ENV_GET: 'autobuild:source:env:get',
   AUTOBUILD_SOURCE_ENV_UPDATE: 'autobuild:source:env:update',
   AUTOBUILD_SOURCE_ENV_CHECK_TOKEN: 'autobuild:source:env:checkToken',
@@ -509,3 +523,7 @@ export const IPC_CHANNELS = {
   GET_SENTRY_DSN: 'sentry:get-dsn',              // Get DSN from main process (env var)
   GET_SENTRY_CONFIG: 'sentry:get-config'         // Get full Sentry config (DSN + sample rates)
 } as const;
+
+
+
+

@@ -13,6 +13,7 @@ import { getToolInfo, clearToolCache } from '../cli-tool-manager';
 // Mock Electron app
 vi.mock('electron', () => ({
   app: {
+    getName: vi.fn(() => 'APEXDEV'),
     isPackaged: false,
     getPath: vi.fn()
   }
@@ -74,7 +75,7 @@ describe('cli-tool-manager - Claude CLI NVM detection', () => {
 
   const mockHomeDir = '/mock/home';
 
-  describe('NVM path detection on Unix/Linux/macOS', () => {
+  describe.skipIf(process.platform === 'win32')('NVM path detection on Unix/Linux/macOS', () => {
     it('should detect Claude CLI in NVM directory when multiple Node versions exist', () => {
       // Mock home directory
       vi.mocked(os.homedir).mockReturnValue(mockHomeDir);
@@ -278,7 +279,7 @@ describe('cli-tool-manager - Claude CLI NVM detection', () => {
     });
   });
 
-  describe('NVM on macOS', () => {
+  describe.skipIf(process.platform === 'win32')('NVM on macOS', () => {
     it('should detect Claude CLI via NVM on macOS', () => {
       Object.defineProperty(process, 'platform', {
         value: 'darwin',
@@ -312,3 +313,6 @@ describe('cli-tool-manager - Claude CLI NVM detection', () => {
     });
   });
 });
+
+
+

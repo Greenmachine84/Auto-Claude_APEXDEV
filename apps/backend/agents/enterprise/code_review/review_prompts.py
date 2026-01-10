@@ -8,17 +8,17 @@ World-Class Standards:
 Phase 7 Implementation: Enterprise Agents Architecture
 Reference: PHASE7_ENTERPRISE_AGENTS_ARCHITECTURE.md
 """
+
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
 
 
 @dataclass
 class ReviewPrompts:
     """Prompt templates for code review.
-    
+
     Contains templates for different review scenarios.
     """
-    
+
     # Standard file review prompt
     FILE_REVIEW_TEMPLATE: str = """You are an expert code reviewer. Analyze the following {language} code and provide detailed feedback.
 
@@ -62,7 +62,7 @@ Focus on:
 4. Code quality and maintainability
 5. Best practices for {language}
 """
-    
+
     # Improvement suggestions prompt
     IMPROVEMENT_TEMPLATE: str = """Analyze the following {language} code and suggest improvements.
 
@@ -92,7 +92,7 @@ Consider:
 - Error handling
 - Documentation
 """
-    
+
     # Best practices check prompt
     BEST_PRACTICES_TEMPLATE: str = """Check the following {language} code against best practices.
 
@@ -123,82 +123,84 @@ Check for:
 - Naming conventions
 - Documentation completeness
 """
-    
+
     # Language-specific guidance
-    LANGUAGE_GUIDANCE: Dict[str, str] = field(default_factory=lambda: {
-        "python": """Python-specific guidance:
+    LANGUAGE_GUIDANCE: dict[str, str] = field(
+        default_factory=lambda: {
+            "python": """Python-specific guidance:
 - PEP 8 style compliance
 - Type hints usage
 - Context managers for resources
 - List/dict comprehensions where appropriate
 - Proper exception handling""",
-        "javascript": """JavaScript-specific guidance:
+            "javascript": """JavaScript-specific guidance:
 - ES6+ features usage
 - Async/await patterns
 - Proper error handling
 - Memory leak prevention
 - Event listener cleanup""",
-        "typescript": """TypeScript-specific guidance:
+            "typescript": """TypeScript-specific guidance:
 - Proper type annotations
 - Avoid 'any' type
 - Interface vs type usage
 - Null/undefined handling
 - Generic constraints""",
-        "java": """Java-specific guidance:
+            "java": """Java-specific guidance:
 - SOLID principles
 - Exception handling
 - Resource management (try-with-resources)
 - Null safety
 - Effective Java patterns""",
-        "go": """Go-specific guidance:
+            "go": """Go-specific guidance:
 - Error handling patterns
 - Goroutine safety
 - Defer usage
 - Interface design
 - Package organization""",
-        "rust": """Rust-specific guidance:
+            "rust": """Rust-specific guidance:
 - Ownership and borrowing
 - Error handling with Result/Option
 - Lifetime annotations
 - Trait implementations
 - Unsafe code review""",
-    })
-    
+        }
+    )
+
     def build_file_review_prompt(
         self,
         file_path: str,
         content: str,
-        diff: Optional[str] = None,
+        diff: str | None = None,
         language: str = "unknown",
     ) -> str:
         """Build a file review prompt.
-        
+
         Args:
             file_path: Path to the file
             content: File content
             diff: Optional diff showing changes
             language: Programming language
-            
+
         Returns:
             Formatted prompt string
         """
         diff_section = ""
         if diff:
             diff_section = f"\nChanges (diff):\n```diff\n{diff}\n```\n"
-        
+
         prompt = self.FILE_REVIEW_TEMPLATE.format(
             file_path=file_path,
             content=content,
             language=language,
             diff_section=diff_section,
         )
-        
+
         # Add language-specific guidance
         if language in self.LANGUAGE_GUIDANCE:
             prompt += f"\n\n{self.LANGUAGE_GUIDANCE[language]}"
-        
+
         return prompt
-    
+
     def build_improvement_prompt(
         self,
         code: str,
@@ -209,12 +211,12 @@ Check for:
             code=code,
             language=language,
         )
-        
+
         if language in self.LANGUAGE_GUIDANCE:
             prompt += f"\n\n{self.LANGUAGE_GUIDANCE[language]}"
-        
+
         return prompt
-    
+
     def build_best_practices_prompt(
         self,
         code: str,
@@ -225,49 +227,53 @@ Check for:
             code=code,
             language=language,
         )
-        
+
         if language in self.LANGUAGE_GUIDANCE:
             prompt += f"\n\n{self.LANGUAGE_GUIDANCE[language]}"
-        
+
         return prompt
 
 
 class ReviewPromptBuilder:
     """Builder for custom review prompts.
-    
+
     Allows building complex prompts with multiple focus areas.
     """
-    
+
     def __init__(self):
-        self._focus_areas: List[str] = []
+        self._focus_areas: list[str] = []
         self._language: str = "unknown"
         self._context: str = ""
         self._output_format: str = "json"
-    
+
     def set_language(self, language: str) -> "ReviewPromptBuilder":
         """Set the programming language."""
         self._language = language
         return self
-    
+
     def add_focus(self, focus: str) -> "ReviewPromptBuilder":
         """Add a focus area for the review."""
         self._focus_areas.append(focus)
         return self
-    
+
     def add_context(self, context: str) -> "ReviewPromptBuilder":
         """Add additional context."""
         self._context = context
         return self
-    
+
     def set_output_format(self, format: str) -> "ReviewPromptBuilder":
         """Set the expected output format."""
         self._output_format = format
         return self
-    
+
     def build(self, code: str) -> str:
         """Build the final prompt."""
-        focus_text = "\n".join(f"- {f}" for f in self._focus_areas) if self._focus_areas else "- General code quality"
-        
+        focus_text = (
+            "\n".join(f"- {f}" for f in self._focus_areas)
+            if self._focus_areas
+            else "- General code quality"
+        )
+
         prompt = f"""Analyze the following {self._language} code.
 
 ```{self._language}
@@ -282,7 +288,7 @@ Focus on:
 Provide your analysis in {self._output_format} format.
 """
         return prompt
-    
+
     def reset(self) -> "ReviewPromptBuilder":
         """Reset the builder."""
         self._focus_areas = []

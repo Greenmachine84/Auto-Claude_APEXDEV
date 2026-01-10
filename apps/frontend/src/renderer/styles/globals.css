@@ -116,8 +116,8 @@
   --card-foreground: #0B0B0F;
 
   /* Accent - Muted olive/yellow for light mode */
-  --primary: #A5A66A;
-  --primary-foreground: #0B0B0F;
+  --primary: #4F46E5;
+  --primary-foreground: #FFFFFF;
 
   --secondary: #E8E8E3;
   --secondary-foreground: #0B0B0F;
@@ -133,7 +133,7 @@
 
   --border: #DEDED9;
   --input: #DEDED9;
-  --ring: #A5A66A;
+  --ring: #4F46E5;
 
   --sidebar: #FFFFFF;
   --sidebar-foreground: #0B0B0F;
@@ -159,7 +159,7 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-  --shadow-focus: 0 0 0 3px rgba(165, 166, 106, 0.2);
+  --shadow-focus: 0 0 0 3px rgba(79, 70, 229, 0.2);
 
   /* Border radius */
   --radius: 12px;
@@ -176,8 +176,8 @@
   --card-foreground: #E6E6E6;
 
   /* Accent - Saturated yellow for vibrant contrast */
-  --primary: #D6D876;
-  --primary-foreground: #0B0B0F;
+  --primary: #6366F1;
+  --primary-foreground: #FFFFFF;
 
   --secondary: #1A1A1F;
   --secondary-foreground: #E6E6E6;
@@ -185,8 +185,8 @@
   --muted: #1A1A1F;
   --muted-foreground: #868F97;
 
-  --accent: #2A2A1F;
-  --accent-foreground: #D6D876;
+  --accent: #1E1B4B;
+  --accent-foreground: #A5B4FC;
 
   --destructive: #FF5C5C;
   --destructive-foreground: #0B0B0F;
@@ -194,7 +194,7 @@
   /* Subtle dark borders for card definition */
   --border: #232323;
   --input: #232323;
-  --ring: #D6D876;
+  --ring: #6366F1;
 
   --sidebar: #0E0E12;
   --sidebar-foreground: #E6E6E6;
@@ -220,7 +220,7 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.7);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.8);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.9);
-  --shadow-focus: 0 0 0 2px rgba(214, 216, 118, 0.2);
+  --shadow-focus: 0 0 0 2px rgba(99, 102, 241, 0.3);
 }
 
 /* ============================================
@@ -237,7 +237,7 @@
   --card-foreground: #131419;
 
   /* Primary accent - muted olive/yellow */
-  --primary: #B8B978;
+  --primary: #5B56E5;
   --primary-foreground: #131419;
 
   /* Secondary */
@@ -1708,3 +1708,5 @@ body {
 [data-ui-scale="190"] { font-size: 30.4px; }
 [data-ui-scale="195"] { font-size: 31.2px; }
 [data-ui-scale="200"] { font-size: 32px; }
+
+

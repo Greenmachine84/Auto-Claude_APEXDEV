@@ -6,31 +6,32 @@ World-Class Standards:
 - Pre-commit hook integration ready
 - Evidence redaction for safe logging
 """
+
 import re
 import uuid
-from pathlib import Path
-from typing import List, Dict, Optional, Set
-from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import dataclass
+from pathlib import Path
 
-from ..models import SecurityFinding, ThreatType, Severity, SUPPORTED_PROVIDERS
+from ..models import SecurityFinding, Severity, ThreatType
 
 
 @dataclass
 class SecretPattern:
     """Definition of a secret pattern for detection."""
+
     name: str
     pattern: str
     severity: Severity
     message: str
-    provider: Optional[str] = None
+    provider: str | None = None
     cwe_id: str = "CWE-798"  # Use of Hard-coded Credentials
-    remediation: Optional[str] = None
+    remediation: str | None = None
 
 
 class SecretsScanner:
     """Detects exposed secrets including all LLM provider credentials.
-    
+
     Scans for credentials from all 8 supported providers:
     - copilot (GitHub tokens)
     - openrouter (API keys)
@@ -41,9 +42,9 @@ class SecretsScanner:
     - anthropic (API keys)
     - azure (API keys and endpoints)
     """
-    
+
     # LLM Provider patterns - all 8 providers with equal treatment
-    PROVIDER_PATTERNS: Dict[str, SecretPattern] = {
+    PROVIDER_PATTERNS: dict[str, SecretPattern] = {
         "github_token": SecretPattern(
             name="github_token",
             pattern=r"gh[pousr]_[A-Za-z0-9_]{36,}",
@@ -93,9 +94,9 @@ class SecretsScanner:
             remediation="Remove key and rotate via Azure Portal > Cognitive Services",
         ),
     }
-    
+
     # General secret patterns
-    GENERAL_PATTERNS: Dict[str, SecretPattern] = {
+    GENERAL_PATTERNS: dict[str, SecretPattern] = {
         "aws_access_key": SecretPattern(
             name="aws_access_key",
             pattern=r"AKIA[0-9A-Z]{16}",
@@ -161,122 +162,149 @@ class SecretsScanner:
             remediation="Remove hardcoded credentials and use environment variables",
         ),
     }
-    
-    def __init__(self, excluded_patterns: Optional[Set[str]] = None):
+
+    def __init__(self, excluded_patterns: set[str] | None = None):
         """Initialize scanner with optional pattern exclusions."""
         self._patterns = {**self.PROVIDER_PATTERNS, **self.GENERAL_PATTERNS}
         self._excluded = excluded_patterns or set()
-        self._compiled_patterns: Dict[str, re.Pattern] = {}
+        self._compiled_patterns: dict[str, re.Pattern] = {}
         self._compile_patterns()
-    
+
     def _compile_patterns(self) -> None:
         """Pre-compile regex patterns for performance."""
         for name, pattern_def in self._patterns.items():
             if name not in self._excluded:
                 self._compiled_patterns[name] = re.compile(pattern_def.pattern)
-    
+
     def _redact(self, text: str, keep_chars: int = 4) -> str:
         """Redact sensitive information for safe logging.
-        
+
         Keeps first and last N characters, replaces middle with asterisks.
         """
         if len(text) <= keep_chars * 2:
             return "*" * len(text)
-        return text[:keep_chars] + "*" * (len(text) - keep_chars * 2) + text[-keep_chars:]
-    
-    def scan_text(self, text: str, source: str = "input") -> List[SecurityFinding]:
+        return (
+            text[:keep_chars] + "*" * (len(text) - keep_chars * 2) + text[-keep_chars:]
+        )
+
+    def scan_text(self, text: str, source: str = "input") -> list[SecurityFinding]:
         """Scan text content for exposed secrets.
-        
+
         Args:
             text: Content to scan
             source: Source identifier for findings
-            
+
         Returns:
             List of security findings
         """
         findings = []
         lines = text.split("\n")
-        
+
         for line_num, line in enumerate(lines, 1):
             for name, compiled in self._compiled_patterns.items():
                 match = compiled.search(line)
                 if match:
                     pattern_def = self._patterns[name]
-                    findings.append(SecurityFinding(
-                        id=str(uuid.uuid4()),
-                        threat_type=ThreatType.SECRET_EXPOSED,
-                        severity=pattern_def.severity,
-                        message=pattern_def.message,
-                        source=source,
-                        line_number=line_num,
-                        column_number=match.start() + 1,
-                        evidence=self._redact(match.group()),
-                        remediation=pattern_def.remediation or f"Remove {name} and rotate credential",
-                        cwe_id=pattern_def.cwe_id,
-                        provider=pattern_def.provider,
-                    ))
-        
+                    findings.append(
+                        SecurityFinding(
+                            id=str(uuid.uuid4()),
+                            threat_type=ThreatType.SECRET_EXPOSED,
+                            severity=pattern_def.severity,
+                            message=pattern_def.message,
+                            source=source,
+                            line_number=line_num,
+                            column_number=match.start() + 1,
+                            evidence=self._redact(match.group()),
+                            remediation=pattern_def.remediation
+                            or f"Remove {name} and rotate credential",
+                            cwe_id=pattern_def.cwe_id,
+                            provider=pattern_def.provider,
+                        )
+                    )
+
         return findings
-    
-    def scan_file(self, file_path: Path, max_size_kb: int = 10240) -> List[SecurityFinding]:
+
+    def scan_file(
+        self, file_path: Path, max_size_kb: int = 10240
+    ) -> list[SecurityFinding]:
         """Scan a single file for secrets.
-        
+
         Args:
             file_path: Path to file to scan
             max_size_kb: Maximum file size in KB (default 10MB)
-            
+
         Returns:
             List of security findings
         """
         path = Path(file_path)
-        
+
         if not path.exists():
             return []
-        
+
         # Skip files too large
         if path.stat().st_size > max_size_kb * 1024:
             return []
-        
+
         # Skip binary files
         try:
             content = path.read_text(encoding="utf-8", errors="ignore")
         except (UnicodeDecodeError, OSError):
             return []
-        
+
         return self.scan_text(content, str(path))
-    
+
     def scan_directory(
         self,
         directory: Path,
-        excluded_dirs: Optional[Set[str]] = None,
-        excluded_extensions: Optional[Set[str]] = None,
+        excluded_dirs: set[str] | None = None,
+        excluded_extensions: set[str] | None = None,
         max_workers: int = 4,
-    ) -> List[SecurityFinding]:
+    ) -> list[SecurityFinding]:
         """Recursively scan directory for secrets.
-        
+
         Args:
             directory: Root directory to scan
             excluded_dirs: Directory names to skip
             excluded_extensions: File extensions to skip
             max_workers: Number of parallel workers
-            
+
         Returns:
             List of security findings
         """
         directory = Path(directory)
         findings = []
-        
+
         excluded_dirs = excluded_dirs or {
-            "node_modules", ".git", "__pycache__", ".venv", "venv",
-            ".mypy_cache", ".pytest_cache", "dist", "build",
+            "node_modules",
+            ".git",
+            "__pycache__",
+            ".venv",
+            "venv",
+            ".mypy_cache",
+            ".pytest_cache",
+            "dist",
+            "build",
         }
         excluded_extensions = excluded_extensions or {
-            ".exe", ".dll", ".so", ".dylib",
-            ".png", ".jpg", ".jpeg", ".gif", ".ico",
-            ".woff", ".woff2", ".ttf", ".eot",
-            ".zip", ".tar", ".gz", ".rar",
+            ".exe",
+            ".dll",
+            ".so",
+            ".dylib",
+            ".png",
+            ".jpg",
+            ".jpeg",
+            ".gif",
+            ".ico",
+            ".woff",
+            ".woff2",
+            ".ttf",
+            ".eot",
+            ".zip",
+            ".tar",
+            ".gz",
+            ".rar",
         }
-        
+
         files_to_scan = []
         for path in directory.rglob("*"):
             if path.is_file():
@@ -286,7 +314,7 @@ class SecretsScanner:
                 if path.suffix.lower() in excluded_extensions:
                     continue
                 files_to_scan.append(path)
-        
+
         # Parallel scanning for performance
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             future_to_file = {
@@ -298,13 +326,14 @@ class SecretsScanner:
                     findings.extend(file_findings)
                 except Exception:
                     pass  # Skip files that error
-        
+
         return findings
-    
-    def get_provider_patterns(self, provider: str) -> List[str]:
+
+    def get_provider_patterns(self, provider: str) -> list[str]:
         """Get pattern names for a specific LLM provider."""
         return [
-            name for name, pattern in self._patterns.items()
+            name
+            for name, pattern in self._patterns.items()
             if pattern.provider == provider
         ]
 

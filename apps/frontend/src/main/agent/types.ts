@@ -44,10 +44,12 @@ export interface TaskExecutionOptions {
   parallel?: boolean;
   workers?: number;
   baseBranch?: string;
+  useWorktree?: boolean;  // Whether to use worktree isolation for task execution
 }
 
 export interface SpecCreationMetadata {
   requireReviewBeforeCoding?: boolean;
+  useWorktree?: boolean;  // Whether to use worktree isolation for task execution
   // Auto profile - phase-based model and thinking configuration
   isAutoProfile?: boolean;
   phaseModels?: {

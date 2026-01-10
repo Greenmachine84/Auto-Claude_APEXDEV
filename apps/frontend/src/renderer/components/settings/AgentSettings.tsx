@@ -29,7 +29,7 @@ export const AgentSettings: React.FC<AgentSettingsProps> = ({
   settings,
   onUpdate,
 }) => {
-  const agentConfig = settings.agentConfig || {};
+  const agentConfig = (settings.agentConfig ?? {}) as Record<string, unknown>;
 
   const updateAgentConfig = (key: string, value: unknown) => {
     onUpdate({
@@ -53,7 +53,7 @@ export const AgentSettings: React.FC<AgentSettingsProps> = ({
             type="number"
             min="1"
             max="10"
-            value={agentConfig.maxConcurrent || 3}
+            value={(agentConfig.maxConcurrent as number) ?? 3}
             onChange={(e) => updateAgentConfig('maxConcurrent', parseInt(e.target.value))}
           />
         </div>
@@ -63,7 +63,7 @@ export const AgentSettings: React.FC<AgentSettingsProps> = ({
             type="number"
             min="30"
             max="3600"
-            value={agentConfig.timeout || 300}
+            value={(agentConfig.timeout as number) ?? 300}
             onChange={(e) => updateAgentConfig('timeout', parseInt(e.target.value))}
           />
         </div>
@@ -71,7 +71,7 @@ export const AgentSettings: React.FC<AgentSettingsProps> = ({
           <label>Default Agent Type</label>
           <Select
             options={agentTypeOptions}
-            value={agentConfig.defaultType || 'coder'}
+            value={(agentConfig.defaultType as string) ?? 'coder'}
             onChange={(val) => updateAgentConfig('defaultType', val)}
           />
         </div>
@@ -84,7 +84,7 @@ export const AgentSettings: React.FC<AgentSettingsProps> = ({
           <input
             type="checkbox"
             id="autoRetry"
-            checked={agentConfig.autoRetry ?? true}
+            checked={(agentConfig.autoRetry as boolean) ?? true}
             onChange={(e) => updateAgentConfig('autoRetry', e.target.checked)}
           />
           <label htmlFor="autoRetry">Auto-retry on failure</label>
@@ -95,7 +95,7 @@ export const AgentSettings: React.FC<AgentSettingsProps> = ({
             type="number"
             min="0"
             max="5"
-            value={agentConfig.maxRetries || 3}
+            value={(agentConfig.maxRetries as number) ?? 3}
             onChange={(e) => updateAgentConfig('maxRetries', parseInt(e.target.value))}
           />
         </div>
@@ -103,7 +103,7 @@ export const AgentSettings: React.FC<AgentSettingsProps> = ({
           <input
             type="checkbox"
             id="verbose"
-            checked={agentConfig.verbose ?? false}
+            checked={(agentConfig.verbose as boolean) ?? false}
             onChange={(e) => updateAgentConfig('verbose', e.target.checked)}
           />
           <label htmlFor="verbose">Verbose logging</label>
@@ -117,7 +117,7 @@ export const AgentSettings: React.FC<AgentSettingsProps> = ({
           <input
             type="checkbox"
             id="useMemory"
-            checked={agentConfig.useMemory ?? true}
+            checked={(agentConfig.useMemory as boolean) ?? true}
             onChange={(e) => updateAgentConfig('useMemory', e.target.checked)}
           />
           <label htmlFor="useMemory">Enable episodic memory</label>
@@ -128,7 +128,7 @@ export const AgentSettings: React.FC<AgentSettingsProps> = ({
             type="number"
             min="1"
             max="50"
-            value={agentConfig.memoryContextLength || 10}
+            value={(agentConfig.memoryContextLength as number) ?? 10}
             onChange={(e) => updateAgentConfig('memoryContextLength', parseInt(e.target.value))}
           />
         </div>
@@ -139,10 +139,10 @@ export const AgentSettings: React.FC<AgentSettingsProps> = ({
             min="0"
             max="1"
             step="0.1"
-            value={agentConfig.similarityThreshold || 0.7}
+            value={(agentConfig.similarityThreshold as number) ?? 0.7}
             onChange={(e) => updateAgentConfig('similarityThreshold', parseFloat(e.target.value))}
           />
-          <span>{(agentConfig.similarityThreshold || 0.7).toFixed(1)}</span>
+          <span>{((agentConfig.similarityThreshold as number) ?? 0.7).toFixed(1)}</span>
         </div>
       </div>
 
@@ -153,7 +153,7 @@ export const AgentSettings: React.FC<AgentSettingsProps> = ({
           <input
             type="checkbox"
             id="requireApproval"
-            checked={agentConfig.requireApproval ?? false}
+            checked={(agentConfig.requireApproval as boolean) ?? false}
             onChange={(e) => updateAgentConfig('requireApproval', e.target.checked)}
           />
           <label htmlFor="requireApproval">Require approval for destructive actions</label>
@@ -162,7 +162,7 @@ export const AgentSettings: React.FC<AgentSettingsProps> = ({
           <input
             type="checkbox"
             id="notifyOnComplete"
-            checked={agentConfig.notifyOnComplete ?? true}
+            checked={(agentConfig.notifyOnComplete as boolean) ?? true}
             onChange={(e) => updateAgentConfig('notifyOnComplete', e.target.checked)}
           />
           <label htmlFor="notifyOnComplete">Notify when agent completes</label>
@@ -171,3 +171,5 @@ export const AgentSettings: React.FC<AgentSettingsProps> = ({
     </div>
   );
 };
+
+

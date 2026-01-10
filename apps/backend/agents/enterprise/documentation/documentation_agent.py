@@ -9,40 +9,42 @@ World-Class Standards:
 Phase 7 Implementation: Enterprise Agents Architecture
 Reference: PHASE7_ENTERPRISE_AGENTS_ARCHITECTURE.md
 """
-from typing import Any, ClassVar, Dict, List, Optional
+
 import json
+from typing import Any, ClassVar
 
 from ..base_enterprise_agent import BaseEnterpriseAgent, LLMRouter
 from ..config import AgentCapability, EnterpriseAgentConfig
 from ..types import (
     DocstringStyle,
-    DocumentationResult,
     EnterpriseAgentType,
 )
-from .docstring_generator import DocstringGenerator, GeneratedDocstring
-from .readme_generator import ReadmeGenerator
 from .api_doc_generator import APIDocGenerator
+from .docstring_generator import DocstringGenerator
+from .readme_generator import ReadmeGenerator
 
 
 class DocumentationAgent(BaseEnterpriseAgent):
     """Agent for automated documentation generation.
-    
+
     Provides comprehensive documentation capabilities:
     - Docstring generation (Google, NumPy, Sphinx styles)
     - README generation
     - API documentation
     - Changelog updates
-    
+
     Attributes:
         docstring_generator: Docstring generation utility
         readme_generator: README generation utility
         api_doc_generator: API documentation generator
     """
-    
+
     AGENT_TYPE: ClassVar[EnterpriseAgentType] = EnterpriseAgentType.DOCUMENTATION
     AGENT_CATEGORY: ClassVar[str] = "documentation"
-    
-    DEFAULT_SYSTEM_PROMPT: ClassVar[str] = """You are an expert technical writer with deep knowledge of:
+
+    DEFAULT_SYSTEM_PROMPT: ClassVar[
+        str
+    ] = """You are an expert technical writer with deep knowledge of:
 1. Code documentation best practices
 2. Multiple docstring styles (Google, NumPy, Sphinx)
 3. API documentation standards
@@ -52,23 +54,23 @@ class DocumentationAgent(BaseEnterpriseAgent):
 Generate comprehensive, accurate documentation.
 Focus on clarity and usefulness.
 Follow language-specific conventions."""
-    
+
     def __init__(
         self,
         config: EnterpriseAgentConfig,
-        llm_router: Optional[LLMRouter] = None,
+        llm_router: LLMRouter | None = None,
     ):
         """Initialize the documentation agent."""
         super().__init__(config, llm_router)
-        
+
         # Add documentation capability
         self.add_capability(AgentCapability.DOCUMENTATION)
-        
+
         # Initialize generators
         self.docstring_generator = DocstringGenerator()
         self.readme_generator = ReadmeGenerator()
         self.api_doc_generator = APIDocGenerator()
-    
+
     @classmethod
     def get_description(cls) -> str:
         """Get agent description."""
@@ -77,13 +79,13 @@ Follow language-specific conventions."""
             "and API documentation. Supports multiple styles and follows "
             "language-specific conventions."
         )
-    
-    async def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def execute(self, context: dict[str, Any]) -> dict[str, Any]:
         """Execute documentation task based on context.
-        
+
         Args:
             context: Must contain 'code' and 'doc_type'
-            
+
         Returns:
             Documentation generation results
         """
@@ -92,12 +94,12 @@ Follow language-specific conventions."""
                 "status": "error",
                 "message": "Context must contain 'code'",
             }
-        
+
         code = context["code"]
         doc_type = context.get("doc_type", "docstring")
         style = context.get("style", "google")
         language = context.get("language", "python")
-        
+
         if doc_type == "docstring":
             result = await self.generate_docstrings(
                 code=code,
@@ -113,13 +115,13 @@ Follow language-specific conventions."""
             result = await self.generate_api_docs(code=code)
         else:
             result = await self.generate_docstrings(code=code)
-        
+
         return {
             "status": "success",
             "documentation": result,
             "doc_type": doc_type,
         }
-    
+
     async def generate_docstrings(
         self,
         code: str,
@@ -127,17 +129,17 @@ Follow language-specific conventions."""
         style: DocstringStyle = DocstringStyle.GOOGLE,
     ) -> str:
         """Generate docstrings for code.
-        
+
         Args:
             code: Source code to document
             language: Programming language
             style: Docstring style (google, numpy, sphinx)
-            
+
         Returns:
             Code with added docstrings
         """
         style_guide = self._get_style_guide(style)
-        
+
         prompt = f"""Add comprehensive docstrings to the following {language} code.
 
 Docstring Style: {style.value}
@@ -158,22 +160,22 @@ Requirements:
 6. Keep descriptions clear and concise
 
 Provide the complete code with docstrings added."""
-        
+
         return await self.complete(prompt)
-    
+
     async def generate_readme(
         self,
         code: str,
         project_name: str,
-        description: Optional[str] = None,
+        description: str | None = None,
     ) -> str:
         """Generate README for a project.
-        
+
         Args:
             code: Sample code or main module
             project_name: Name of the project
             description: Optional project description
-            
+
         Returns:
             Generated README markdown
         """
@@ -198,20 +200,20 @@ Generate a README with:
 8. License section
 
 Use proper Markdown formatting."""
-        
+
         return await self.complete(prompt)
-    
+
     async def generate_api_docs(
         self,
         code: str,
         format: str = "markdown",
     ) -> str:
         """Generate API documentation.
-        
+
         Args:
             code: Source code with API endpoints
             format: Output format (markdown, openapi)
-            
+
         Returns:
             Generated API documentation
         """
@@ -233,29 +235,29 @@ For each endpoint/function:
 7. Example request/response
 
 Generate comprehensive, developer-friendly documentation."""
-        
+
         return await self.complete(prompt)
-    
+
     async def update_changelog(
         self,
-        changes: List[str],
+        changes: list[str],
         version: str,
-        existing_changelog: Optional[str] = None,
+        existing_changelog: str | None = None,
     ) -> str:
         """Generate changelog entry.
-        
+
         Args:
             changes: List of changes to document
             version: Version number
             existing_changelog: Existing changelog to prepend to
-            
+
         Returns:
             Updated changelog
         """
         prompt = f"""Generate a changelog entry for version {version}.
 
 Changes:
-{chr(10).join(f'- {change}' for change in changes)}
+{chr(10).join(f"- {change}" for change in changes)}
 
 Format the changelog entry following Keep a Changelog conventions:
 - Added (new features)
@@ -266,9 +268,9 @@ Format the changelog entry following Keep a Changelog conventions:
 - Security (security fixes)
 
 Generate only the new entry section."""
-        
+
         entry = await self.complete(prompt)
-        
+
         if existing_changelog:
             # Find where to insert (after header)
             lines = existing_changelog.split("\n")
@@ -277,21 +279,21 @@ Generate only the new entry section."""
                 if line.startswith("## "):
                     insert_pos = i
                     break
-            
+
             lines.insert(insert_pos, entry)
             return "\n".join(lines)
-        
+
         return entry
-    
+
     async def suggest_improvements(
         self,
         documentation: str,
-    ) -> List[str]:
+    ) -> list[str]:
         """Suggest improvements for existing documentation.
-        
+
         Args:
             documentation: Existing documentation
-            
+
         Returns:
             List of improvement suggestions
         """
@@ -319,9 +321,9 @@ Focus on:
 - Formatting issues
 - Examples that could be added
 """
-        
+
         response = await self.complete(prompt)
-        
+
         try:
             data = json.loads(response)
             return [
@@ -330,7 +332,7 @@ Focus on:
             ]
         except json.JSONDecodeError:
             return [response]
-    
+
     def _get_style_guide(self, style: DocstringStyle) -> str:
         """Get style guide for docstring format."""
         guides = {

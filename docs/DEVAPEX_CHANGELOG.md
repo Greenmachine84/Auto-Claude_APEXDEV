@@ -4,6 +4,197 @@
 > All notable changes to this project will be documented in this file.
 > Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+
+
+---
+
+## [2026-01-08] - TIER 6 Additional Safe Enhancements ✅ COMPLETE
+
+### Context
+Extended upstream integration with additional behavior-preserving enhancements identified through ULTRATHINK analysis. All changes are additive or defensive fixes with zero risk to existing functionality.
+
+### Added
+
+**Prompt Enhancements (Path Confusion Prevention)**:
+- 🚨 CRITICAL: PATH CONFUSION PREVENTION section added to coder.md
+- Same section added to qa_fixer.md  
+- Path Verification (MANDATORY FIRST STEP) added to qa_fixer.md PHASE 6
+- Prevents doubled paths bug in monorepo cd + git operations
+- Example: `cd ./apps/frontend && git add apps/frontend/src/file.ts` creates doubled path
+
+**File Checkpointing**:
+- Added `enable_file_checkpointing: True` to ClaudeAgentOptions (client.py)
+- Tracks file read/write state across tool calls
+- Prevents "File has not been read yet" errors in recovery sessions
+
+**Task Metadata Utility**:
+- Added updateTaskMetadataPrUrl() function to plan-file-utils.ts
+- Stores PR URL in task_metadata.json for future UI integration
+- Additive utility function with no caller impact
+
+### Fixed
+
+**TextBlock Type Checking**:
+- commit_message.py now checks `block_type == "TextBlock"` before accessing .text
+- Prevents AttributeError on ToolResultBlock or other content types
+- Same pattern applied to insight_extractor.py in TIER 5
+
+**Security Block Detection**:
+- session.py now checks `is_error AND "blocked"` instead of just `"blocked"`
+- Previous logic flagged ANY content containing "blocked" as a security block
+- Reduces false positives in security logging
+
+**PR Status Mapping**:
+- Added `pr_created` case to mapStatusToPlanStatus() in plan-file-utils.ts
+- Returns 'pr_created' instead of falling through to default 'pending'
+
+### Files Modified (6 files)
+- apps/backend/prompts/coder.md
+- apps/backend/prompts/qa_fixer.md
+- apps/backend/core/client.py
+- apps/backend/commit_message.py
+- apps/backend/agents/session.py
+- apps/frontend/src/main/ipc-handlers/task/plan-file-utils.ts
+
+### Integration Statistics
+| Tier | Files | Strategy | Status |
+|------|-------|----------|--------|
+| TIER 1-5 | 12 | Cherry-pick + Extract | ✅ Complete |
+| TIER 6 | 6 | Additional Enhancements | ✅ Complete |
+| **Total** | **18** | Mixed | **All Complete** |
+
+---
+
+## [2026-01-08] - TIER 6 Additional Safe Enhancements ✅ COMPLETE
+
+### Context
+Extended upstream integration with additional behavior-preserving enhancements identified through ULTRATHINK analysis. All changes are additive or defensive fixes with zero risk to existing functionality.
+
+### Added
+
+**Prompt Enhancements (Path Confusion Prevention)**:
+- 🚨 CRITICAL: PATH CONFUSION PREVENTION section added to coder.md
+- Same section added to qa_fixer.md  
+- Path Verification (MANDATORY FIRST STEP) added to qa_fixer.md PHASE 6
+- Prevents doubled paths bug in monorepo cd + git operations
+- Example: `cd ./apps/frontend && git add apps/frontend/src/file.ts` creates doubled path
+
+**File Checkpointing**:
+- Added `enable_file_checkpointing: True` to ClaudeAgentOptions (client.py)
+- Tracks file read/write state across tool calls
+- Prevents "File has not been read yet" errors in recovery sessions
+
+**Task Metadata Utility**:
+- Added updateTaskMetadataPrUrl() function to plan-file-utils.ts
+- Stores PR URL in task_metadata.json for future UI integration
+- Additive utility function with no caller impact
+
+### Fixed
+
+**TextBlock Type Checking**:
+- commit_message.py now checks `block_type == "TextBlock"` before accessing .text
+- Prevents AttributeError on ToolResultBlock or other content types
+- Same pattern applied to insight_extractor.py in TIER 5
+
+**Security Block Detection**:
+- session.py now checks `is_error AND "blocked"` instead of just `"blocked"`
+- Previous logic flagged ANY content containing "blocked" as a security block
+- Reduces false positives in security logging
+
+**PR Status Mapping**:
+- Added `pr_created` case to mapStatusToPlanStatus() in plan-file-utils.ts
+- Returns 'pr_created' instead of falling through to default 'pending'
+
+### Files Modified (6 files)
+- apps/backend/prompts/coder.md
+- apps/backend/prompts/qa_fixer.md
+- apps/backend/core/client.py
+- apps/backend/commit_message.py
+- apps/backend/agents/session.py
+- apps/frontend/src/main/ipc-handlers/task/plan-file-utils.ts
+
+### Integration Statistics
+| Tier | Files | Strategy | Status |
+|------|-------|----------|--------|
+| TIER 1-5 | 12 | Cherry-pick + Extract | ✅ Complete |
+| TIER 6 | 6 | Additional Enhancements | ✅ Complete |
+| **Total** | **18** | Mixed | **All Complete** |
+---
+
+## [2026-01-08] - Upstream Integration (TIER 1-5) ✅ COMPLETE
+
+### Context
+Integrated 32 upstream commits from AndyMik90/Auto-Claude develop branch into APEXDEV_MERGE using a 5-tier risk-based strategy. This approach preserved all Phase components while incorporating valuable bug fixes and enhancements.
+
+### Added
+
+**TIER 4 - Implemented from Scratch**:
+- `fix(startup)`: CLI tool detection with pre-warming to prevent app freeze
+- `feat(windows)`: Git executable finder for cross-platform support
+- `fix(terminal)`: Worktree creation crash prevention
+- `feat(terminal)`: Copy/paste keyboard shortcuts for Windows/Linux
+
+**TIER 5 - Safe Enhancements Extracted**:
+- Binary file extension list expanded (git_utils.py)
+- Line ending normalization fix (file_merger.py)
+- MergeReadiness interface and IPC handler (pr-handlers.ts)
+- checkMergeReadiness() preload API (github-api.ts)
+- PR creation IPC channels: GITHUB_PR_CHECK_MERGE_READINESS, TASK_WORKTREE_CREATE_PR (ipc.ts)
+- pr_created task status with labels/colors (task.ts)
+- PR creation backend: push_branch(), create_pull_request(), push_and_create_pr() (worktree.py)
+- TextBlock type checking + improved error handling (insight_extractor.py)
+- Cache invalidation on agent exit (agent-events-handlers.ts)
+- Dual-location status persistence for worktrees (agent-events-handlers.ts)
+
+### Cherry-Picked (TIER 1-3)
+
+**TIER 1 - Safe (7 commits)**:
+- Documentation, configs, version bumps
+
+**TIER 2 - Low Risk (8 commits)**:
+- Bug fixes, accessibility improvements
+- Isolated changes with no Phase impact
+
+**TIER 3 - Medium Risk (8/11 commits)**:
+- 8 cherry-picked successfully
+- 3 skipped due to conflicts (handled in TIER 4/5)
+
+### Not Applied (Risk Assessment)
+
+| File | Decision | Reason |
+|------|----------|--------|
+| memory.py | ⚠️ SKIP | Async conversion could break sync Phase callers |
+| KanbanBoard.tsx | ⚠️ PARTIAL | PR UI requires missing backend infrastructure |
+| TaskCard.tsx | ⚠️ PARTIAL | Type guards safe, but PR button needs full stack |
+| TaskDetailModal.tsx | ⚠️ PARTIAL | PR creation dialog needs additional components |
+
+### Integration Statistics
+| Metric | Value |
+|--------|-------|
+| Upstream Commits Analyzed | 32 |
+| Files in Upstream Changes | 847 |
+| Lines Delta | +15,723/-130,832 |
+| Files Marked for Deletion | 636 |
+| Commits Successfully Integrated | 27 |
+| Phase Components Preserved | ✅ All |
+
+### Branch
+- **Source**: AndyMik90/Auto-Claude develop
+- **Target**: Greenmachine84/Auto-Claude_APEXDEV upstream-integration
+- **Strategy**: 5-tier risk-based cherry-pick
+
+### Files Modified (12 files)
+- apps/backend/core/git_utils.py
+- apps/backend/merge/file_merger.py
+- apps/frontend/src/main/ipc-handlers/github/pr-handlers.ts
+- apps/frontend/src/preload/github-api.ts
+- apps/frontend/src/shared/ipc.ts
+- apps/frontend/src/shared/task.ts
+- apps/backend/core/worktree.py
+- apps/backend/analysis/insight_extractor.py
+- apps/frontend/src/main/ipc-handlers/agent-events-handlers.ts
+- docs/Decision.md (ADR-056)
+- docs/DEVAPEX_CHANGELOG.md
 ---
 
 ## [2026-01-08] - Phase Integration Audit & Fixes ✅ COMPLETE

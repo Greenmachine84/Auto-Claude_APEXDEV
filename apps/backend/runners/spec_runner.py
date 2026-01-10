@@ -26,11 +26,11 @@ The AI considers:
 - Risk factors and edge cases
 
 Usage:
-    python auto-claude/spec_runner.py --task "Add user authentication"
-    python auto-claude/spec_runner.py --interactive
-    python auto-claude/spec_runner.py --continue 001-feature
-    python auto-claude/spec_runner.py --task "Fix button color" --complexity simple
-    python auto-claude/spec_runner.py --task "Simple fix" --no-ai-assessment
+    python runners/spec_runner.py --task "Add user authentication"
+    python runners/spec_runner.py --interactive
+    python runners/spec_runner.py --continue 001-feature
+    python runners/spec_runner.py --task "Fix button color" --complexity simple
+    python runners/spec_runner.py --task "Simple fix" --no-ai-assessment
 """
 
 import sys
@@ -81,11 +81,13 @@ if sys.platform == "win32":
 # Add auto-claude to path (parent of runners/)
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Load .env file
-from dotenv import load_dotenv
+# Load .env file with centralized error handling
+from cli.utils import import_dotenv
+
+load_dotenv = import_dotenv()
 
 env_file = Path(__file__).parent.parent / ".env"
-dev_env_file = Path(__file__).parent.parent.parent / "dev" / "auto-claude" / ".env"
+dev_env_file = Path(__file__).parent.parent.parent / "dev" / "apexdev" / ".env"
 if env_file.exists():
     load_dotenv(env_file)
 elif dev_env_file.exists():
@@ -226,14 +228,14 @@ Examples:
     project_dir = args.project_dir
 
     # Auto-detect if running from within auto-claude directory (the source code)
-    if project_dir.name == "auto-claude" and (project_dir / "run.py").exists():
+    if project_dir.name == "apexdev" and (project_dir / "run.py").exists():
         # Running from within auto-claude/ source directory, go up 1 level
         project_dir = project_dir.parent
-    elif not (project_dir / ".auto-claude").exists():
-        # No .auto-claude folder found - try to find project root
-        # First check for .auto-claude (installed instance)
+    elif not (project_dir / ".apexdev").exists():
+        # No .apexdev folder found - try to find project root
+        # First check for .apexdev (installed instance)
         for parent in project_dir.parents:
-            if (parent / ".auto-claude").exists():
+            if (parent / ".apexdev").exists():
                 project_dir = parent
                 break
 

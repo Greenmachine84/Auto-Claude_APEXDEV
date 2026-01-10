@@ -30,24 +30,24 @@ Usage:
         InputValidator,
         OutputValidator,
     )
-    
+
     # Scan for exposed secrets
     scanner = SecretsScanner()
     findings = scanner.scan_text(code_content)
-    
+
     # Protect against prompt injection
     guard = PromptInjectionGuard()
     result = guard.check(user_input)
-    
+
     # Store credentials securely
     vault = CredentialVault()
     await vault.initialize()
     await vault.store_credential("openai", {"api_key": "sk-..."})
-    
+
     # Manage roles and permissions
     manager = RoleManager()
     await manager.assign_role("user123", "developer", "admin")
-    
+
     # Log security events
     logger = AuditLogger()
     await logger.log_event(
@@ -98,72 +98,71 @@ Phase: 6 - Security Infrastructure
 """
 
 # Core models
-from .models import (
-    ThreatType,
-    Severity,
-    AuditAction,
-    PermissionScope,
-    SecurityFinding,
-    AuditEvent,
-    Role,
-    EncryptedCredential,
-    ValidationResult,
-    SUPPORTED_PROVIDERS,
-    PROVIDER_CREDENTIALS,
+# Audit module
+from .audit import (
+    AccessEventType,
+    AuditEventType,
+    AuditLogger,
+    AuditStorage,
+    DataEventType,
+    FileAuditStorage,
+    IntegrityChecker,
+    SecurityEventType,
 )
 
 # Configuration
 from .config import (
-    SecurityConfig,
-    ScannerConfig,
-    EncryptionConfig,
     AuditConfig,
+    EncryptionConfig,
     RBACConfig,
+    ScannerConfig,
+    SecurityConfig,
     ValidationConfig,
-)
-
-# Scanner module
-from .scanner import (
-    SecretsScanner,
-    PromptInjectionGuard,
-    PromptInjectionScanner,
-    CodeScanner,
-    PatternRegistry,
-    InputSanitizer,
 )
 
 # Encryption module
 from .encryption import (
     CredentialVault,
     KeyManager,
-    encrypt_aes_gcm,
     decrypt_aes_gcm,
     derive_key,
+    encrypt_aes_gcm,
     generate_salt,
     secure_random_bytes,
 )
-
-# Audit module
-from .audit import (
-    AuditLogger,
-    AuditEventType,
-    SecurityEventType,
-    AccessEventType,
-    DataEventType,
-    IntegrityChecker,
-    AuditStorage,
-    FileAuditStorage,
+from .models import (
+    PROVIDER_CREDENTIALS,
+    SUPPORTED_PROVIDERS,
+    AuditAction,
+    AuditEvent,
+    EncryptedCredential,
+    PermissionScope,
+    Role,
+    SecurityFinding,
+    Severity,
+    ThreatType,
+    ValidationResult,
 )
 
 # RBAC module
 from .rbac import (
-    RoleManager,
-    PermissionChecker,
-    PolicyEnforcer,
+    PROVIDER_PERMISSIONS,
     DefaultRoles,
     Permission,
+    PermissionChecker,
+    PolicyEnforcer,
     RoleDefinition,
-    PROVIDER_PERMISSIONS,
+    RoleManager,
+)
+
+# Scanner module
+from .scanner import (
+    CodeScanner,
+    InputSanitizer,
+    PatternRegistry,
+    PromptInjectionGuard,
+    PromptInjectionScanner,
+    SecretsScanner,
 )
 
 # Validation module
@@ -181,35 +180,34 @@ __phase__ = "6 - Security Infrastructure"
 # Hooks
 from .hooks import bash_security_hook, validate_command
 
-
 # Parser
-from .parser import extract_commands, split_command_segments, get_command_for_validation
+from .parser import extract_commands, get_command_for_validation, split_command_segments
 
 # Profile
 from .profile import get_security_profile, reset_profile_cache
 
 # Validators
 from .validator import (
-    validate_pkill_command,
-    validate_kill_command,
-    validate_killall_command,
-    validate_chmod_command,
-    validate_rm_command,
-    validate_init_script,
-    validate_git_commit,
-    validate_git_config,
-    validate_git_command,
-    validate_dropdb_command,
-    validate_dropuser_command,
-    validate_psql_command,
-    validate_mysql_command,
-    validate_mysqladmin_command,
-    validate_mongosh_command,
-    validate_redis_cli_command,
     VALIDATORS,
-    get_validator,
     ValidationResult,
     ValidatorFunction,
+    get_validator,
+    validate_chmod_command,
+    validate_dropdb_command,
+    validate_dropuser_command,
+    validate_git_command,
+    validate_git_commit,
+    validate_git_config,
+    validate_init_script,
+    validate_kill_command,
+    validate_killall_command,
+    validate_mongosh_command,
+    validate_mysql_command,
+    validate_mysqladmin_command,
+    validate_pkill_command,
+    validate_psql_command,
+    validate_redis_cli_command,
+    validate_rm_command,
 )
 
 __all__ = [
@@ -217,7 +215,6 @@ __all__ = [
     # Version info
     "__version__",
     "__phase__",
-    
     # Core models
     "ThreatType",
     "Severity",
@@ -230,7 +227,6 @@ __all__ = [
     "ValidationResult",
     "SUPPORTED_PROVIDERS",
     "PROVIDER_CREDENTIALS",
-    
     # Configuration
     "SecurityConfig",
     "ScannerConfig",
@@ -238,7 +234,6 @@ __all__ = [
     "AuditConfig",
     "RBACConfig",
     "ValidationConfig",
-    
     # Scanners
     "SecretsScanner",
     "PromptInjectionGuard",
@@ -246,7 +241,6 @@ __all__ = [
     "CodeScanner",
     "PatternRegistry",
     "InputSanitizer",
-    
     # Encryption
     "CredentialVault",
     "KeyManager",
@@ -255,7 +249,6 @@ __all__ = [
     "derive_key",
     "generate_salt",
     "secure_random_bytes",
-    
     # Audit
     "AuditLogger",
     "AuditEventType",
@@ -265,7 +258,6 @@ __all__ = [
     "IntegrityChecker",
     "AuditStorage",
     "FileAuditStorage",
-    
     # RBAC
     "RoleManager",
     "PermissionChecker",
@@ -274,7 +266,6 @@ __all__ = [
     "Permission",
     "RoleDefinition",
     "PROVIDER_PERMISSIONS",
-    
     # Validation
     "InputValidator",
     "OutputValidator",

@@ -8,9 +8,9 @@ Provides the foundational infrastructure for the skills framework:
 """
 
 from skills.core.base_skill import BaseSkill
-from skills.core.skill_registry import SkillRegistry
-from skills.core.skill_executor import SkillExecutor
 from skills.core.skill_config import SkillConfig
+from skills.core.skill_executor import SkillExecutor
+from skills.core.skill_registry import SkillRegistry
 
 __all__ = [
     "BaseSkill",

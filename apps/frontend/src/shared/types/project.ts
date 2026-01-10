@@ -2,6 +2,36 @@
  * Project-related types
  */
 
+/**
+ * Virtual project source type
+ * - 'local': Traditional local git repository
+ * - 'github': Remote GitHub repository (no local clone)
+ * - 'gitlab': Remote GitLab repository (no local clone)
+ */
+export type ProjectSourceType = 'local' | 'github' | 'gitlab';
+
+/**
+ * GitHub repository information for virtual projects
+ */
+export interface VirtualRepoInfo {
+  /** Repository owner/org */
+  owner: string;
+  /** Repository name */
+  name: string;
+  /** Full reference: owner/repo */
+  fullName: string;
+  /** Default branch */
+  defaultBranch: string;
+  /** Repository description */
+  description?: string;
+  /** Whether the repo is private */
+  isPrivate: boolean;
+  /** GitHub clone URL */
+  cloneUrl?: string;
+  /** Last fetched timestamp */
+  lastFetched?: string;
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -10,8 +40,13 @@ export interface Project {
   settings: ProjectSettings;
   createdAt: Date;
   updatedAt: Date;
+  /** Source type - local filesystem or remote repository */
+  sourceType?: ProjectSourceType;
+  /** Virtual repository information (for GitHub/GitLab projects) */
+  virtualRepo?: VirtualRepoInfo;
+  /** GitHub token for virtual projects (stored securely) */
+  githubToken?: string;
 }
-
 export interface ProjectSettings {
   model: string;
   memoryBackend: 'graphiti' | 'file';
@@ -224,7 +259,7 @@ export interface GraphitiProviderConfig {
 
   // LadybugDB settings (embedded database - no Docker required)
   database?: string;  // Database name (default: auto_claude_memory)
-  dbPath?: string;    // Database storage path (default: ~/.auto-claude/memories)
+  dbPath?: string;    // Database storage path (default: ~/.APEXDEV/memories)
 }
 
 export interface GraphitiProviderInfo {
@@ -358,7 +393,7 @@ export interface ProjectEnvConfig {
 
 /**
  * Per-agent MCP override configuration.
- * Stored in .auto-claude/.env as AGENT_MCP_<agent>_ADD and AGENT_MCP_<agent>_REMOVE
+ * Stored in .APEXDEV/.env as AGENT_MCP_<agent>_ADD and AGENT_MCP_<agent>_REMOVE
  */
 export interface AgentMcpOverride {
   /** MCP servers to add beyond the agent's defaults */
@@ -439,10 +474,10 @@ export interface McpTestConnectionResult {
   responseTime?: number;
 }
 
-// Auto Claude Initialization Types
+// APEXDEV Initialization Types
 export interface AutoBuildVersionInfo {
   isInitialized: boolean;
-  updateAvailable: boolean; // Always false - .auto-claude only contains data, no code to update
+  updateAvailable: boolean; // Always false - .APEXDEV only contains data, no code to update
 }
 
 export interface InitializationResult {
@@ -469,3 +504,6 @@ export interface FileNode {
   name: string;
   isDirectory: boolean;
 }
+
+
+

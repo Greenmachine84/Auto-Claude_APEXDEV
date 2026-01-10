@@ -33,6 +33,7 @@ LOCK_FILES = {
 }
 
 BINARY_EXTENSIONS = {
+    # Images
     ".png",
     ".jpg",
     ".jpeg",
@@ -41,6 +42,11 @@ BINARY_EXTENSIONS = {
     ".webp",
     ".bmp",
     ".svg",
+    ".tiff",
+    ".tif",
+    ".heic",
+    ".heif",
+    # Documents
     ".pdf",
     ".doc",
     ".docx",
@@ -48,32 +54,63 @@ BINARY_EXTENSIONS = {
     ".xlsx",
     ".ppt",
     ".pptx",
+    # Archives
     ".zip",
     ".tar",
     ".gz",
     ".rar",
     ".7z",
+    ".bz2",
+    ".xz",
+    ".zst",
+    # Executables and libraries
     ".exe",
     ".dll",
     ".so",
     ".dylib",
     ".bin",
+    ".msi",
+    ".app",
+    # WebAssembly
+    ".wasm",
+    # Audio
     ".mp3",
-    ".mp4",
     ".wav",
+    ".ogg",
+    ".flac",
+    ".aac",
+    ".m4a",
+    # Video
+    ".mp4",
     ".avi",
     ".mov",
     ".mkv",
+    ".webm",
+    ".wmv",
+    ".flv",
+    # Fonts
     ".woff",
     ".woff2",
     ".ttf",
     ".otf",
     ".eot",
+    # Compiled code
     ".pyc",
     ".pyo",
     ".class",
     ".o",
     ".obj",
+    # Data files
+    ".dat",
+    ".db",
+    ".sqlite",
+    ".sqlite3",
+    # Other binary formats
+    ".cur",
+    ".ani",
+    ".pbm",
+    ".pgm",
+    ".ppm",
 }
 
 # Merge lock timeout in seconds
@@ -223,7 +260,7 @@ def get_existing_build_worktree(project_dir: Path, spec_name: str) -> Path | Non
         Path to the worktree if it exists for this spec, None otherwise
     """
     # New path first
-    new_path = project_dir / ".auto-claude" / "worktrees" / "tasks" / spec_name
+    new_path = project_dir / ".apexdev" / "worktrees" / "tasks" / spec_name
     if new_path.exists():
         return new_path
 
@@ -250,6 +287,25 @@ def get_file_content_from_ref(
     return None
 
 
+def get_binary_file_content_from_ref(
+    project_dir: Path, ref: str, file_path: str
+) -> bytes | None:
+    """Get binary file content from a git ref (branch, commit, etc.).
+
+    Unlike get_file_content_from_ref, this returns raw bytes without
+    text decoding, suitable for binary files like images, audio, etc.
+    """
+    result = subprocess.run(
+        ["git", "show", f"{ref}:{file_path}"],
+        cwd=project_dir,
+        capture_output=True,
+        text=False,  # Return bytes, not text
+    )
+    if result.returncode == 0:
+        return result.stdout
+    return None
+
+
 def get_changed_files_from_branch(
     project_dir: Path,
     base_branch: str,
@@ -263,7 +319,7 @@ def get_changed_files_from_branch(
         project_dir: Project directory
         base_branch: Base branch name
         spec_branch: Spec branch name
-        exclude_auto_claude: If True, exclude .auto-claude directory files (default True)
+        exclude_auto_claude: If True, exclude .apexdev directory files (default True)
 
     Returns:
         List of (file_path, status) tuples
@@ -282,7 +338,7 @@ def get_changed_files_from_branch(
                 parts = line.split("\t", 1)
                 if len(parts) == 2:
                     file_path = parts[1]
-                    # Exclude .auto-claude directory files from merge
+                    # Exclude .apexdev directory files from merge
                     if exclude_auto_claude and _is_auto_claude_file(file_path):
                         continue
                     files.append((file_path, parts[0]))  # (file_path, status)
@@ -290,10 +346,10 @@ def get_changed_files_from_branch(
 
 
 def _is_auto_claude_file(file_path: str) -> bool:
-    """Check if a file is in the .auto-claude or auto-claude/specs directory."""
+    """Check if a file is in the .apexdev or auto-claude/specs directory."""
     # These patterns cover the internal spec/build files that shouldn't be merged
     excluded_patterns = [
-        ".auto-claude/",
+        ".apexdev/",
         "auto-claude/specs/",
     ]
     for pattern in excluded_patterns:

@@ -62,7 +62,7 @@ export const useTaskStore = create<TaskState & TaskActions>()(
         set({ loading: true, error: null, filter: taskFilter });
         try {
           const tasks = await window.apex.tasks.list(taskFilter);
-          set({ tasks, loading: false });
+          set({ tasks: tasks as Task[], loading: false });
         } catch (error) {
           set({
             loading: false,
@@ -74,16 +74,14 @@ export const useTaskStore = create<TaskState & TaskActions>()(
       // Create task
       createTask: async (input) => {
         const task = await window.apex.tasks.create(input);
-        set((state) => ({ tasks: [...state.tasks, task] }));
+        set((state) => ({ tasks: [...state.tasks, task as Task] }));
         return task;
       },
 
       // Update task
       updateTask: async (id, updates) => {
         const task = await window.apex.tasks.update(id, updates);
-        set((state) => ({
-          tasks: state.tasks.map((t) => (t.id === id ? task : t)),
-        }));
+        set((state) => ({ tasks: state.tasks.map((t) => (t.id === id ? task as Task : t)) }));
         return task;
       },
 
@@ -158,3 +156,4 @@ export const useTaskStore = create<TaskState & TaskActions>()(
     { name: 'TaskStore' }
   )
 );
+

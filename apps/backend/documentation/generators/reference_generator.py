@@ -8,18 +8,18 @@ schemas, and other structured data.
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional, get_type_hints
+from typing import Any, get_type_hints
 
 from ..config import DocumentationConfig
-from .base import BaseGenerator
 from ..models import (
-    CodeExample,
     DocumentationEntry,
 )
+from .base import BaseGenerator
 
 
 class FieldType(Enum):
     """Types of configuration fields."""
+
     STRING = "string"
     INTEGER = "integer"
     FLOAT = "float"
@@ -32,6 +32,7 @@ class FieldType(Enum):
 @dataclass
 class ConfigField:
     """A configuration field definition."""
+
     name: str
     field_type: FieldType
     description: str = ""
@@ -80,6 +81,7 @@ class ConfigField:
 @dataclass
 class ConfigSchema:
     """A configuration schema definition."""
+
     id: str
     title: str
     description: str
@@ -158,7 +160,9 @@ class ReferenceGenerator(BaseGenerator):
             for fld in schema.fields:
                 req = "Yes" if fld.required else "No"
                 default = f"`{fld.default}`" if fld.default is not None else "-"
-                lines.append(f"| [`{fld.name}`](#{fld.name}) | `{fld.field_type.value}` | {req} | {default} |")
+                lines.append(
+                    f"| [`{fld.name}`](#{fld.name}) | `{fld.field_type.value}` | {req} | {default} |"
+                )
             lines.append("")
 
             # Field details
@@ -273,7 +277,7 @@ class ReferenceGenerator(BaseGenerator):
         """Parse a JSON schema file."""
         import json
 
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             data = json.load(f)
 
         return [self._generate_from_dict(data)]
@@ -282,7 +286,7 @@ class ReferenceGenerator(BaseGenerator):
         """Parse a YAML schema file."""
         import yaml
 
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             data = yaml.safe_load(f)
 
         return [self._generate_from_dict(data)]
@@ -322,9 +326,7 @@ class ReferenceGenerator(BaseGenerator):
         )
 
     def generate_constants_reference(
-        self,
-        constants: dict[str, Any],
-        title: str = "Constants"
+        self, constants: dict[str, Any], title: str = "Constants"
     ) -> DocumentationEntry:
         """
         Generate reference documentation for constants.

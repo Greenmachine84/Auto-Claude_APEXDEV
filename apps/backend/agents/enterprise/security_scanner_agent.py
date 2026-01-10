@@ -4,18 +4,19 @@ Security scanning and analysis agent.
 Follows PHASE1_AGENT_SYSTEM_ARCHITECTURE.md specification.
 """
 
-from typing import ClassVar, Any
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum, auto
+from typing import Any, ClassVar
 
-from ..types import AgentResult, SuccessResult, ErrorResult, ErrorCode
-from .types import EnterpriseAgentType
 from ..base import ExecutionContext
+from ..types import AgentResult, ErrorCode, ErrorResult, SuccessResult
 from .base_enterprise_agent import BaseEnterpriseAgent
+from .types import EnterpriseAgentType
 
 
 class SecuritySeverity(Enum):
     """Security finding severity."""
+
     CRITICAL = auto()
     HIGH = auto()
     MEDIUM = auto()
@@ -26,6 +27,7 @@ class SecuritySeverity(Enum):
 @dataclass
 class SecurityFinding:
     """A security finding."""
+
     title: str
     severity: SecuritySeverity
     description: str

@@ -3,23 +3,23 @@
 Type definitions for tools.
 """
 
-from tools.types.tool_types import (
-    ToolDefinition,
-    ToolCategory,
-    ToolCapability,
-    ToolMetadata,
-)
 from tools.types.permission_types import (
-    PermissionLevel,
     PermissionGrant,
-    PermissionScope,
+    PermissionLevel,
     PermissionRequest,
+    PermissionScope,
 )
 from tools.types.result_types import (
-    ResultType,
-    ResultStatus,
-    ResultMetrics,
     ResultArtifact,
+    ResultMetrics,
+    ResultStatus,
+    ResultType,
+)
+from tools.types.tool_types import (
+    ToolCapability,
+    ToolCategory,
+    ToolDefinition,
+    ToolMetadata,
 )
 
 __all__ = [

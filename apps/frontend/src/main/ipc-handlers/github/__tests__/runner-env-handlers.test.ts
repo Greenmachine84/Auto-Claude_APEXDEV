@@ -66,6 +66,7 @@ vi.mock('electron', () => ({
   ipcMain: mockIpcMain,
   BrowserWindow: class {},
   app: {
+    getName: vi.fn(() => 'APEXDEV'),
     getPath: vi.fn(() => '/tmp'),
     on: vi.fn(),
   },
@@ -127,7 +128,7 @@ function createProject(): Project {
     id: 'project-1',
     name: 'Test Project',
     path: projectPath,
-    autoBuildPath: '.auto-claude',
+    autoBuildPath: '.APEXDEV',
     settings: {
       model: 'default',
       memoryBackend: 'file',
@@ -258,3 +259,6 @@ describe('GitHub runner env usage', () => {
     );
   });
 });
+
+
+

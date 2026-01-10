@@ -47,9 +47,9 @@ export function useMemory(): UseMemoryReturn {
         window.apex.memory.getInsights(),
         window.apex.memory.getStats(),
       ]);
-      setEpisodes(episodeList);
-      setInsights(insightList);
-      setStats(memoryStats);
+      setEpisodes(episodeList as Episode[]);
+      setInsights(insightList as MemoryInsight[]);
+      setStats(memoryStats as MemoryStats);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to load memory'));
     } finally {
@@ -65,7 +65,7 @@ export function useMemory(): UseMemoryReturn {
   // Subscribe to episode events
   useEffect(() => {
     const unsubscribeAdded = window.apex.memory.onEpisodeAdded((episode) => {
-      setEpisodes((prev) => [episode, ...prev]);
+      setEpisodes((prev) => [episode as Episode, ...prev]);
     });
 
     const unsubscribeDeleted = window.apex.memory.onEpisodeDeleted((episodeId) => {
@@ -81,7 +81,7 @@ export function useMemory(): UseMemoryReturn {
   // Search episodes
   const search = useCallback(
     async (options: MemorySearchOptions): Promise<MemorySearchResult[]> => {
-      return window.apex.memory.search(options);
+      return window.apex.memory.search(options as Record<string, unknown>) as Promise<MemorySearchResult[]>;
     },
     []
   );
@@ -89,7 +89,7 @@ export function useMemory(): UseMemoryReturn {
   // Add episode
   const addEpisode = useCallback(
     async (content: string, metadata: Episode['metadata']): Promise<Episode> => {
-      return window.apex.memory.add(content, metadata);
+      return window.apex.memory.add(content, metadata) as Promise<Episode>;
     },
     []
   );
@@ -111,3 +111,4 @@ export function useMemory(): UseMemoryReturn {
     refresh: loadMemory,
   };
 }
+

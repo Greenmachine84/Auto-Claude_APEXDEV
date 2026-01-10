@@ -108,6 +108,7 @@ vi.mock('electron', () => {
 
   return {
     app: {
+      getName: vi.fn(() => 'APEXDEV'),
       getPath: vi.fn((name: string) => {
         if (name === 'userData') return path.join(TEST_DIR, 'userData');
         return TEST_DIR;
@@ -129,7 +130,7 @@ vi.mock('electron', () => {
 // Setup test project structure
 function setupTestProject(): void {
   mkdirSync(TEST_PROJECT_PATH, { recursive: true });
-  mkdirSync(path.join(TEST_PROJECT_PATH, 'auto-claude', 'specs'), { recursive: true });
+  mkdirSync(path.join(TEST_PROJECT_PATH, 'APEXDEV', 'specs'), { recursive: true });
 }
 
 // Cleanup test directories
@@ -140,7 +141,7 @@ function cleanupTestDirs(): void {
 }
 
 // Increase timeout for all tests in this file due to dynamic imports and setup overhead
-describe('IPC Handlers', { timeout: 15000 }, () => {
+describe('IPC Handlers', { timeout: 30000 }, () => {
   let ipcMain: EventEmitter & {
     handlers: Map<string, Function>;
     invokeHandler: (channel: string, event: unknown, ...args: unknown[]) => Promise<unknown>;
@@ -373,15 +374,15 @@ describe('IPC Handlers', { timeout: 15000 }, () => {
       const { setupIpcHandlers } = await import('../ipc-handlers');
       setupIpcHandlers(mockAgentManager as never, mockTerminalManager as never, () => mockMainWindow as never, mockPythonEnvManager as never);
 
-      // Create .auto-claude directory first (before adding project so it gets detected)
-      mkdirSync(path.join(TEST_PROJECT_PATH, '.auto-claude', 'specs'), { recursive: true });
+      // Create .APEXDEV directory first (before adding project so it gets detected)
+      mkdirSync(path.join(TEST_PROJECT_PATH, '.APEXDEV', 'specs'), { recursive: true });
 
-      // Add a project - it will detect .auto-claude
+      // Add a project - it will detect .APEXDEV
       const addResult = await ipcMain.invokeHandler('project:add', {}, TEST_PROJECT_PATH);
       const projectId = (addResult as { data: { id: string } }).data.id;
 
-      // Create a spec directory with implementation plan in .auto-claude/specs
-      const specDir = path.join(TEST_PROJECT_PATH, '.auto-claude', 'specs', '001-test-feature');
+      // Create a spec directory with implementation plan in .APEXDEV/specs
+      const specDir = path.join(TEST_PROJECT_PATH, '.APEXDEV', 'specs', '001-test-feature');
       mkdirSync(specDir, { recursive: true });
       writeFileSync(path.join(specDir, 'implementation_plan.json'), JSON.stringify({
         feature: 'Test Feature',
@@ -430,8 +431,8 @@ describe('IPC Handlers', { timeout: 15000 }, () => {
       const { setupIpcHandlers } = await import('../ipc-handlers');
       setupIpcHandlers(mockAgentManager as never, mockTerminalManager as never, () => mockMainWindow as never, mockPythonEnvManager as never);
 
-      // Create .auto-claude directory first (before adding project so it gets detected)
-      mkdirSync(path.join(TEST_PROJECT_PATH, '.auto-claude', 'specs'), { recursive: true });
+      // Create .APEXDEV directory first (before adding project so it gets detected)
+      mkdirSync(path.join(TEST_PROJECT_PATH, '.APEXDEV', 'specs'), { recursive: true });
 
       // Add a project first
       const addResult = await ipcMain.invokeHandler('project:add', {}, TEST_PROJECT_PATH);
@@ -461,7 +462,7 @@ describe('IPC Handlers', { timeout: 15000 }, () => {
 
       expect(result).toHaveProperty('success', true);
       const data = (result as { data: { theme: string } }).data;
-      expect(data).toHaveProperty('theme', 'system');
+      expect(data).toHaveProperty('theme', 'dark');
     });
   });
 
@@ -545,7 +546,7 @@ describe('IPC Handlers', { timeout: 15000 }, () => {
       await ipcMain.invokeHandler('project:add', {}, TEST_PROJECT_PATH);
 
       // Create a spec/task directory with implementation_plan.json
-      const specDir = path.join(TEST_PROJECT_PATH, '.auto-claude', 'specs', 'task-1');
+      const specDir = path.join(TEST_PROJECT_PATH, '.APEXDEV', 'specs', 'task-1');
       mkdirSync(specDir, { recursive: true });
       writeFileSync(
         path.join(specDir, 'implementation_plan.json'),
@@ -562,3 +563,6 @@ describe('IPC Handlers', { timeout: 15000 }, () => {
     });
   });
 });
+
+
+

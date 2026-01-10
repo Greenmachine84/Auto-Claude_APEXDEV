@@ -17,6 +17,7 @@ const { mockedLoadProfilesFile, mockedSaveProfilesFile } = vi.hoisted(() => ({
 
 // Mock electron before importing
 vi.mock('electron', () => ({
+  app: { getName: () => 'APEXDEV', getPath: () => '/tmp', isPackaged: false },
   ipcMain: {
     handle: vi.fn(),
     on: vi.fn()
@@ -339,3 +340,6 @@ describe('profile-handlers - testConnection', () => {
     });
   });
 });
+
+
+

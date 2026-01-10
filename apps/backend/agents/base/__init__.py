@@ -10,33 +10,31 @@ Provides foundational infrastructure for all agents:
 All agents inherit from BaseAgent and implement required interfaces.
 """
 
-
-
 # Configuration constants (from parent base.py)
 AUTO_CONTINUE_DELAY_SECONDS = 3
 HUMAN_INTERVENTION_FILE = "PAUSE"
 
-from .base_agent import BaseAgent
 from .agent_config import (
-    AgentConfig,
-    AgentCapabilities,
-    ResourceLimits,
-    READ_ONLY_CAPABILITIES,
     CODER_CAPABILITIES,
-    REVIEWER_CAPABILITIES,
     ORCHESTRATOR_CAPABILITIES,
+    READ_ONLY_CAPABILITIES,
+    REVIEWER_CAPABILITIES,
+    AgentCapabilities,
+    AgentConfig,
+    ResourceLimits,
 )
-from .agent_state import AgentStateManager
-from .agent_context import ExecutionContext, ContextBuilder
+from .agent_context import ContextBuilder, ExecutionContext
 from .agent_hooks import (
     AgentHooks,
     HookType,
     hook,
-    pre_execute,
-    post_execute,
     on_error,
     on_memory_store,
+    post_execute,
+    pre_execute,
 )
+from .agent_state import AgentStateManager
+from .base_agent import BaseAgent
 
 __all__ = [
     # Base Agent

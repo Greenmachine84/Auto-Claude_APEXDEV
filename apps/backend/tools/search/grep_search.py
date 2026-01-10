@@ -9,23 +9,22 @@ Capabilities:
 - Context lines
 """
 
-from typing import Any, Dict, List, Optional
-import subprocess
 import os
+import subprocess
 
 from tools.core.base_tool import (
     BaseTool,
     ToolCategory,
     ToolContext,
+    ToolParameter,
     ToolResult,
     ToolStatus,
-    ToolParameter,
 )
 
 
 class GrepSearchTool(BaseTool):
     """Fast text search.
-    
+
     Example:
         tool = GrepSearchTool()
         result = await tool.run(ToolContext(
@@ -36,14 +35,14 @@ class GrepSearchTool(BaseTool):
             }
         ))
     """
-    
+
     name = "grep_search"
     description = "Fast text search using grep"
     category = ToolCategory.SEARCH
     required_permissions = {"read_files"}
     version = "1.0.0"
-    
-    def get_parameters(self) -> List[ToolParameter]:
+
+    def get_parameters(self) -> list[ToolParameter]:
         """Get parameter definitions."""
         return [
             ToolParameter(
@@ -94,7 +93,7 @@ class GrepSearchTool(BaseTool):
                 default=100,
             ),
         ]
-    
+
     async def execute(self, context: ToolContext) -> ToolResult:
         """Execute grep search."""
         pattern = context.parameters.get("pattern")
@@ -104,52 +103,54 @@ class GrepSearchTool(BaseTool):
         ctx_lines = context.parameters.get("context", 0)
         include = context.parameters.get("include")
         max_results = context.parameters.get("max_results", 100)
-        
+
         if not os.path.isabs(path):
             path = os.path.join(context.working_directory, path)
-        
+
         try:
             # Build grep command
             cmd = ["grep", "-rn"]
-            
+
             if use_regex:
                 cmd.append("-E")
             else:
                 cmd.append("-F")
-            
+
             if not case_sensitive:
                 cmd.append("-i")
-            
+
             if ctx_lines > 0:
                 cmd.extend(["-C", str(ctx_lines)])
-            
+
             if include:
                 cmd.extend(["--include", include])
-            
+
             cmd.extend([pattern, path])
-            
+
             result = subprocess.run(
                 cmd,
                 capture_output=True,
                 text=True,
                 timeout=30,
             )
-            
+
             # Parse results
             matches = []
             for line in result.stdout.split("\n"):
                 if not line or len(matches) >= max_results:
                     continue
-                
+
                 # Parse grep output: file:line:content
                 parts = line.split(":", 2)
                 if len(parts) >= 3:
-                    matches.append({
-                        "file": os.path.relpath(parts[0], path),
-                        "line": int(parts[1]) if parts[1].isdigit() else 0,
-                        "text": parts[2][:200],
-                    })
-            
+                    matches.append(
+                        {
+                            "file": os.path.relpath(parts[0], path),
+                            "line": int(parts[1]) if parts[1].isdigit() else 0,
+                            "text": parts[2][:200],
+                        }
+                    )
+
             return ToolResult(
                 tool_name=self.name,
                 status=ToolStatus.COMPLETED,
@@ -159,7 +160,7 @@ class GrepSearchTool(BaseTool):
                     "pattern": pattern,
                 },
             )
-            
+
         except subprocess.TimeoutExpired:
             return ToolResult(
                 tool_name=self.name,

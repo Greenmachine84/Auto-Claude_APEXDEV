@@ -190,7 +190,7 @@ AGENT_CONFIGS = {
     # ═══════════════════════════════════════════════════════════════════════
     "planner": {
         "tools": BASE_READ_TOOLS + BASE_WRITE_TOOLS + WEB_TOOLS,
-        "mcp_servers": ["context7", "graphiti", "auto-claude"],
+        "mcp_servers": ["context7", "graphiti", "apexdev"],
         "mcp_servers_optional": ["linear"],  # Only if project setting enabled
         "auto_claude_tools": [
             TOOL_GET_BUILD_PROGRESS,
@@ -201,7 +201,7 @@ AGENT_CONFIGS = {
     },
     "coder": {
         "tools": BASE_READ_TOOLS + BASE_WRITE_TOOLS + WEB_TOOLS,
-        "mcp_servers": ["context7", "graphiti", "auto-claude"],
+        "mcp_servers": ["context7", "graphiti", "apexdev"],
         "mcp_servers_optional": ["linear"],
         "auto_claude_tools": [
             TOOL_UPDATE_SUBTASK_STATUS,
@@ -219,7 +219,7 @@ AGENT_CONFIGS = {
         # Read + Write/Edit (for QA reports and plan updates) + Bash (for tests)
         # Note: Reviewer writes to spec directory only (qa_report.md, implementation_plan.json)
         "tools": BASE_READ_TOOLS + BASE_WRITE_TOOLS + WEB_TOOLS,
-        "mcp_servers": ["context7", "graphiti", "auto-claude", "browser"],
+        "mcp_servers": ["context7", "graphiti", "apexdev", "browser"],
         "mcp_servers_optional": ["linear"],  # For updating issue status
         "auto_claude_tools": [
             TOOL_GET_BUILD_PROGRESS,
@@ -230,7 +230,7 @@ AGENT_CONFIGS = {
     },
     "qa_fixer": {
         "tools": BASE_READ_TOOLS + BASE_WRITE_TOOLS + WEB_TOOLS,
-        "mcp_servers": ["context7", "graphiti", "auto-claude", "browser"],
+        "mcp_servers": ["context7", "graphiti", "apexdev", "browser"],
         "mcp_servers_optional": ["linear"],
         "auto_claude_tools": [
             TOOL_UPDATE_SUBTASK_STATUS,
@@ -374,7 +374,7 @@ def _map_mcp_server_name(
         "linear": "linear",
         "electron": "electron",
         "puppeteer": "puppeteer",
-        "auto-claude": "auto-claude",
+        "apexdev": "apexdev",
     }
     # Check if it's a known mapping
     mapped = mappings.get(name.lower().strip())
@@ -399,14 +399,14 @@ def get_required_mcp_servers(
     - "browser" → electron (if is_electron) or puppeteer (if is_web_frontend)
     - "linear" → only if in mcp_servers_optional AND linear_enabled is True
     - "graphiti" → only if GRAPHITI_MCP_URL is set
-    - Respects per-project MCP config overrides from .auto-claude/.env
+    - Respects per-project MCP config overrides from .apexdev/.env
     - Applies per-agent ADD/REMOVE overrides from AGENT_MCP_<agent>_ADD/REMOVE
 
     Args:
         agent_type: The agent type identifier
         project_capabilities: Dict from detect_project_capabilities() or None
         linear_enabled: Whether Linear integration is enabled for this project
-        mcp_config: Per-project MCP server toggles from .auto-claude/.env
+        mcp_config: Per-project MCP server toggles from .apexdev/.env
                    Keys: CONTEXT7_ENABLED, LINEAR_MCP_ENABLED, ELECTRON_MCP_ENABLED,
                          PUPPETEER_MCP_ENABLED, AGENT_MCP_<agent>_ADD/REMOVE
 
@@ -487,7 +487,7 @@ def get_required_mcp_servers(
         ]
         for server in removals:
             mapped = _map_mcp_server_name(server, custom_server_ids)
-            if mapped and mapped != "auto-claude":  # auto-claude cannot be removed
+            if mapped and mapped != "apexdev":  # auto-claude cannot be removed
                 servers = [s for s in servers if s != mapped]
 
     return servers

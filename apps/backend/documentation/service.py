@@ -6,7 +6,7 @@ and exporting documentation.
 """
 
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from .config import (
     DocumentationConfig,
@@ -15,25 +15,25 @@ from .config import (
     OutputFormat,
     get_default_config,
 )
-from .models import (
-    DocumentationEntry,
-    DocumentationIndex,
+from .exporters import (
+    HtmlExporter,
+    MarkdownExporter,
 )
 from .generators import (
     ApiDocGenerator,
     GuideGenerator,
     ReferenceGenerator,
 )
-from .exporters import (
-    MarkdownExporter,
-    HtmlExporter,
+from .models import (
+    DocumentationEntry,
+    DocumentationIndex,
 )
 
 
 class DocumentationService:
     """High-level documentation generation service."""
 
-    def __init__(self, config: Optional[DocumentationConfig] = None):
+    def __init__(self, config: DocumentationConfig | None = None):
         """
         Initialize documentation service.
 
@@ -52,12 +52,16 @@ class DocumentationService:
 
         # Initialize exporters
         self._exporters = {
-            OutputFormat.MARKDOWN: MarkdownExporter(ExportConfig(
-                output_dir=self.config.output_dir / "md",
-            )),
-            OutputFormat.HTML: HtmlExporter(ExportConfig(
-                output_dir=self.config.output_dir / "html",
-            )),
+            OutputFormat.MARKDOWN: MarkdownExporter(
+                ExportConfig(
+                    output_dir=self.config.output_dir / "md",
+                )
+            ),
+            OutputFormat.HTML: HtmlExporter(
+                ExportConfig(
+                    output_dir=self.config.output_dir / "html",
+                )
+            ),
         }
 
     def generate_all(self) -> DocumentationIndex:
@@ -70,9 +74,9 @@ class DocumentationService:
         # Generate API docs
         if DocumentationType.API in self.config.doc_types:
             for source_dir in self.config.source_dirs:
-                entries = self._generators[DocumentationType.API].generate_from_directory(
-                    source_dir
-                )
+                entries = self._generators[
+                    DocumentationType.API
+                ].generate_from_directory(source_dir)
                 for entry in entries:
                     self.index.add_entry(entry)
 
@@ -123,10 +127,7 @@ class DocumentationService:
         return entries
 
     def add_guide(
-        self,
-        title: str,
-        content: str,
-        tags: Optional[list[str]] = None
+        self, title: str, content: str, tags: list[str] | None = None
     ) -> DocumentationEntry:
         """
         Add a guide to the documentation.
@@ -161,7 +162,7 @@ class DocumentationService:
         """
         self.index.add_entry(entry)
 
-    def get_entry(self, entry_id: str) -> Optional[DocumentationEntry]:
+    def get_entry(self, entry_id: str) -> DocumentationEntry | None:
         """
         Get an entry by ID.
 
@@ -187,8 +188,8 @@ class DocumentationService:
 
     def export(
         self,
-        output_format: Optional[OutputFormat] = None,
-        output_dir: Optional[Path] = None
+        output_format: OutputFormat | None = None,
+        output_dir: Path | None = None,
     ) -> list[Path]:
         """
         Export documentation to specified format.
@@ -218,7 +219,7 @@ class DocumentationService:
 
         return all_paths
 
-    def export_markdown(self, output_dir: Optional[Path] = None) -> list[Path]:
+    def export_markdown(self, output_dir: Path | None = None) -> list[Path]:
         """
         Export documentation to Markdown.
 
@@ -230,7 +231,7 @@ class DocumentationService:
         """
         return self.export(OutputFormat.MARKDOWN, output_dir)
 
-    def export_html(self, output_dir: Optional[Path] = None) -> list[Path]:
+    def export_html(self, output_dir: Path | None = None) -> list[Path]:
         """
         Export documentation to HTML.
 
@@ -255,24 +256,18 @@ class DocumentationService:
         """
         return {
             "total_entries": len(self.index.entries),
-            "categories": {
-                cat: len(ids)
-                for cat, ids in self.index.categories.items()
-            },
-            "tags": {
-                tag: len(ids)
-                for tag, ids in self.index.tags.items()
-            },
+            "categories": {cat: len(ids) for cat, ids in self.index.categories.items()},
+            "tags": {tag: len(ids) for tag, ids in self.index.tags.items()},
             "version": self.index.version,
             "generated_at": self.index.generated_at.isoformat(),
         }
 
 
 def create_documentation_service(
-    source_dirs: Optional[list[Path]] = None,
-    output_dir: Optional[Path] = None,
+    source_dirs: list[Path] | None = None,
+    output_dir: Path | None = None,
     project_name: str = "Documentation",
-    project_version: str = "1.0.0"
+    project_version: str = "1.0.0",
 ) -> DocumentationService:
     """
     Create a documentation service with custom configuration.

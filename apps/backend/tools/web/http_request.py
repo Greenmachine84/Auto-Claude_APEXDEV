@@ -9,24 +9,23 @@ Capabilities:
 - Response handling
 """
 
-from typing import Any, Dict, List, Optional
 import json
-import urllib.request
 import urllib.error
+import urllib.request
 
 from tools.core.base_tool import (
     BaseTool,
     ToolCategory,
     ToolContext,
+    ToolParameter,
     ToolResult,
     ToolStatus,
-    ToolParameter,
 )
 
 
 class HttpRequestTool(BaseTool):
     """Make HTTP requests.
-    
+
     Example:
         tool = HttpRequestTool()
         result = await tool.run(ToolContext(
@@ -37,14 +36,14 @@ class HttpRequestTool(BaseTool):
             }
         ))
     """
-    
+
     name = "http_request"
     description = "Make HTTP requests"
     category = ToolCategory.WEB
     required_permissions = {"http_requests"}
     version = "1.0.0"
-    
-    def get_parameters(self) -> List[ToolParameter]:
+
+    def get_parameters(self) -> list[ToolParameter]:
         """Get parameter definitions."""
         return [
             ToolParameter(
@@ -90,7 +89,7 @@ class HttpRequestTool(BaseTool):
                 default=30,
             ),
         ]
-    
+
     async def execute(self, context: ToolContext) -> ToolResult:
         """Execute HTTP request."""
         url = context.parameters.get("url")
@@ -99,7 +98,7 @@ class HttpRequestTool(BaseTool):
         body = context.parameters.get("body")
         json_body = context.parameters.get("json_body")
         timeout = context.parameters.get("timeout", 30)
-        
+
         try:
             # Prepare body
             data = None
@@ -108,7 +107,7 @@ class HttpRequestTool(BaseTool):
                 headers["Content-Type"] = "application/json"
             elif body:
                 data = body.encode("utf-8")
-            
+
             # Create request
             req = urllib.request.Request(
                 url,
@@ -116,19 +115,19 @@ class HttpRequestTool(BaseTool):
                 method=method,
                 headers=headers,
             )
-            
+
             # Make request
             with urllib.request.urlopen(req, timeout=timeout) as response:
                 response_body = response.read().decode("utf-8")
                 response_headers = dict(response.headers)
                 status_code = response.status
-            
+
             # Try to parse JSON
             try:
                 response_json = json.loads(response_body)
             except Exception:
                 response_json = None
-            
+
             return ToolResult(
                 tool_name=self.name,
                 status=ToolStatus.COMPLETED,
@@ -139,7 +138,7 @@ class HttpRequestTool(BaseTool):
                     "json": response_json,
                 },
             )
-            
+
         except urllib.error.HTTPError as e:
             return ToolResult(
                 tool_name=self.name,

@@ -9,26 +9,25 @@ Capabilities:
 - Detect encoding
 """
 
-from typing import Any, Dict, List, Optional
 import os
-import chardet
 
+import chardet
 from tools.core.base_tool import (
     BaseTool,
     ToolCategory,
     ToolContext,
+    ToolParameter,
     ToolResult,
     ToolStatus,
-    ToolParameter,
 )
 
 
 class FileReadTool(BaseTool):
     """Read file contents.
-    
+
     Reads files with support for line ranges and
     automatic encoding detection.
-    
+
     Example:
         tool = FileReadTool()
         result = await tool.run(ToolContext(
@@ -40,14 +39,14 @@ class FileReadTool(BaseTool):
             }
         ))
     """
-    
+
     name = "file_read"
     description = "Read contents of a file"
     category = ToolCategory.FILESYSTEM
     required_permissions = {"read_files"}
     version = "1.0.0"
-    
-    def get_parameters(self) -> List[ToolParameter]:
+
+    def get_parameters(self) -> list[ToolParameter]:
         """Get parameter definitions."""
         return [
             ToolParameter(
@@ -78,13 +77,13 @@ class FileReadTool(BaseTool):
                 default=None,
             ),
         ]
-    
+
     async def execute(self, context: ToolContext) -> ToolResult:
         """Execute file read.
-        
+
         Args:
             context: Execution context with path
-            
+
         Returns:
             ToolResult with file contents
         """
@@ -92,11 +91,11 @@ class FileReadTool(BaseTool):
         start_line = context.parameters.get("start_line")
         end_line = context.parameters.get("end_line")
         encoding = context.parameters.get("encoding")
-        
+
         # Resolve path
         if not os.path.isabs(path):
             path = os.path.join(context.working_directory, path)
-        
+
         # Check file exists
         if not os.path.exists(path):
             return ToolResult(
@@ -105,7 +104,7 @@ class FileReadTool(BaseTool):
                 output=None,
                 error=f"File not found: {path}",
             )
-        
+
         if not os.path.isfile(path):
             return ToolResult(
                 tool_name=self.name,
@@ -113,14 +112,14 @@ class FileReadTool(BaseTool):
                 output=None,
                 error=f"Not a file: {path}",
             )
-        
+
         try:
             # Detect encoding if not specified
             if not encoding:
                 encoding = self._detect_encoding(path)
-            
+
             # Read file
-            with open(path, "r", encoding=encoding) as f:
+            with open(path, encoding=encoding) as f:
                 if start_line or end_line:
                     lines = f.readlines()
                     start = (start_line or 1) - 1
@@ -130,7 +129,7 @@ class FileReadTool(BaseTool):
                 else:
                     content = f.read()
                     total_lines = content.count("\n") + 1
-            
+
             return ToolResult(
                 tool_name=self.name,
                 status=ToolStatus.COMPLETED,
@@ -143,7 +142,7 @@ class FileReadTool(BaseTool):
                     "end_line": end_line or total_lines,
                 },
             )
-            
+
         except Exception as e:
             return ToolResult(
                 tool_name=self.name,
@@ -151,7 +150,7 @@ class FileReadTool(BaseTool):
                 output=None,
                 error=str(e),
             )
-    
+
     def _detect_encoding(self, path: str) -> str:
         """Detect file encoding."""
         try:

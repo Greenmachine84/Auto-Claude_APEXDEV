@@ -9,24 +9,23 @@ Capabilities:
 - Set permissions
 """
 
-from typing import Any, Dict, List, Optional
 import os
 
 from tools.core.base_tool import (
     BaseTool,
     ToolCategory,
     ToolContext,
+    ToolParameter,
     ToolResult,
     ToolStatus,
-    ToolParameter,
 )
 
 
 class FileWriteTool(BaseTool):
     """Write content to files.
-    
+
     Creates or overwrites files with specified content.
-    
+
     Example:
         tool = FileWriteTool()
         result = await tool.run(ToolContext(
@@ -37,14 +36,14 @@ class FileWriteTool(BaseTool):
             }
         ))
     """
-    
+
     name = "file_write"
     description = "Write content to a file"
     category = ToolCategory.FILESYSTEM
     required_permissions = {"write_files"}
     version = "1.0.0"
-    
-    def get_parameters(self) -> List[ToolParameter]:
+
+    def get_parameters(self) -> list[ToolParameter]:
         """Get parameter definitions."""
         return [
             ToolParameter(
@@ -82,13 +81,13 @@ class FileWriteTool(BaseTool):
                 default="utf-8",
             ),
         ]
-    
+
     async def execute(self, context: ToolContext) -> ToolResult:
         """Execute file write.
-        
+
         Args:
             context: Execution context with path and content
-            
+
         Returns:
             ToolResult with write status
         """
@@ -97,32 +96,32 @@ class FileWriteTool(BaseTool):
         mode = context.parameters.get("mode", "overwrite")
         create_dirs = context.parameters.get("create_dirs", True)
         encoding = context.parameters.get("encoding", "utf-8")
-        
+
         # Resolve path
         if not os.path.isabs(path):
             path = os.path.join(context.working_directory, path)
-        
+
         try:
             # Create parent directories if needed
             if create_dirs:
                 parent = os.path.dirname(path)
                 if parent and not os.path.exists(parent):
                     os.makedirs(parent)
-            
+
             # Determine file mode
             file_mode = "a" if mode == "append" else "w"
-            
+
             # Get file size before (if exists)
             existed = os.path.exists(path)
             size_before = os.path.getsize(path) if existed else 0
-            
+
             # Write file
             with open(path, file_mode, encoding=encoding) as f:
                 f.write(content)
-            
+
             # Get file size after
             size_after = os.path.getsize(path)
-            
+
             return ToolResult(
                 tool_name=self.name,
                 status=ToolStatus.COMPLETED,
@@ -134,7 +133,7 @@ class FileWriteTool(BaseTool):
                     "mode": mode,
                 },
             )
-            
+
         except Exception as e:
             return ToolResult(
                 tool_name=self.name,

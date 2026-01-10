@@ -17,6 +17,62 @@ import { readSettingsFile } from '../settings-utils';
 import type { AppSettings } from '../../shared/types/settings';
 import { getOAuthModeClearVars } from './env-utils';
 import { getAugmentedEnv } from '../env-utils';
+import { getToolInfo } from '../cli-tool-manager';
+
+
+function deriveGitBashPath(gitExePath: string): string | null {
+  if (process.platform !== 'win32') {
+    return null;
+  }
+
+  try {
+    const gitDir = path.dirname(gitExePath);  // e.g., D:\...\Git\mingw64\bin
+    const gitDirName = path.basename(gitDir).toLowerCase();
+
+    // Find Git installation root
+    let gitRoot: string;
+
+    if (gitDirName === 'cmd') {
+      // .../Git/cmd/git.exe -> .../Git
+      gitRoot = path.dirname(gitDir);
+    } else if (gitDirName === 'bin') {
+      // Could be .../Git/bin/git.exe OR .../Git/mingw64/bin/git.exe
+      const parent = path.dirname(gitDir);
+      const parentName = path.basename(parent).toLowerCase();
+      if (parentName === 'mingw64' || parentName === 'mingw32') {
+        // .../Git/mingw64/bin/git.exe -> .../Git
+        gitRoot = path.dirname(parent);
+      } else {
+        // .../Git/bin/git.exe -> .../Git
+        gitRoot = parent;
+      }
+    } else {
+      // Unknown structure - try to find 'bin' sibling
+      gitRoot = path.dirname(gitDir);
+    }
+
+    // Bash.exe is in Git/bin/bash.exe
+    const bashPath = path.join(gitRoot, 'bin', 'bash.exe');
+
+    if (existsSync(bashPath)) {
+      console.log('[AgentProcess] Derived git-bash path:', bashPath);
+      return bashPath;
+    }
+
+    // Fallback: check one level up if gitRoot didn't work
+    const altBashPath = path.join(path.dirname(gitRoot), 'bin', 'bash.exe');
+    if (existsSync(altBashPath)) {
+      console.log('[AgentProcess] Found git-bash at alternate path:', altBashPath);
+      return altBashPath;
+    }
+
+    console.warn('[AgentProcess] Could not find bash.exe from git path:', gitExePath);
+    return null;
+  } catch (error) {
+    console.error('[AgentProcess] Error deriving git-bash path:', error);
+    return null;
+  }
+}
 
 /**
  * Process spawning and lifecycle management
@@ -59,8 +115,28 @@ export class AgentProcessManager {
     // Use getAugmentedEnv() to ensure common tool paths (dotnet, homebrew, etc.)
     // are available even when app is launched from Finder/Dock
     const augmentedEnv = getAugmentedEnv();
+
+    // On Windows, detect and pass git-bash path for Claude Code CLI
+    // Electron can detect git via where.exe, but Python subprocess may not have the same PATH
+    const gitBashEnv: Record<string, string> = {};
+    if (process.platform === 'win32' && !process.env.CLAUDE_CODE_GIT_BASH_PATH) {
+      try {
+        const gitInfo = getToolInfo('git');
+        if (gitInfo.found && gitInfo.path) {
+          const bashPath = deriveGitBashPath(gitInfo.path);
+          if (bashPath) {
+            gitBashEnv['CLAUDE_CODE_GIT_BASH_PATH'] = bashPath;
+            console.log('[AgentProcess] Setting CLAUDE_CODE_GIT_BASH_PATH:', bashPath);
+          }
+        }
+      } catch (error) {
+        console.warn('[AgentProcess] Failed to detect git-bash path:', error);
+      }
+    }
+
     return {
       ...augmentedEnv,
+      ...gitBashEnv,
       ...extraEnv,
       ...profileEnv,
       PYTHONUNBUFFERED: '1',
@@ -186,7 +262,7 @@ export class AgentProcessManager {
   }
 
   /**
-   * Get the auto-claude source path (detects automatically if not configured)
+   * Get the APEXDEV source path (detects automatically if not configured)
    */
   getAutoBuildSourcePath(): string | null {
     // Use runners/spec_runner.py as the validation marker - this is the file actually needed
@@ -291,7 +367,7 @@ export class AgentProcessManager {
   }
 
   /**
-   * Load environment variables from project's .auto-claude/.env file
+   * Load environment variables from project's .APEXDEV/.env file
    * This contains frontend-configured settings like memory/Graphiti configuration
    */
   private loadProjectEnv(projectPath: string): Record<string, string> {
@@ -308,7 +384,7 @@ export class AgentProcessManager {
   }
 
   /**
-   * Load environment variables from auto-claude .env file
+   * Load environment variables from APEXDEV .env file
    */
   loadAutoBuildEnv(): Record<string, string> {
     const autoBuildSource = this.getAutoBuildSourcePath();
@@ -581,7 +657,7 @@ export class AgentProcessManager {
    * Priority (later sources override earlier):
    * 1. App-wide memory settings from settings.json (NEW - enables memory from onboarding)
    * 2. Backend source .env (apps/backend/.env) - CLI defaults
-   * 3. Project's .auto-claude/.env - Frontend-configured settings (memory, integrations)
+   * 3. Project's .APEXDEV/.env - Frontend-configured settings (memory, integrations)
    * 4. Project settings (graphitiMcpUrl, useClaudeMd) - Runtime overrides
    */
   getCombinedEnv(projectPath: string): Record<string, string> {
@@ -600,3 +676,4 @@ export class AgentProcessManager {
     return { ...memoryEnv, ...autoBuildEnv, ...projectFileEnv, ...projectSettingsEnv };
   }
 }
+

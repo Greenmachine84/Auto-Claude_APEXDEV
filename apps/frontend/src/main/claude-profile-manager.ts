@@ -534,3 +534,33 @@ export function getClaudeProfileManager(): ClaudeProfileManager {
   }
   return profileManager;
 }
+
+/**
+ * Pre-initialize Claude profile manager in background (non-blocking)
+ * 
+ * This ensures profile data is loaded before user clicks "Start Claude Code".
+ * Should be called at app startup with setImmediate() for non-blocking behavior.
+ * 
+ * @example
+ * ```typescript
+ * import { initializeClaudeProfileManager } from './claude-profile-manager';
+ * 
+ * // Pre-initialize at app startup
+ * setImmediate(() => {
+ *   initializeClaudeProfileManager().catch(console.error);
+ * });
+ * ```
+ */
+export async function initializeClaudeProfileManager(): Promise<void> {
+  console.log('[Claude Profile Manager] Pre-initializing...');
+  
+  try {
+    // Creating the singleton triggers initialization
+    const manager = getClaudeProfileManager();
+    const profiles = manager.getSettings().profiles;
+    console.log(`[Claude Profile Manager] Initialized with ${profiles.length} profile(s)`);
+  } catch (error) {
+    console.warn('[Claude Profile Manager] Pre-initialization failed:', error);
+    throw error;
+  }
+}

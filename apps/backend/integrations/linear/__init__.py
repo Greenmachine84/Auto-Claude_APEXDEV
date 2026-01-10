@@ -7,16 +7,16 @@ Linear API integration for issue and project tracking.
 
 from .client import LinearClient
 from .models import (
+    IssuePriority,
+    IssueState,
+    LinearComment,
     LinearConfig,
+    LinearCycle,
     LinearIssue,
+    LinearLabel,
     LinearProject,
     LinearTeam,
     LinearUser,
-    LinearComment,
-    LinearLabel,
-    LinearCycle,
-    IssueState,
-    IssuePriority,
 )
 from .service import LinearService
 from .webhooks import LinearWebhookHandler, WebhookEvent

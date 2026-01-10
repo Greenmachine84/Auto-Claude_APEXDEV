@@ -634,7 +634,7 @@ The system **automatically scans for secrets** before every commit. If secrets a
    api_key = os.environ.get("API_KEY")
    ```
 3. **Update .env.example** - Add placeholder for the new variable
-4. **Re-stage and retry** - `git add . ':!.auto-claude' && git commit ...`
+4. **Re-stage and retry** - `git add . ':!.apexdev' && git commit ...`
 
 **If it's a false positive:**
 - Add the file pattern to `.secretsignore` in the project root
@@ -643,8 +643,8 @@ The system **automatically scans for secrets** before every commit. If secrets a
 ### Create the Commit
 
 ```bash
-# Add all files EXCEPT .auto-claude directory (spec files should never be committed)
-git add . ':!.auto-claude'
+# Add all files EXCEPT .apexdev directory (spec files should never be committed)
+git add . ':!.apexdev'
 git commit -m "auto-claude: Complete [subtask-id] - [subtask description]
 
 - Files modified: [list]
@@ -652,7 +652,7 @@ git commit -m "auto-claude: Complete [subtask-id] - [subtask description]
 - Phase progress: [X]/[Y] subtasks complete"
 ```
 
-**CRITICAL**: The `:!.auto-claude` pathspec exclusion ensures spec files are NEVER committed.
+**CRITICAL**: The `:!.apexdev` pathspec exclusion ensures spec files are NEVER committed.
 These are internal tracking files that must stay local.
 
 ### DO NOT Push to Remote
@@ -685,7 +685,7 @@ Next phase (if applicable): [phase-name]
 === END SESSION N ===
 ```
 
-**Note:** The `build-progress.txt` file is in `.auto-claude/specs/` which is gitignored.
+**Note:** The `build-progress.txt` file is in `.apexdev/specs/` which is gitignored.
 Do NOT try to commit it - the framework tracks progress automatically.
 
 ---

@@ -3,23 +3,23 @@
 Type definitions for orchestration.
 """
 
+from orchestrator.types.dispatch_types import (
+    DispatchConfig,
+    DispatchEvent,
+    DispatchMode,
+    DispatchPolicy,
+)
 from orchestrator.types.task_types import (
-    TaskType,
-    TaskState,
-    TaskMetadata,
     TaskConfig,
+    TaskMetadata,
+    TaskState,
+    TaskType,
 )
 from orchestrator.types.workflow_types import (
-    WorkflowType,
-    WorkflowPhase,
-    WorkflowEvent,
     WorkflowConfig,
-)
-from orchestrator.types.dispatch_types import (
-    DispatchPolicy,
-    DispatchMode,
-    DispatchEvent,
-    DispatchConfig,
+    WorkflowEvent,
+    WorkflowPhase,
+    WorkflowType,
 )
 
 __all__ = [

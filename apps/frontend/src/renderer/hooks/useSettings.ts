@@ -19,8 +19,7 @@ export interface UseSettingsReturn {
 }
 
 /** Default settings */
-const defaultSettings: Settings = {
-  theme: 'system',
+const defaultSettings: Settings = { theme: 'system', defaultModel: 'claude-3-opus', agentFramework: 'apex', autoUpdateAutoBuild: true, autoNameTerminals: true,
   language: 'en',
   fontSize: 14,
   autoSave: true,
@@ -124,3 +123,4 @@ export function useSettings(): UseSettingsReturn {
     getSetting,
   };
 }
+

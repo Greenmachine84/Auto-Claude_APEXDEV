@@ -1,3 +1,4 @@
+import { ipcRenderer } from 'electron';
 import { ProjectAPI, createProjectAPI } from './project-api';
 import { TerminalAPI, createTerminalAPI } from './terminal-api';
 import { TaskAPI, createTaskAPI } from './task-api';
@@ -13,6 +14,57 @@ import { DebugAPI, createDebugAPI } from './modules/debug-api';
 import { ClaudeCodeAPI, createClaudeCodeAPI } from './modules/claude-code-api';
 import { McpAPI, createMcpAPI } from './modules/mcp-api';
 import { ProfileAPI, createProfileAPI } from './profile-api';
+import { MemoryAPI, createMemoryAPI } from './memory-api';
+import type { Agent, AgentPoolStatus } from '../../main/ipc/agent-ipc';
+import type { Episode, MemorySearchOptions, MemorySearchResult, MemoryInsight, MemoryStats } from './memory-api';
+
+// Namespaced Agents API for window.apex.agents
+interface AgentsNamespacedAPI {
+  list: () => Promise<Agent[]>;
+  getPoolStatus: () => Promise<AgentPoolStatus | null>;
+  start: (input: { name: string; type: string; config?: Record<string, unknown> }) => Promise<Agent>;
+  stop: (id: string) => Promise<void>;
+  pause: (id: string) => Promise<void>;
+  resume: (id: string) => Promise<void>;
+  onStarted: (callback: (agent: Agent) => void) => () => void;
+  onStopped: (callback: (agentId: string) => void) => () => void;
+  onStatusChanged: (callback: (data: { agentId: string; status: string }) => void) => () => void;
+  onPoolUpdated: (callback: (status: AgentPoolStatus) => void) => () => void;
+}
+
+// Namespaced Tasks API for window.apex.tasks
+interface TasksNamespacedAPI {
+  list: (projectId?: string) => Promise<unknown[]>;
+  create: (data: { title: string; description: string; projectId?: string }) => Promise<unknown>;
+  update: (id: string, updates: Record<string, unknown>) => Promise<unknown>;
+  delete: (id: string) => Promise<void>;
+  onCreated: (callback: (task: unknown) => void) => () => void;
+  onUpdated: (callback: (task: unknown) => void) => () => void;
+  onDeleted: (callback: (taskId: string) => void) => () => void;
+}
+
+// Namespaced Settings API for window.apex.settings
+interface SettingsNamespacedAPI {
+  getAll: () => Promise<Record<string, unknown>>;
+  update: (updates: Record<string, unknown>) => Promise<void>;
+  reset: () => Promise<void>;
+  onChange: (callback: (settings: Record<string, unknown>) => void) => () => void;
+}
+
+// Events API for window.apex.events
+interface EventsAPI {
+  on: (event: string, callback: (...args: unknown[]) => void) => () => void;
+  off: (event: string, callback: (...args: unknown[]) => void) => void;
+  emit: (event: string, ...args: unknown[]) => void;
+}
+
+// Window API for window.apex.window
+interface WindowAPI {
+  minimize: () => void;
+  maximize: () => void;
+  close: () => void;
+  isMaximized: () => Promise<boolean>;
+}
 
 export interface ElectronAPI extends
   ProjectAPI,
@@ -30,7 +82,66 @@ export interface ElectronAPI extends
   McpAPI,
   ProfileAPI {
   github: GitHubAPI;
+  // Namespaced APIs for component compatibility
+  agents: AgentsNamespacedAPI;
+  memory: MemoryAPI;
+  tasks: TasksNamespacedAPI;
+  settings: SettingsNamespacedAPI;
+  events: EventsAPI;
+  window: WindowAPI;
+  platform: string;
+  onTerminalAuthCreated: (callback: (info: unknown) => void) => () => void;
+  // Task event listeners
+  onTaskProgress: (callback: (taskId: string, plan: unknown) => void) => () => void;
+  onTaskError: (callback: (taskId: string, error: string) => void) => () => void;
+  onTaskLog: (callback: (taskId: string, log: string) => void) => () => void;
+  onTaskStatusChange: (callback: (taskId: string, status: string) => void) => () => void;
+  onTaskExecutionProgress: (callback: (taskId: string, progress: unknown) => void) => () => void;
 }
+
+// Create stub namespaced APIs
+const createAgentsNamespacedAPI = (): AgentsNamespacedAPI => ({
+  list: async () => [],
+  getPoolStatus: async () => null,
+  start: async () => ({ id: '', name: '', type: 'coder', status: 'idle', config: {}, tasksCompleted: 0, tokensUsed: 0, startedAt: new Date().toISOString(), lastActivityAt: new Date().toISOString() } as Agent),
+  stop: async () => {},
+  pause: async () => {},
+  resume: async () => {},
+  onStarted: () => () => {},
+  onStopped: () => () => {},
+  onStatusChanged: () => () => {},
+  onPoolUpdated: () => () => {},
+});
+
+const createTasksNamespacedAPI = (): TasksNamespacedAPI => ({
+  list: async () => [],
+  create: async () => ({}),
+  update: async () => ({}),
+  delete: async () => {},
+  onCreated: () => () => {},
+  onUpdated: () => () => {},
+  onDeleted: () => () => {},
+});
+
+const createSettingsNamespacedAPI = (): SettingsNamespacedAPI => ({
+  getAll: async () => ({}),
+  update: async () => {},
+  reset: async () => {},
+  onChange: () => () => {},
+});
+
+const createEventsAPI = (): EventsAPI => ({
+  on: () => () => {},
+  off: () => {},
+  emit: () => {},
+});
+
+const createWindowAPI = (): WindowAPI => ({
+  minimize: () => {},
+  maximize: () => {},
+  close: () => {},
+  isMaximized: async () => false,
+});
 
 export const createElectronAPI = (): ElectronAPI => ({
   ...createProjectAPI(),
@@ -47,7 +158,43 @@ export const createElectronAPI = (): ElectronAPI => ({
   ...createClaudeCodeAPI(),
   ...createMcpAPI(),
   ...createProfileAPI(),
-  github: createGitHubAPI()
+  github: createGitHubAPI(),
+  // Namespaced APIs
+  agents: createAgentsNamespacedAPI(),
+  memory: createMemoryAPI(),
+  tasks: createTasksNamespacedAPI(),
+  settings: createSettingsNamespacedAPI(),
+  events: createEventsAPI(),
+  window: createWindowAPI(),
+  platform: process.platform,
+  onTerminalAuthCreated: () => () => {},
+  
+  // Task event listeners for IPC bridge tests
+  onTaskProgress: (callback: (taskId: string, plan: unknown) => void) => {
+    const handler = (_: unknown, taskId: string, plan: unknown) => callback(taskId, plan);
+    ipcRenderer.on('task:progress', handler);
+    return () => ipcRenderer.removeListener('task:progress', handler);
+  },
+  onTaskError: (callback: (taskId: string, error: string) => void) => {
+    const handler = (_: unknown, taskId: string, error: string) => callback(taskId, error);
+    ipcRenderer.on('task:error', handler);
+    return () => ipcRenderer.removeListener('task:error', handler);
+  },
+  onTaskLog: (callback: (taskId: string, log: string) => void) => {
+    const handler = (_: unknown, taskId: string, log: string) => callback(taskId, log);
+    ipcRenderer.on('task:log', handler);
+    return () => ipcRenderer.removeListener('task:log', handler);
+  },
+  onTaskStatusChange: (callback: (taskId: string, status: string) => void) => {
+    const handler = (_: unknown, taskId: string, status: string) => callback(taskId, status);
+    ipcRenderer.on('task:statusChange', handler);
+    return () => ipcRenderer.removeListener('task:statusChange', handler);
+  },
+  onTaskExecutionProgress: (callback: (taskId: string, progress: unknown) => void) => {
+    const handler = (_: unknown, taskId: string, progress: unknown) => callback(taskId, progress);
+    ipcRenderer.on('task:executionProgress', handler);
+    return () => ipcRenderer.removeListener('task:executionProgress', handler);
+  },
 });
 
 // Export individual API creators for potential use in tests or specialized contexts
@@ -66,7 +213,8 @@ export {
   createGitLabAPI,
   createDebugAPI,
   createClaudeCodeAPI,
-  createMcpAPI
+  createMcpAPI,
+  createMemoryAPI
 };
 
 export type {
@@ -84,5 +232,11 @@ export type {
   GitLabAPI,
   DebugAPI,
   ClaudeCodeAPI,
-  McpAPI
+  McpAPI,
+  MemoryAPI,
+  AgentsNamespacedAPI,
+  TasksNamespacedAPI,
+  SettingsNamespacedAPI,
+  EventsAPI,
+  WindowAPI
 };

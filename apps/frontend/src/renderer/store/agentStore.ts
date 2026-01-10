@@ -68,7 +68,7 @@ export const useAgentStore = create<AgentState & AgentActions>()(
             window.apex.agents.list(),
             window.apex.agents.getPoolStatus(),
           ]);
-          set({ agents, poolStatus, loading: false });
+          set({ agents: agents as Agent[], poolStatus: poolStatus as AgentPoolStatus | null, loading: false });
         } catch (error) {
           set({
             loading: false,
@@ -80,7 +80,7 @@ export const useAgentStore = create<AgentState & AgentActions>()(
       // Start agent
       startAgent: async (input) => {
         const agent = await window.apex.agents.start(input);
-        set((state) => ({ agents: [...state.agents, agent] }));
+        set((state) => ({ agents: [...state.agents, agent as Agent] }));
         return agent;
       },
 
@@ -160,3 +160,4 @@ export const useAgentStore = create<AgentState & AgentActions>()(
     { name: 'AgentStore' }
   )
 );
+

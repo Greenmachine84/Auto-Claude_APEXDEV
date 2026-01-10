@@ -14,7 +14,7 @@ import { BackendService } from '../services/backend-service';
 export type TaskPriority = 'critical' | 'high' | 'medium' | 'low';
 
 /** Task status */
-export type TaskStatus = 'pending' | 'queued' | 'running' | 'completed' | 'failed' | 'cancelled';
+export type TaskStatus = 'pending' | 'queued' | 'running' | 'in-progress' | 'completed' | 'failed' | 'cancelled';
 
 /** Task definition */
 export interface Task {

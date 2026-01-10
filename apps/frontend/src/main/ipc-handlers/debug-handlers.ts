@@ -18,12 +18,15 @@ import {
   listLogFiles,
   logger
 } from '../app-logger';
+import { projectStore } from '../project-store';
 
 export interface DebugInfo {
   systemInfo: Record<string, string>;
   recentErrors: string[];
   logsPath: string;
   debugReport: string;
+  storePath: string;
+  virtualProjects: Array<{ id: string; name: string; fullName: string; hasToken: boolean }>;
 }
 
 export interface LogFileInfo {
@@ -40,11 +43,19 @@ export function registerDebugHandlers(): void {
   // Get comprehensive debug info
   ipcMain.handle(IPC_CHANNELS.DEBUG_GET_INFO, async (): Promise<DebugInfo> => {
     logger.info('Debug info requested');
+    const virtualProjects = projectStore.getVirtualProjects().map(p => ({
+      id: p.id,
+      name: p.name,
+      fullName: p.virtualRepo?.fullName || '',
+      hasToken: !!p.githubToken
+    }));
     return {
       systemInfo: getSystemInfo(),
       recentErrors: getRecentErrors(20),
       logsPath: getLogsPath(),
-      debugReport: generateDebugReport()
+      debugReport: generateDebugReport(),
+      storePath: projectStore.getStorePath(),
+      virtualProjects
     };
   });
 

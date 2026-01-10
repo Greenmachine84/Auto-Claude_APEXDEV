@@ -8,8 +8,8 @@ Real-time analytics dashboard with API endpoints and data visualization.
 """
 
 from .api import DashboardAPI, router
-from .data_builder import DashboardDataBuilder
 from .chart_data import ChartDataGenerator, ChartType
+from .data_builder import DashboardDataBuilder
 from .export import DashboardExporter, ExportFormat
 
 __all__ = [

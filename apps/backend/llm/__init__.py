@@ -6,7 +6,7 @@ Provides LLM-agnostic interface supporting 8 canonical providers:
 - Copilot (GitHub Copilot)
 - OpenRouter
 - Ollama (local)
-- LM Studio (local)  
+- LM Studio (local)
 - Gemini (Google)
 - OpenAI
 - Anthropic
@@ -31,42 +31,42 @@ Submodules:
 """
 
 from .core import (
-    LLMManager,
-    ProviderRegistry,
-    LLMRouter,
-    RouteResult,
     FallbackHandler,
     FallbackResult,
+    LLMManager,
     LLMMetrics,
+    LLMRouter,
     MetricEvent,
+    ProviderRegistry,
+    RouteResult,
 )
 from .providers import (
-    BaseLLMProvider,
-    ProviderCapabilities,
-    CopilotProvider,
-    OpenRouterProvider,
-    OllamaProvider,
-    LMStudioProvider,
-    GeminiProvider,
-    OpenAIProvider,
     AnthropicProvider,
     AzureOpenAIProvider,
+    BaseLLMProvider,
+    CopilotProvider,
+    GeminiProvider,
+    LMStudioProvider,
+    OllamaProvider,
+    OpenAIProvider,
+    OpenRouterProvider,
+    ProviderCapabilities,
 )
 from .types import (
+    FallbackConfig,
     LLMCapability,
+    LLMConfig,
     LLMModel,
+    LLMResponse,
     LLMUsage,
     ModelInfo,
-    ProviderType,
-    ProviderStatus,
     ProviderConfig,
-    LLMResponse,
+    ProviderStatus,
+    ProviderType,
+    RouterConfig,
     StreamChunk,
     ToolCall,
     ToolResult,
-    LLMConfig,
-    RouterConfig,
-    FallbackConfig,
 )
 
 __all__ = [

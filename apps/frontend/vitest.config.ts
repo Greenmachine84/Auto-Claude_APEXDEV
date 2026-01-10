@@ -13,21 +13,18 @@ export default defineConfig({
       include: ['src/**/*.ts', 'src/**/*.tsx'],
       exclude: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'src/**/*.spec.ts', 'src/**/*.spec.tsx', 'src/**/*.d.ts']
     },
-    // Mock Electron modules for unit tests
-    alias: {
-      electron: resolve(__dirname, 'src/__mocks__/electron.ts'),
-      '@sentry/electron/main': resolve(__dirname, 'src/__mocks__/sentry-electron-main.ts'),
-      '@sentry/electron/renderer': resolve(__dirname, 'src/__mocks__/sentry-electron-renderer.ts')
-    },
-    // Setup files for test environment
-    setupFiles: ['src/__tests__/setup.ts']
+    setupFiles: ['src/__tests__/setup.ts'],
+    testTimeout: 30000
   },
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
       '@main': resolve(__dirname, 'src/main'),
       '@renderer': resolve(__dirname, 'src/renderer'),
-      '@shared': resolve(__dirname, 'src/shared')
+      '@shared': resolve(__dirname, 'src/shared'),
+      'electron': resolve(__dirname, 'src/__mocks__/electron.ts'),
+      '@sentry/electron/main': resolve(__dirname, 'src/__mocks__/sentry-electron-main.ts'),
+      '@sentry/electron/renderer': resolve(__dirname, 'src/__mocks__/sentry-electron-renderer.ts')
     }
   }
 });

@@ -15,13 +15,12 @@ LLM-Agnostic: Supports all 8 providers equally:
 - gemini, openai, anthropic, azure
 """
 
+import logging
+import uuid
 from dataclasses import dataclass, field
-from typing import Optional, Dict, Any, List, Tuple
 from datetime import datetime
 from enum import Enum
-import uuid
-import logging
-
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -31,14 +30,14 @@ logger = logging.getLogger(__name__)
 # =============================================================================
 
 SUPPORTED_PROVIDERS = [
-    "copilot",      # GitHub Copilot (subscription-based)
-    "openrouter",   # OpenRouter (pay-per-use, multi-model)
-    "ollama",       # Ollama (local, free)
-    "lmstudio",     # LM Studio (local, free)
-    "gemini",       # Google Gemini (pay-per-use)
-    "openai",       # OpenAI (pay-per-use)
-    "anthropic",    # Anthropic Claude (pay-per-use)
-    "azure",        # Azure OpenAI (pay-per-use)
+    "copilot",  # GitHub Copilot (subscription-based)
+    "openrouter",  # OpenRouter (pay-per-use, multi-model)
+    "ollama",  # Ollama (local, free)
+    "lmstudio",  # LM Studio (local, free)
+    "gemini",  # Google Gemini (pay-per-use)
+    "openai",  # OpenAI (pay-per-use)
+    "anthropic",  # Anthropic Claude (pay-per-use)
+    "azure",  # Azure OpenAI (pay-per-use)
 ]
 
 
@@ -46,16 +45,18 @@ SUPPORTED_PROVIDERS = [
 # ENUMS
 # =============================================================================
 
+
 class PolicyAction(Enum):
     """
     Actions a policy can take.
-    
+
     - ALLOW: Request proceeds
     - DENY: Request blocked
     - REQUIRE_APPROVAL: Needs approval workflow
     - LOG: Allow but log for audit
     - WARN: Allow with warning
     """
+
     ALLOW = "allow"
     DENY = "deny"
     REQUIRE_APPROVAL = "require_approval"
@@ -66,9 +67,10 @@ class PolicyAction(Enum):
 class ApprovalStatus(Enum):
     """
     Status of an approval request.
-    
+
     Lifecycle: PENDING -> APPROVED/REJECTED/EXPIRED/CANCELLED
     """
+
     PENDING = "pending"
     APPROVED = "approved"
     REJECTED = "rejected"
@@ -79,17 +81,18 @@ class ApprovalStatus(Enum):
 class RuleOperator(Enum):
     """
     Operators for rule conditions.
-    
+
     Supports numeric, string, and collection operations.
     """
-    EQ = "eq"           # Equal
-    NE = "ne"           # Not equal
-    GT = "gt"           # Greater than
-    GE = "ge"           # Greater than or equal
-    LT = "lt"           # Less than
-    LE = "le"           # Less than or equal
-    IN = "in"           # In collection
-    NOT_IN = "not_in"   # Not in collection
+
+    EQ = "eq"  # Equal
+    NE = "ne"  # Not equal
+    GT = "gt"  # Greater than
+    GE = "ge"  # Greater than or equal
+    LT = "lt"  # Less than
+    LE = "le"  # Less than or equal
+    IN = "in"  # In collection
+    NOT_IN = "not_in"  # Not in collection
     CONTAINS = "contains"
     STARTS_WITH = "starts_with"
     ENDS_WITH = "ends_with"
@@ -100,6 +103,7 @@ class LimitType(Enum):
     """
     Types of rate/quota limits.
     """
+
     REQUESTS_PER_MINUTE = "requests_per_minute"
     REQUESTS_PER_HOUR = "requests_per_hour"
     REQUESTS_PER_DAY = "requests_per_day"
@@ -113,6 +117,7 @@ class ComplianceEventType(Enum):
     """
     Types of compliance events for audit trail.
     """
+
     POLICY_EVALUATED = "policy_evaluated"
     POLICY_DENIED = "policy_denied"
     APPROVAL_REQUESTED = "approval_requested"
@@ -129,11 +134,12 @@ class ComplianceEventType(Enum):
 # POLICY MODELS
 # =============================================================================
 
+
 @dataclass
 class PolicyRule:
     """
     Single policy rule with provider awareness.
-    
+
     Attributes:
         id: Unique rule identifier
         name: Human-readable rule name
@@ -144,6 +150,7 @@ class PolicyRule:
         priority: Higher priority rules evaluated first
         provider: Optional provider-specific rule
     """
+
     id: str
     name: str
     description: str = ""
@@ -153,8 +160,8 @@ class PolicyRule:
     action: PolicyAction = PolicyAction.ALLOW
     priority: int = 0
     enabled: bool = True
-    provider: Optional[str] = None  # Apply only to specific provider
-    
+    provider: str | None = None  # Apply only to specific provider
+
     def __post_init__(self) -> None:
         if not self.id:
             self.id = str(uuid.uuid4())
@@ -166,20 +173,21 @@ class PolicyRule:
 class Policy:
     """
     Collection of rules for governance.
-    
+
     Policies contain ordered rules evaluated by priority.
     First matching rule determines the action.
     """
+
     id: str
     name: str
     description: str = ""
-    rules: List[PolicyRule] = field(default_factory=list)
+    rules: list[PolicyRule] = field(default_factory=list)
     default_action: PolicyAction = PolicyAction.ALLOW
     enabled: bool = True
-    applies_to: List[str] = field(default_factory=list)
+    applies_to: list[str] = field(default_factory=list)
     created_at: datetime = field(default_factory=datetime.now)
-    updated_at: Optional[datetime] = None
-    
+    updated_at: datetime | None = None
+
     def __post_init__(self) -> None:
         if not self.id:
             self.id = str(uuid.uuid4())
@@ -189,16 +197,17 @@ class Policy:
 class PolicyEvaluation:
     """
     Result of policy evaluation.
-    
+
     Contains the decision and reasoning for audit trail.
     """
+
     policy_id: str
     action: PolicyAction
     reason: str
-    matched_rule: Optional[str] = None
+    matched_rule: str | None = None
     evaluation_time_ms: float = 0.0
-    provider: Optional[str] = None
-    context_snapshot: Dict[str, Any] = field(default_factory=dict)
+    provider: str | None = None
+    context_snapshot: dict[str, Any] = field(default_factory=dict)
     timestamp: datetime = field(default_factory=datetime.now)
 
 
@@ -206,29 +215,31 @@ class PolicyEvaluation:
 # APPROVAL MODELS
 # =============================================================================
 
+
 @dataclass
 class ApprovalRequest:
     """
     Request requiring approval with provider context.
-    
+
     Tracks multi-step approval workflows with audit trail.
     """
+
     id: str
     request_type: str
     requester_id: str
     description: str
     status: ApprovalStatus = ApprovalStatus.PENDING
-    provider: Optional[str] = None  # Track provider for approval
-    model: Optional[str] = None
-    context: Dict[str, Any] = field(default_factory=dict)
-    approvers: List[str] = field(default_factory=list)
-    approved_by: Optional[str] = None
-    rejected_by: Optional[str] = None
-    rejection_reason: Optional[str] = None
+    provider: str | None = None  # Track provider for approval
+    model: str | None = None
+    context: dict[str, Any] = field(default_factory=dict)
+    approvers: list[str] = field(default_factory=list)
+    approved_by: str | None = None
+    rejected_by: str | None = None
+    rejection_reason: str | None = None
     created_at: datetime = field(default_factory=datetime.now)
-    expires_at: Optional[datetime] = None
-    decided_at: Optional[datetime] = None
-    
+    expires_at: datetime | None = None
+    decided_at: datetime | None = None
+
     def __post_init__(self) -> None:
         if not self.id:
             self.id = str(uuid.uuid4())
@@ -239,11 +250,12 @@ class ApprovalStep:
     """
     Single step in a multi-step approval workflow.
     """
+
     step_id: str
     approver_id: str
     order: int
     status: ApprovalStatus = ApprovalStatus.PENDING
-    decided_at: Optional[datetime] = None
+    decided_at: datetime | None = None
     comments: str = ""
 
 
@@ -252,13 +264,14 @@ class WorkflowDefinition:
     """
     Definition of an approval workflow.
     """
+
     id: str
     name: str
     description: str = ""
-    steps: List[Dict[str, Any]] = field(default_factory=list)
+    steps: list[dict[str, Any]] = field(default_factory=list)
     require_all: bool = True  # All approvers required vs any one
     timeout_hours: int = 24
-    escalation_path: List[str] = field(default_factory=list)
+    escalation_path: list[str] = field(default_factory=list)
     enabled: bool = True
 
 
@@ -266,17 +279,19 @@ class WorkflowDefinition:
 # RATE LIMIT MODELS
 # =============================================================================
 
+
 @dataclass
 class RateLimit:
     """
     Rate limit configuration.
     """
+
     limit_type: LimitType
     limit_value: int
     window_seconds: int
-    provider: Optional[str] = None  # Provider-specific limit
-    user_id: Optional[str] = None   # User-specific limit
-    
+    provider: str | None = None  # Provider-specific limit
+    user_id: str | None = None  # User-specific limit
+
     @property
     def key(self) -> str:
         """Generate storage key for this limit."""
@@ -293,28 +308,31 @@ class RateLimitResult:
     """
     Result of rate limit check.
     """
+
     allowed: bool
     remaining: int
     limit: int
     reset_at: datetime
-    retry_after_seconds: Optional[int] = None
+    retry_after_seconds: int | None = None
 
 
 # =============================================================================
 # QUOTA MODELS
 # =============================================================================
 
+
 @dataclass
 class Quota:
     """
     Quota configuration.
     """
+
     quota_type: LimitType
     limit_value: float
     period_days: int = 30  # Monthly by default
-    provider: Optional[str] = None
-    user_id: Optional[str] = None
-    
+    provider: str | None = None
+    user_id: str | None = None
+
     @property
     def key(self) -> str:
         """Generate storage key for this quota."""
@@ -331,6 +349,7 @@ class QuotaUsage:
     """
     Current quota usage status.
     """
+
     quota_key: str
     current_usage: float
     limit: float
@@ -338,33 +357,35 @@ class QuotaUsage:
     usage_percent: float
     period_start: datetime
     period_end: datetime
-    provider: Optional[str] = None
+    provider: str | None = None
 
 
 # =============================================================================
 # COMPLIANCE MODELS
 # =============================================================================
 
+
 @dataclass
 class ComplianceEvent:
     """
     Compliance event for audit trail.
-    
+
     Immutable record of governance actions.
     """
+
     id: str
     event_type: ComplianceEventType
     timestamp: datetime
-    user_id: Optional[str] = None
-    agent_id: Optional[str] = None
-    provider: Optional[str] = None
+    user_id: str | None = None
+    agent_id: str | None = None
+    provider: str | None = None
     resource: str = ""
     action: str = ""
     result: str = ""
-    details: Dict[str, Any] = field(default_factory=dict)
-    ip_address: Optional[str] = None
-    session_id: Optional[str] = None
-    
+    details: dict[str, Any] = field(default_factory=dict)
+    ip_address: str | None = None
+    session_id: str | None = None
+
     def __post_init__(self) -> None:
         if not self.id:
             self.id = str(uuid.uuid4())
@@ -377,11 +398,12 @@ class AuditRecord:
     """
     Full audit record with integrity verification.
     """
+
     id: str
     event: ComplianceEvent
     checksum: str = ""
     previous_checksum: str = ""  # Chain integrity
-    
+
     def __post_init__(self) -> None:
         if not self.id:
             self.id = str(uuid.uuid4())
@@ -392,14 +414,15 @@ class ComplianceReport:
     """
     Compliance report for a period.
     """
+
     id: str
     report_type: str
     period_start: datetime
     period_end: datetime
     generated_at: datetime = field(default_factory=datetime.now)
     total_events: int = 0
-    events_by_type: Dict[str, int] = field(default_factory=dict)
-    events_by_provider: Dict[str, int] = field(default_factory=dict)
+    events_by_type: dict[str, int] = field(default_factory=dict)
+    events_by_provider: dict[str, int] = field(default_factory=dict)
     policy_denials: int = 0
     quota_exceeded: int = 0
     approval_requests: int = 0

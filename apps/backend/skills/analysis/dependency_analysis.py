@@ -10,14 +10,21 @@ Capabilities:
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Set
 from enum import Enum
+from typing import Any
 
-from skills.core.base_skill import BaseSkill, SkillContext, SkillResult, SkillCategory, SkillStatus
+from skills.core.base_skill import (
+    BaseSkill,
+    SkillCategory,
+    SkillContext,
+    SkillResult,
+    SkillStatus,
+)
 
 
 class DependencyType(Enum):
     """Types of dependencies."""
+
     PRODUCTION = "production"
     DEVELOPMENT = "development"
     OPTIONAL = "optional"
@@ -27,29 +34,31 @@ class DependencyType(Enum):
 @dataclass
 class Dependency:
     """A project dependency."""
+
     name: str
     version: str
     dep_type: DependencyType
-    latest_version: Optional[str] = None
+    latest_version: str | None = None
     is_outdated: bool = False
-    vulnerabilities: List[str] = field(default_factory=list)
-    transitive_deps: List[str] = field(default_factory=list)
+    vulnerabilities: list[str] = field(default_factory=list)
+    transitive_deps: list[str] = field(default_factory=list)
 
 
 @dataclass
 class DependencyGraph:
     """Dependency relationship graph."""
-    nodes: List[str]
-    edges: List[tuple]
-    circular_deps: List[List[str]] = field(default_factory=list)
+
+    nodes: list[str]
+    edges: list[tuple]
+    circular_deps: list[list[str]] = field(default_factory=list)
 
 
 class DependencyAnalysisSkill(BaseSkill):
     """Analyze project dependencies.
-    
+
     Maps dependencies, detects circular dependencies,
     and identifies outdated or vulnerable packages.
-    
+
     Example:
         skill = DependencyAnalysisSkill()
         context = SkillContext(
@@ -61,14 +70,14 @@ class DependencyAnalysisSkill(BaseSkill):
         )
         result = await skill.run(context)
     """
-    
+
     name = "dependency_analysis"
     description = "Analyze project dependencies"
     category = SkillCategory.ANALYSIS
     required_tools = ["file_read", "command_execute"]
     required_permissions = {"read_files", "execute_commands"}
     version = "1.0.0"
-    
+
     # Supported manifest files
     MANIFEST_FILES = {
         "python": ["requirements.txt", "pyproject.toml", "setup.py", "Pipfile"],
@@ -76,17 +85,17 @@ class DependencyAnalysisSkill(BaseSkill):
         "go": ["go.mod", "go.sum"],
         "rust": ["Cargo.toml", "Cargo.lock"],
     }
-    
-    def validate_input(self, input_data: Dict[str, Any]) -> bool:
+
+    def validate_input(self, input_data: dict[str, Any]) -> bool:
         """Validate input data."""
         return True  # Will auto-detect if no manifest specified
-    
+
     async def execute(self, context: SkillContext) -> SkillResult:
         """Execute dependency analysis.
-        
+
         Args:
             context: Execution context with manifest
-            
+
         Returns:
             SkillResult with dependency report
         """
@@ -94,19 +103,19 @@ class DependencyAnalysisSkill(BaseSkill):
         manifest_file = input_data.get("manifest_file")
         check_vulnerabilities = input_data.get("check_vulnerabilities", False)
         check_outdated = input_data.get("check_outdated", False)
-        
+
         # Parse dependencies
         deps = self._parse_dependencies(manifest_file)
-        
+
         # Build dependency graph
         graph = self._build_graph(deps)
-        
+
         # Check for issues
         if check_vulnerabilities:
             deps = self._check_vulnerabilities(deps)
         if check_outdated:
             deps = self._check_outdated(deps)
-        
+
         return SkillResult(
             skill_name=self.name,
             status=SkillStatus.COMPLETED,
@@ -119,44 +128,44 @@ class DependencyAnalysisSkill(BaseSkill):
             },
             tokens_used=0,
         )
-    
-    def _parse_dependencies(self, manifest_file: Optional[str]) -> List[Dependency]:
+
+    def _parse_dependencies(self, manifest_file: str | None) -> list[Dependency]:
         """Parse dependencies from manifest."""
         # Placeholder
         return []
-    
-    def _build_graph(self, deps: List[Dependency]) -> DependencyGraph:
+
+    def _build_graph(self, deps: list[Dependency]) -> DependencyGraph:
         """Build dependency graph."""
         nodes = [d.name for d in deps]
         edges = []
         for dep in deps:
             for trans in dep.transitive_deps:
                 edges.append((dep.name, trans))
-        
+
         circular = self._detect_circular(nodes, edges)
-        
+
         return DependencyGraph(
             nodes=nodes,
             edges=edges,
             circular_deps=circular,
         )
-    
-    def _detect_circular(self, nodes: List[str], edges: List[tuple]) -> List[List[str]]:
+
+    def _detect_circular(self, nodes: list[str], edges: list[tuple]) -> list[list[str]]:
         """Detect circular dependencies."""
         # Placeholder - will use graph algorithms
         return []
-    
-    def _check_vulnerabilities(self, deps: List[Dependency]) -> List[Dependency]:
+
+    def _check_vulnerabilities(self, deps: list[Dependency]) -> list[Dependency]:
         """Check dependencies for vulnerabilities."""
         # Placeholder - will check vulnerability databases
         return deps
-    
-    def _check_outdated(self, deps: List[Dependency]) -> List[Dependency]:
+
+    def _check_outdated(self, deps: list[Dependency]) -> list[Dependency]:
         """Check for outdated dependencies."""
         # Placeholder - will check package registries
         return deps
-    
-    def _dep_to_dict(self, dep: Dependency) -> Dict[str, Any]:
+
+    def _dep_to_dict(self, dep: Dependency) -> dict[str, Any]:
         """Convert Dependency to dictionary."""
         return {
             "name": dep.name,

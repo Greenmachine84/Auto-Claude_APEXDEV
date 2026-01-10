@@ -25,9 +25,14 @@ import { existsSync, readdirSync } from 'fs';
 import path from 'path';
 import os from 'os';
 import { app } from 'electron';
-import { findExecutable } from './env-utils';
+import { findExecutable, getAugmentedEnv } from './env-utils';
 import type { ToolDetectionResult } from '../shared/types';
 import { findHomebrewPython as findHomebrewPythonUtil } from './utils/homebrew-python';
+import {
+  getWindowsExecutablePaths,
+  WINDOWS_GIT_PATHS,
+  findWindowsExecutableViaWhere,
+} from './utils/windows-paths';
 
 /**
  * Supported CLI tools managed by this system
@@ -392,7 +397,40 @@ class CLIToolManager {
       }
     }
 
-    // 4. Not found - fallback to 'git'
+    // 4. Windows-specific detection using 'where' command (most reliable for custom installs)
+    if (process.platform === 'win32') {
+      // First try 'where' command - finds git regardless of installation location
+      const whereGitPath = findWindowsExecutableViaWhere('git', '[Git]');
+      if (whereGitPath) {
+        const validation = this.validateGit(whereGitPath);
+        if (validation.valid) {
+          return {
+            found: true,
+            path: whereGitPath,
+            version: validation.version,
+            source: 'system-path',
+            message: `Using Windows Git: ${whereGitPath}`,
+          };
+        }
+      }
+
+      // Fallback to checking common installation paths
+      const windowsPaths = getWindowsExecutablePaths(WINDOWS_GIT_PATHS, '[Git]');
+      for (const winGitPath of windowsPaths) {
+        const validation = this.validateGit(winGitPath);
+        if (validation.valid) {
+          return {
+            found: true,
+            path: winGitPath,
+            version: validation.version,
+            source: 'system-path',
+            message: `Using Windows Git: ${winGitPath}`,
+          };
+        }
+      }
+    }
+
+    // 5. Not found - fallback to 'git'
     return {
       found: false,
       source: 'fallback',
@@ -803,6 +841,7 @@ class CLIToolManager {
         timeout: 5000,
         windowsHide: true,
         shell: needsShell,
+        env: getAugmentedEnv(),
       }).trim();
 
       // Claude CLI version output format: "claude-code version X.Y.Z" or similar
@@ -994,4 +1033,40 @@ export function clearToolCache(): void {
  */
 export function isPathFromWrongPlatform(pathStr: string | undefined): boolean {
   return isWrongPlatformPath(pathStr);
+}
+
+/**
+ * Pre-warm the CLI tool cache in background (non-blocking)
+ * 
+ * This ensures CLI detection is done before user needs it, preventing
+ * main process freeze from sync detection calls. Should be called at
+ * app startup with setImmediate() for non-blocking behavior.
+ * 
+ * @param tools - Array of tool names to pre-warm (default: all common tools)
+ * 
+ * @example
+ * ```typescript
+ * import { preWarmToolCache } from './cli-tool-manager';
+ * 
+ * // Pre-warm at app startup
+ * setImmediate(() => {
+ *   preWarmToolCache(['claude', 'git', 'gh', 'python']).catch(console.error);
+ * });
+ * ```
+ */
+export async function preWarmToolCache(tools: CLITool[] = ['claude', 'git', 'python', 'gh']): Promise<void> {
+  console.log('[CLI Tools] Pre-warming cache for tools:', tools.join(', '));
+  
+  for (const tool of tools) {
+    try {
+      // Use getToolPath which handles detection and caching
+      const path = cliToolManager.getToolPath(tool);
+      console.log(`[CLI Tools] Pre-warmed ${tool}: ${path}`);
+    } catch (error) {
+      // Don't throw - pre-warming is best-effort
+      console.warn(`[CLI Tools] Failed to pre-warm ${tool}:`, error);
+    }
+  }
+  
+  console.log('[CLI Tools] Pre-warming complete');
 }

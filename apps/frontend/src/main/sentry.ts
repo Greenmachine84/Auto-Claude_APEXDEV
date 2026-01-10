@@ -109,7 +109,7 @@ export function initSentryMain(): void {
   Sentry.init({
     dsn: cachedDsn,
     environment: app.isPackaged ? 'production' : 'development',
-    release: `auto-claude@${app.getVersion()}`,
+    release: `APEXDEV@${app.getVersion()}`,
 
     beforeSend(event: Sentry.ErrorEvent) {
       if (!sentryEnabledState) {
@@ -165,3 +165,4 @@ export function setSentryEnabled(enabled: boolean): void {
   sentryEnabledState = enabled;
   console.log(`[Sentry] Error reporting ${enabled ? 'enabled' : 'disabled'} (programmatic)`);
 }
+

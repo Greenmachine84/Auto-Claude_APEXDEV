@@ -26,7 +26,7 @@ export const integrationMock = {
     data: {
       hasClaudeToken: true,
       envExists: true,
-      sourcePath: '/mock/auto-claude'
+      sourcePath: '/mock/APEXDEV'
     }
   }),
 
@@ -38,7 +38,7 @@ export const integrationMock = {
     success: true,
     data: {
       hasToken: true,
-      sourcePath: '/mock/auto-claude'
+      sourcePath: '/mock/APEXDEV'
     }
   }),
 
@@ -388,3 +388,4 @@ export const integrationMock = {
   // OAuth device code event listener (for streaming device code during auth)
   onGitHubAuthDeviceCode: () => () => {}
 };
+

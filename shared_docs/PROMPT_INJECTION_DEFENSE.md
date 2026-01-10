@@ -163,7 +163,7 @@ Task-specific model training shows <0.5% attack success versus 87% against gener
 
 ---
 
-## Implementation Checklist for Auto-Claude
+## Implementation Checklist for DEVAPEX
 
 ### Already Implemented
 - [x] Command allowlisting (security.py)
@@ -257,3 +257,4 @@ Malicious instructions in:
 | Date | Changes |
 |------|---------|
 | 2025-12-18 | Initial research compilation |
+

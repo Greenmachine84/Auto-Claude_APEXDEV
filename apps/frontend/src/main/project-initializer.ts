@@ -155,7 +155,7 @@ export function initializeGit(projectPath: string): InitializationResult {
 /**
  * Entries to add to .gitignore when initializing a project
  */
-const GITIGNORE_ENTRIES = ['.auto-claude/'];
+const GITIGNORE_ENTRIES = ['.apexdev/'];
 
 /**
  * Ensure entries exist in the project's .gitignore file.
@@ -199,7 +199,7 @@ function ensureGitignoreEntries(projectPath: string, entries: string[]): void {
     appendContent += '\n';
   }
 
-  appendContent += '\n# Auto Claude data directory\n';
+  appendContent += '\n# APEXDEV data directory\n';
   for (const entry of entriesToAdd) {
     appendContent += entry + '\n';
   }
@@ -207,14 +207,14 @@ function ensureGitignoreEntries(projectPath: string, entries: string[]): void {
   if (existsSync(gitignorePath)) {
     appendFileSync(gitignorePath, appendContent);
   } else {
-    writeFileSync(gitignorePath, '# Auto Claude data directory\n' + entriesToAdd.join('\n') + '\n');
+    writeFileSync(gitignorePath, '# APEXDEV data directory\n' + entriesToAdd.join('\n') + '\n');
   }
 
   debug('Added entries to .gitignore', { entries: entriesToAdd });
 }
 
 /**
- * Data directories created in .auto-claude for each project
+ * Data directories created in .apexdev for each project
  */
 const DATA_DIRECTORIES = [
   'specs',
@@ -254,17 +254,17 @@ export function getLocalSourcePath(projectPath: string): string | null {
 }
 
 /**
- * Check if project is initialized (has .auto-claude directory)
+ * Check if project is initialized (has .apexdev directory)
  */
 export function isInitialized(projectPath: string): boolean {
-  const dotAutoBuildPath = path.join(projectPath, '.auto-claude');
+  const dotAutoBuildPath = path.join(projectPath, '.apexdev');
   return existsSync(dotAutoBuildPath);
 }
 
 /**
- * Initialize auto-claude data directory in a project.
+ * Initialize APEXDEV data directory in a project.
  *
- * Creates .auto-claude/ with data directories (specs, ideation, insights, roadmap).
+ * Creates .apexdev/ with data directories (specs, ideation, insights, roadmap).
  * The framework code runs from the source repo - only data is stored here.
  *
  * Requires:
@@ -283,31 +283,31 @@ export function initializeProject(projectPath: string): InitializationResult {
     };
   }
 
-  // Check git status - Auto Claude requires git for worktree-based builds
+  // Check git status - APEXDEV requires git for worktree-based builds
   const gitStatus = checkGitStatus(projectPath);
   if (!gitStatus.isGitRepo || !gitStatus.hasCommits) {
     debug('Git check failed', { gitStatus });
     return {
       success: false,
-      error: gitStatus.error || 'Git repository required. Auto Claude uses git worktrees for isolated builds.'
+      error: gitStatus.error || 'Git repository required. APEXDEV uses git worktrees for isolated builds.'
     };
   }
 
   // Check if already initialized
-  const dotAutoBuildPath = path.join(projectPath, '.auto-claude');
+  const dotAutoBuildPath = path.join(projectPath, '.apexdev');
 
   if (existsSync(dotAutoBuildPath)) {
-    debug('Already initialized - .auto-claude exists');
+    debug('Already initialized - .apexdev exists');
     return {
       success: false,
-      error: 'Project already has auto-claude initialized (.auto-claude exists)'
+      error: 'Project already has APEXDEV initialized (.apexdev exists)'
     };
   }
 
   try {
-    debug('Creating .auto-claude data directory', { dotAutoBuildPath });
+    debug('Creating .apexdev data directory', { dotAutoBuildPath });
 
-    // Create the .auto-claude directory
+    // Create the .apexdev directory
     mkdirSync(dotAutoBuildPath, { recursive: true });
 
     // Create data directories
@@ -318,7 +318,7 @@ export function initializeProject(projectPath: string): InitializationResult {
       writeFileSync(path.join(dirPath, '.gitkeep'), '');
     }
 
-    // Update .gitignore to exclude .auto-claude/
+    // Update .gitignore to exclude .apexdev/
     ensureGitignoreEntries(projectPath, GITIGNORE_ENTRIES);
 
     debug('Initialization complete');
@@ -334,11 +334,11 @@ export function initializeProject(projectPath: string): InitializationResult {
 }
 
 /**
- * Ensure all data directories exist in .auto-claude.
+ * Ensure all data directories exist in .apexdev.
  * Useful if new directories are added in future versions.
  */
 export function ensureDataDirectories(projectPath: string): InitializationResult {
-  const dotAutoBuildPath = path.join(projectPath, '.auto-claude');
+  const dotAutoBuildPath = path.join(projectPath, '.apexdev');
 
   if (!existsSync(dotAutoBuildPath)) {
     return {
@@ -366,22 +366,26 @@ export function ensureDataDirectories(projectPath: string): InitializationResult
 }
 
 /**
- * Get the auto-claude folder path for a project.
+ * Get the APEXDEV folder path for a project.
  *
- * IMPORTANT: Only .auto-claude/ is considered a valid "installed" auto-claude.
- * The auto-claude/ folder (if it exists) is the SOURCE CODE being developed,
- * not an installation. This allows Auto Claude to be used to develop itself.
+ * IMPORTANT: Only .apexdev/ is considered a valid "installed" APEXDEV.
+ * The APEXDEV/ folder (if it exists) is the SOURCE CODE being developed,
+ * not an installation. This allows APEXDEV to be used to develop itself.
  */
 export function getAutoBuildPath(projectPath: string): string | null {
-  const dotAutoBuildPath = path.join(projectPath, '.auto-claude');
+  const dotAutoBuildPath = path.join(projectPath, '.apexdev');
 
   debug('getAutoBuildPath called', { projectPath, dotAutoBuildPath });
 
   if (existsSync(dotAutoBuildPath)) {
-    debug('Returning .auto-claude (installed version)');
-    return '.auto-claude';
+    debug('Returning .apexdev (installed version)');
+    return '.apexdev';
   }
 
-  debug('No .auto-claude folder found - project not initialized');
+  debug('No .apexdev folder found - project not initialized');
   return null;
 }
+
+
+
+

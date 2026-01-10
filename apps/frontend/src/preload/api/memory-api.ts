@@ -1,11 +1,14 @@
 /**
  * APEX Development Platform - Memory API Types
  * Phase 2: Memory & LLM Architecture
- * 
+ *
  * Stub implementation for frontend compatibility
  */
 
 /** Episode type */
+// Episode metadata type for consumers
+export type EpisodeMetadata = Episode['metadata'];
+
 export interface Episode {
   id: string;
   content: string;
@@ -16,6 +19,10 @@ export interface Episode {
     projectId?: string;
     taskId?: string;
     tags?: string[];
+    type?: string;  // Added for UI components
+    importance?: 'low' | 'medium' | 'high';  // Added for UI components
+    agentId?: string;  // Added for UI components
+    [key: string]: unknown;  // Allow additional properties
   };
   createdAt: string;
   updatedAt: string;
@@ -26,6 +33,8 @@ export interface MemorySearchOptions {
   query?: string;
   projectId?: string;
   tags?: string[];
+  types?: string[];  // For UI components
+  threshold?: number;  // Search similarity threshold
   dateRange?: {
     start: string;
     end: string;

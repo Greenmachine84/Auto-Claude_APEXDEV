@@ -78,7 +78,7 @@ export class AgentManager extends EventEmitter {
   }
 
   /**
-   * Configure paths for Python and auto-claude source
+   * Configure paths for Python and APEXDEV source
    */
   configure(pythonPath?: string, autoBuildSourcePath?: string): void {
     this.processManager.configure(pythonPath, autoBuildSourcePath);
@@ -152,10 +152,11 @@ export class AgentManager extends EventEmitter {
       }
     }
 
-    // Store context for potential restart
-    this.storeTaskContext(taskId, projectPath, '', {}, true, taskDescription, specDir, metadata, baseBranch);
+      // Workspace mode: --direct skips worktree isolation (default is isolated for safety)
+      if (metadata?.useWorktree === false) {
+        args.push('--direct');
+      }
 
-    // Note: This is spec-creation but it chains to task-execution via run.py
     await this.processManager.spawnProcess(taskId, autoBuildSource, args, combinedEnv, 'task-execution');
   }
 
@@ -199,6 +200,11 @@ export class AgentManager extends EventEmitter {
 
     // Force: When user starts a task from the UI, that IS their approval
     args.push('--force');
+
+    // Workspace mode: --direct skips worktree isolation (default is isolated for safety)
+    if (options.useWorktree === false) {
+      args.push('--direct');
+    }
 
     // Pass base branch if specified (ensures worktrees are created from the correct branch)
     if (options.baseBranch) {
@@ -433,3 +439,4 @@ export class AgentManager extends EventEmitter {
     return true;
   }
 }
+

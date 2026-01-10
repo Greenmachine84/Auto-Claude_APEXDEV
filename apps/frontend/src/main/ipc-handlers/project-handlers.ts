@@ -10,7 +10,8 @@ import type {
   IPCResult,
   InitializationResult,
   AutoBuildVersionInfo,
-  GitStatus
+  GitStatus,
+  VirtualRepoInfo
 } from '../../shared/types';
 import { projectStore } from '../project-store';
 import {
@@ -222,6 +223,33 @@ export function registerProjectHandlers(
     }
   );
 
+    // Handler for adding virtual GitHub projects (without local clone)
+  ipcMain.handle(
+    IPC_CHANNELS.PROJECT_ADD_VIRTUAL,
+    async (
+      _,
+      repoInfo: VirtualRepoInfo,
+      githubToken: string
+    ): Promise<IPCResult<Project>> => {
+        console.log('[IPC:PROJECT_ADD_VIRTUAL] Handler called', {
+          repoFullName: repoInfo?.fullName,
+          hasToken: !!githubToken,
+          tokenLength: githubToken?.length
+        });
+        try {
+          const project = projectStore.addVirtualProject(repoInfo, githubToken);
+          console.log('[IPC:PROJECT_ADD_VIRTUAL] Success', { projectId: project.id });
+          return { success: true, data: project };
+        } catch (error) {
+          console.error('[IPC:PROJECT_ADD_VIRTUAL] Error', error);
+          return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error'
+          };
+        }
+      }
+    );
+
   ipcMain.handle(
     IPC_CHANNELS.PROJECT_REMOVE,
     async (_, projectId: string): Promise<IPCResult> => {
@@ -233,11 +261,11 @@ export function registerProjectHandlers(
   ipcMain.handle(
     IPC_CHANNELS.PROJECT_LIST,
     async (): Promise<IPCResult<Project[]>> => {
-      // Validate that .auto-claude folders still exist for all projects
+      // Validate that .APEXDEV folders still exist for all projects
       // If a folder was deleted, reset autoBuildPath so UI prompts for reinitialization
       const resetIds = projectStore.validateProjects();
       if (resetIds.length > 0) {
-        console.warn('[IPC] PROJECT_LIST: Detected missing .auto-claude folders for', resetIds.length, 'project(s)');
+        console.warn('[IPC] PROJECT_LIST: Detected missing .APEXDEV folders for', resetIds.length, 'project(s)');
       }
 
       const projects = projectStore.getProjects();
@@ -348,7 +376,7 @@ export function registerProjectHandlers(
 
         if (result.success) {
           // Update project's autoBuildPath
-          projectStore.updateAutoBuildPath(projectId, '.auto-claude');
+          projectStore.updateAutoBuildPath(projectId, '.APEXDEV');
         }
 
         return { success: result.success, data: result, error: result.error };
@@ -362,7 +390,7 @@ export function registerProjectHandlers(
   );
 
   // PROJECT_CHECK_VERSION now just checks if project is initialized
-  // Version tracking for .auto-claude is removed since it only contains data
+  // Version tracking for .APEXDEV is removed since it only contains data
   ipcMain.handle(
     IPC_CHANNELS.PROJECT_CHECK_VERSION,
     async (_, projectId: string): Promise<IPCResult<AutoBuildVersionInfo>> => {
@@ -376,7 +404,7 @@ export function registerProjectHandlers(
           success: true,
           data: {
             isInitialized: isInitialized(project.path),
-            updateAvailable: false // No updates for .auto-claude - it's just data
+            updateAvailable: false // No updates for .APEXDEV - it's just data
           }
         };
       } catch (error) {
@@ -388,7 +416,7 @@ export function registerProjectHandlers(
     }
   );
 
-  // Check if project has local auto-claude source (is dev project)
+  // Check if project has local APEXDEV source (is dev project)
   ipcMain.handle(
     'project:has-local-source',
     async (_, projectId: string): Promise<IPCResult<boolean>> => {
@@ -506,3 +534,6 @@ export function registerProjectHandlers(
     }
   );
 }
+
+
+

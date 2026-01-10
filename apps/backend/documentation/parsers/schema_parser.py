@@ -13,6 +13,7 @@ from typing import Any, Optional
 @dataclass
 class SchemaProperty:
     """A property in a schema."""
+
     name: str
     schema_type: str
     description: str = ""
@@ -21,10 +22,10 @@ class SchemaProperty:
     enum: list[Any] = field(default_factory=list)
     format: str = ""
     pattern: str = ""
-    minimum: Optional[float] = None
-    maximum: Optional[float] = None
-    min_length: Optional[int] = None
-    max_length: Optional[int] = None
+    minimum: float | None = None
+    maximum: float | None = None
+    min_length: int | None = None
+    max_length: int | None = None
     items: Optional["SchemaProperty"] = None
     properties: list["SchemaProperty"] = field(default_factory=list)
     ref: str = ""
@@ -33,6 +34,7 @@ class SchemaProperty:
 @dataclass
 class SchemaDefinition:
     """A schema definition."""
+
     name: str
     schema_type: str
     description: str = ""
@@ -45,6 +47,7 @@ class SchemaDefinition:
 @dataclass
 class ApiOperation:
     """An API operation from OpenAPI spec."""
+
     path: str
     method: str
     operation_id: str = ""
@@ -52,7 +55,7 @@ class ApiOperation:
     description: str = ""
     tags: list[str] = field(default_factory=list)
     parameters: list[SchemaProperty] = field(default_factory=list)
-    request_body: Optional[SchemaDefinition] = None
+    request_body: SchemaDefinition | None = None
     responses: dict[str, SchemaDefinition] = field(default_factory=dict)
     security: list[dict] = field(default_factory=list)
     deprecated: bool = False
@@ -61,6 +64,7 @@ class ApiOperation:
 @dataclass
 class ParsedSchema:
     """Parsed schema result."""
+
     title: str = ""
     version: str = ""
     description: str = ""
@@ -87,11 +91,12 @@ class SchemaParser:
         Returns:
             Parsed schema
         """
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             if file_path.suffix == ".json":
                 data = json.load(f)
             else:
                 import yaml
+
                 data = yaml.safe_load(f)
 
         return self.parse(data)
@@ -145,8 +150,18 @@ class SchemaParser:
         # Parse paths
         for path, methods in schema.get("paths", {}).items():
             for method, operation in methods.items():
-                if method in ("get", "post", "put", "patch", "delete", "options", "head"):
-                    result.operations.append(self._parse_operation(path, method, operation))
+                if method in (
+                    "get",
+                    "post",
+                    "put",
+                    "patch",
+                    "delete",
+                    "options",
+                    "head",
+                ):
+                    result.operations.append(
+                        self._parse_operation(path, method, operation)
+                    )
 
         return result
 
@@ -164,8 +179,7 @@ class SchemaParser:
         # Parse root schema as definition
         if "type" in schema or "properties" in schema:
             root_def = self._parse_schema_definition(
-                schema.get("title", "Root"),
-                schema
+                schema.get("title", "Root"), schema
             )
             result.definitions.insert(0, root_def)
 
@@ -283,7 +297,7 @@ class SchemaParser:
 
         return definition
 
-    def _resolve_ref(self, ref: str) -> Optional[dict]:
+    def _resolve_ref(self, ref: str) -> dict | None:
         """Resolve a $ref reference."""
         return self._refs.get(ref)
 
@@ -314,7 +328,9 @@ class SchemaParser:
             lines.append("## Servers")
             lines.append("")
             for server in parsed.servers:
-                lines.append(f"- **{server.get('url', '')}** - {server.get('description', '')}")
+                lines.append(
+                    f"- **{server.get('url', '')}** - {server.get('description', '')}"
+                )
             lines.append("")
 
         # Schemas
@@ -333,7 +349,9 @@ class SchemaParser:
                     lines.append("|----------|------|----------|-------------|")
                     for prop in definition.properties:
                         req = "Yes" if prop.required else "No"
-                        lines.append(f"| `{prop.name}` | `{prop.schema_type}` | {req} | {prop.description} |")
+                        lines.append(
+                            f"| `{prop.name}` | `{prop.schema_type}` | {req} | {prop.description} |"
+                        )
                     lines.append("")
 
         # Operations

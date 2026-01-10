@@ -9,23 +9,22 @@ Capabilities:
 - Delete branches
 """
 
-from typing import Any, Dict, List, Optional
-import subprocess
 import os
+import subprocess
 
 from tools.core.base_tool import (
     BaseTool,
     ToolCategory,
     ToolContext,
+    ToolParameter,
     ToolResult,
     ToolStatus,
-    ToolParameter,
 )
 
 
 class GitBranchTool(BaseTool):
     """Manage git branches.
-    
+
     Example:
         tool = GitBranchTool()
         result = await tool.run(ToolContext(
@@ -36,14 +35,14 @@ class GitBranchTool(BaseTool):
             }
         ))
     """
-    
+
     name = "git_branch"
     description = "Manage git branches"
     category = ToolCategory.GIT
     required_permissions = {"git_read", "git_write"}
     version = "1.0.0"
-    
-    def get_parameters(self) -> List[ToolParameter]:
+
+    def get_parameters(self) -> list[ToolParameter]:
         """Get parameter definitions."""
         return [
             ToolParameter(
@@ -75,17 +74,17 @@ class GitBranchTool(BaseTool):
                 default=False,
             ),
         ]
-    
+
     async def execute(self, context: ToolContext) -> ToolResult:
         """Execute git branch operation."""
         action = context.parameters.get("action")
         name = context.parameters.get("name")
         path = context.parameters.get("path", context.working_directory)
         force = context.parameters.get("force", False)
-        
+
         if not os.path.isabs(path):
             path = os.path.join(context.working_directory, path)
-        
+
         try:
             if action == "list":
                 return await self._list_branches(path)
@@ -116,7 +115,7 @@ class GitBranchTool(BaseTool):
                         error="Branch name required for delete",
                     )
                 return await self._delete_branch(path, name, force)
-            
+
         except Exception as e:
             return ToolResult(
                 tool_name=self.name,
@@ -124,7 +123,7 @@ class GitBranchTool(BaseTool):
                 output=None,
                 error=str(e),
             )
-    
+
     async def _list_branches(self, path: str) -> ToolResult:
         """List all branches."""
         result = subprocess.run(
@@ -134,9 +133,9 @@ class GitBranchTool(BaseTool):
             text=True,
             timeout=30,
         )
-        
+
         branches = result.stdout.strip().split("\n") if result.stdout.strip() else []
-        
+
         # Get current branch
         current = subprocess.run(
             ["git", "branch", "--show-current"],
@@ -144,7 +143,7 @@ class GitBranchTool(BaseTool):
             capture_output=True,
             text=True,
         )
-        
+
         return ToolResult(
             tool_name=self.name,
             status=ToolStatus.COMPLETED,
@@ -154,7 +153,7 @@ class GitBranchTool(BaseTool):
                 "count": len(branches),
             },
         )
-    
+
     async def _create_branch(self, path: str, name: str) -> ToolResult:
         """Create new branch."""
         result = subprocess.run(
@@ -164,7 +163,7 @@ class GitBranchTool(BaseTool):
             text=True,
             timeout=30,
         )
-        
+
         if result.returncode != 0:
             return ToolResult(
                 tool_name=self.name,
@@ -172,19 +171,19 @@ class GitBranchTool(BaseTool):
                 output=None,
                 error=result.stderr,
             )
-        
+
         return ToolResult(
             tool_name=self.name,
             status=ToolStatus.COMPLETED,
             output={"branch": name, "action": "created"},
         )
-    
+
     async def _switch_branch(self, path: str, name: str, force: bool) -> ToolResult:
         """Switch to branch."""
         cmd = ["git", "checkout", name]
         if force:
             cmd.insert(2, "-f")
-        
+
         result = subprocess.run(
             cmd,
             cwd=path,
@@ -192,7 +191,7 @@ class GitBranchTool(BaseTool):
             text=True,
             timeout=30,
         )
-        
+
         if result.returncode != 0:
             return ToolResult(
                 tool_name=self.name,
@@ -200,17 +199,17 @@ class GitBranchTool(BaseTool):
                 output=None,
                 error=result.stderr,
             )
-        
+
         return ToolResult(
             tool_name=self.name,
             status=ToolStatus.COMPLETED,
             output={"branch": name, "action": "switched"},
         )
-    
+
     async def _delete_branch(self, path: str, name: str, force: bool) -> ToolResult:
         """Delete branch."""
         cmd = ["git", "branch", "-D" if force else "-d", name]
-        
+
         result = subprocess.run(
             cmd,
             cwd=path,
@@ -218,7 +217,7 @@ class GitBranchTool(BaseTool):
             text=True,
             timeout=30,
         )
-        
+
         if result.returncode != 0:
             return ToolResult(
                 tool_name=self.name,
@@ -226,7 +225,7 @@ class GitBranchTool(BaseTool):
                 output=None,
                 error=result.stderr,
             )
-        
+
         return ToolResult(
             tool_name=self.name,
             status=ToolStatus.COMPLETED,

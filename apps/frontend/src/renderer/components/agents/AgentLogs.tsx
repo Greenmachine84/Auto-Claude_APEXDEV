@@ -7,7 +7,7 @@ import React, { useRef, useEffect } from 'react';
 
 /** Agent logs props */
 export interface AgentLogsProps {
-  logs: string[];
+  logs: string[] | import('../../../preload/api/agent-api').AgentLog[];
   agentId: string;
 }
 
@@ -33,7 +33,8 @@ export const AgentLogs: React.FC<AgentLogsProps> = ({ logs, agentId }) => {
   };
 
   // Parse log level from log string
-  const getLogLevel = (log: string): string => {
+  const getLogLevel = (log: string | import('../../../preload/api/agent-api').AgentLog): string => {
+    if (typeof log !== 'string') return log.level || 'info';
     if (log.includes('[ERROR]') || log.includes('ERROR:')) return 'error';
     if (log.includes('[WARN]') || log.includes('WARNING:')) return 'warn';
     if (log.includes('[DEBUG]') || log.includes('DEBUG:')) return 'debug';
@@ -42,7 +43,7 @@ export const AgentLogs: React.FC<AgentLogsProps> = ({ logs, agentId }) => {
 
   // Copy logs to clipboard
   const handleCopyLogs = () => {
-    const text = logs.join('\n');
+    const text = logs.map((l: string | import('../../../preload/api/agent-api').AgentLog) => typeof l === 'string' ? l : l.message).join('\n');
     navigator.clipboard.writeText(text);
   };
 
@@ -90,7 +91,7 @@ export const AgentLogs: React.FC<AgentLogsProps> = ({ logs, agentId }) => {
               className={`apex-agent-logs__entry apex-agent-logs__entry--${getLogLevel(log)}`}
             >
               <span className="apex-agent-logs__line-num">{index + 1}</span>
-              <span className="apex-agent-logs__text">{log}</span>
+              <span className="apex-agent-logs__text">{typeof log === "string" ? log : log.message}</span>
             </div>
           ))
         )}
@@ -113,3 +114,5 @@ export const AgentLogs: React.FC<AgentLogsProps> = ({ logs, agentId }) => {
     </div>
   );
 };
+
+

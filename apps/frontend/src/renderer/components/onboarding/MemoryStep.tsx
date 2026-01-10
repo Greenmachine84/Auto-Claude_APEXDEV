@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Database,
@@ -497,7 +497,7 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
                         {t('memory.memoryInfo')}
                       </p>
                       <a
-                        href="https://docs.auto-claude.dev/memory"
+                        href="https://docs.APEXDEV.dev/memory"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 text-sm text-primary hover:text-primary/80 mt-2"
@@ -549,3 +549,7 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
     </div>
   );
 }
+
+
+
+

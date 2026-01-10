@@ -8,11 +8,11 @@ Implements 3-tier memory architecture:
 Part of Phase 2: Memory System Architecture
 """
 
-from .tier_manager import TierManager, TierConfig
 from .l1_cache import L1Cache
 from .l2_session import L2SessionStore
 from .l3_persistent import L3PersistentStore
-from .promotion import PromotionPolicy, DemotionPolicy
+from .promotion import DemotionPolicy, PromotionPolicy
+from .tier_manager import TierConfig, TierManager
 
 __all__ = [
     "TierManager",

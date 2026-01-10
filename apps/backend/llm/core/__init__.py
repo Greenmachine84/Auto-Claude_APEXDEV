@@ -10,11 +10,11 @@ Provides core LLM functionality:
 Part of Phase 2: LLM Architecture
 """
 
+from .fallback import FallbackHandler, FallbackResult
 from .llm_manager import LLMManager
+from .metrics import LLMMetrics, MetricEvent
 from .provider_registry import ProviderRegistry
 from .router import LLMRouter, RouteResult
-from .fallback import FallbackHandler, FallbackResult
-from .metrics import LLMMetrics, MetricEvent
 
 __all__ = [
     "LLMManager",

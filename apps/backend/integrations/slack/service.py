@@ -6,16 +6,15 @@ High-level service for Slack operations.
 """
 
 import logging
-from typing import Optional, Union
 
 from .client import SlackClient
 from .models import (
-    SlackConfig,
+    MessageBuilder,
+    SlackBlock,
     SlackChannel,
+    SlackConfig,
     SlackMessage,
     SlackUser,
-    SlackBlock,
-    MessageBuilder,
 )
 
 logger = logging.getLogger(__name__)
@@ -100,9 +99,9 @@ class SlackService:
     async def send_message(
         self,
         text: str,
-        channel: Optional[str] = None,
-        blocks: Optional[list[Union[SlackBlock, dict]]] = None,
-        thread_ts: Optional[str] = None,
+        channel: str | None = None,
+        blocks: list[SlackBlock | dict] | None = None,
+        thread_ts: str | None = None,
     ) -> SlackMessage:
         """Send a message."""
         target = channel or self._default_channel
@@ -132,7 +131,7 @@ class SlackService:
     async def send_rich_message(
         self,
         builder: MessageBuilder,
-        channel: Optional[str] = None,
+        channel: str | None = None,
     ) -> SlackMessage:
         """Send a rich message using builder."""
         target = channel or self._default_channel
@@ -155,8 +154,8 @@ class SlackService:
         self,
         channel: str,
         ts: str,
-        text: Optional[str] = None,
-        blocks: Optional[list[Union[SlackBlock, dict]]] = None,
+        text: str | None = None,
+        blocks: list[SlackBlock | dict] | None = None,
     ) -> SlackMessage:
         """Update a message."""
         block_dicts = None
@@ -196,7 +195,7 @@ class SlackService:
         task_title: str,
         task_id: str,
         agent_name: str,
-        channel: Optional[str] = None,
+        channel: str | None = None,
     ) -> SlackMessage:
         """Send task completion notification."""
         builder = MessageBuilder()
@@ -210,8 +209,8 @@ class SlackService:
     async def notify_error(
         self,
         error_message: str,
-        context: Optional[str] = None,
-        channel: Optional[str] = None,
+        context: str | None = None,
+        channel: str | None = None,
     ) -> SlackMessage:
         """Send error notification."""
         builder = MessageBuilder()
@@ -227,7 +226,7 @@ class SlackService:
         pr_title: str,
         pr_url: str,
         repo_name: str,
-        channel: Optional[str] = None,
+        channel: str | None = None,
     ) -> SlackMessage:
         """Send PR ready for review notification."""
         builder = MessageBuilder()

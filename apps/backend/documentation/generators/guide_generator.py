@@ -7,21 +7,21 @@ and structured content.
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from ..config import DocumentationConfig
-from .base import BaseGenerator
 from ..models import (
     CodeExample,
     CrossReference,
     DocumentationEntry,
-    ExampleType,
 )
+from .base import BaseGenerator
 
 
 @dataclass
 class GuideSection:
     """A section in a guide."""
+
     title: str
     content: str
     level: int = 2
@@ -50,13 +50,14 @@ class GuideSection:
 @dataclass
 class GuideTemplate:
     """Template for generating guides."""
+
     id: str
     title: str
     description: str
     sections: list[GuideSection] = field(default_factory=list)
     prerequisites: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
-    estimated_time: Optional[str] = None
+    estimated_time: str | None = None
 
 
 class GuideGenerator(BaseGenerator):
@@ -213,7 +214,7 @@ class GuideGenerator(BaseGenerator):
 
     def _parse_markdown_guide(self, file_path: Path) -> DocumentationEntry:
         """Parse a Markdown guide file."""
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         # Extract title from first heading
@@ -237,7 +238,7 @@ class GuideGenerator(BaseGenerator):
         """Parse a YAML guide definition file."""
         import yaml
 
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             data = yaml.safe_load(f)
 
         entries = []
@@ -272,16 +273,17 @@ class GuideGenerator(BaseGenerator):
         """Convert dictionary to GuideSection."""
         examples = []
         for ex_data in data.get("examples", []):
-            examples.append(CodeExample(
-                id=ex_data.get("id", "example"),
-                title=ex_data.get("title", ""),
-                code=ex_data.get("code", ""),
-                language=ex_data.get("language", "python"),
-            ))
+            examples.append(
+                CodeExample(
+                    id=ex_data.get("id", "example"),
+                    title=ex_data.get("title", ""),
+                    code=ex_data.get("code", ""),
+                    language=ex_data.get("language", "python"),
+                )
+            )
 
         subsections = [
-            self._dict_to_section(sub)
-            for sub in data.get("subsections", [])
+            self._dict_to_section(sub) for sub in data.get("subsections", [])
         ]
 
         return GuideSection(
@@ -296,7 +298,7 @@ class GuideGenerator(BaseGenerator):
         """Register a new guide template."""
         self.templates[template.id] = template
 
-    def get_template(self, template_id: str) -> Optional[GuideTemplate]:
+    def get_template(self, template_id: str) -> GuideTemplate | None:
         """Get a template by ID."""
         return self.templates.get(template_id)
 
@@ -304,7 +306,9 @@ class GuideGenerator(BaseGenerator):
         """List all available template IDs."""
         return list(self.templates.keys())
 
-    def generate_from_template_id(self, template_id: str) -> Optional[DocumentationEntry]:
+    def generate_from_template_id(
+        self, template_id: str
+    ) -> DocumentationEntry | None:
         """Generate documentation from a template ID."""
         template = self.get_template(template_id)
         if template:

@@ -10,14 +10,15 @@ World-Class Standards:
 - Audit logging
 """
 
-from typing import Dict, Any, Optional, Callable, Set
-from dataclasses import dataclass, field
-from datetime import datetime
 import asyncio
 import logging
 import os
+from collections.abc import Callable
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Any
 
-from ..models import ToolResult, ToolExecutionContext
+from ..models import ToolExecutionContext, ToolResult
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +26,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SandboxConfig:
     """Sandbox configuration."""
+
     max_memory_mb: int = 512
     max_cpu_time_s: int = 60
     max_file_size_mb: int = 100
@@ -39,53 +41,54 @@ class SandboxConfig:
 @dataclass
 class SandboxViolation:
     """Record of sandbox violation."""
+
     timestamp: str
     violation_type: str
     details: str
-    context: Dict[str, Any]
+    context: dict[str, Any]
 
 
 class Sandbox:
     """
     Secure execution sandbox.
-    
+
     Features:
     - Resource limits
     - Path restrictions
     - Network controls
     - Audit trail
     """
-    
-    def __init__(self, config: Optional[SandboxConfig] = None) -> None:
+
+    def __init__(self, config: SandboxConfig | None = None) -> None:
         """Initialize sandbox."""
         self.config = config or SandboxConfig()
-        
+
         self._violations: list = []
         self._audit_log: list = []
-        self._active_executions: Set[str] = set()
-        
+        self._active_executions: set[str] = set()
+
         logger.info("Sandbox initialized with config: %s", self.config)
-    
+
     async def execute(
         self,
         handler: Callable,
-        arguments: Dict[str, Any],
+        arguments: dict[str, Any],
         context: ToolExecutionContext,
     ) -> ToolResult:
         """
         Execute handler in sandbox.
-        
+
         Args:
             handler: Tool handler function
             arguments: Handler arguments
             context: Execution context
-            
+
         Returns:
             ToolResult with execution outcome
         """
         execution_id = f"{context.session_id}_{datetime.utcnow().timestamp()}"
         self._active_executions.add(execution_id)
-        
+
         try:
             # Pre-execution checks
             violation = self._pre_execution_check(arguments)
@@ -96,21 +99,26 @@ class Sandbox:
                     error=f"Sandbox violation: {violation.violation_type}",
                     metadata={"violation": violation.details},
                 )
-            
+
             # Apply resource limits
             self._apply_limits()
-            
+
             # Create sandboxed context
             sandboxed_context = self._create_sandboxed_context(context)
-            
+
             # Audit log entry
             if self.config.enable_audit:
-                self._audit("execute_start", {
-                    "execution_id": execution_id,
-                    "handler": handler.__name__ if hasattr(handler, "__name__") else str(handler),
-                    "arguments": self._sanitize_for_audit(arguments),
-                })
-            
+                self._audit(
+                    "execute_start",
+                    {
+                        "execution_id": execution_id,
+                        "handler": handler.__name__
+                        if hasattr(handler, "__name__")
+                        else str(handler),
+                        "arguments": self._sanitize_for_audit(arguments),
+                    },
+                )
+
             # Execute handler
             if asyncio.iscoroutinefunction(handler):
                 output = await handler(sandboxed_context, **arguments)
@@ -118,7 +126,7 @@ class Sandbox:
                 output = await asyncio.get_event_loop().run_in_executor(
                     None, lambda: handler(sandboxed_context, **arguments)
                 )
-            
+
             # Post-execution validation
             violation = self._post_execution_check(output)
             if violation:
@@ -128,24 +136,30 @@ class Sandbox:
                     error=f"Sandbox violation: {violation.violation_type}",
                     metadata={"violation": violation.details},
                 )
-            
+
             # Audit success
             if self.config.enable_audit:
-                self._audit("execute_success", {
-                    "execution_id": execution_id,
-                })
-            
+                self._audit(
+                    "execute_success",
+                    {
+                        "execution_id": execution_id,
+                    },
+                )
+
             return self._normalize_output(output)
-            
+
         except Exception as e:
             logger.error("Sandbox execution error: %s", e)
-            
+
             if self.config.enable_audit:
-                self._audit("execute_error", {
-                    "execution_id": execution_id,
-                    "error": str(e),
-                })
-            
+                self._audit(
+                    "execute_error",
+                    {
+                        "execution_id": execution_id,
+                        "error": str(e),
+                    },
+                )
+
             return ToolResult(
                 output=None,
                 error=f"Execution error: {str(e)}",
@@ -153,10 +167,10 @@ class Sandbox:
             )
         finally:
             self._active_executions.discard(execution_id)
-    
+
     def _pre_execution_check(
-        self, arguments: Dict[str, Any]
-    ) -> Optional[SandboxViolation]:
+        self, arguments: dict[str, Any]
+    ) -> SandboxViolation | None:
         """Check arguments before execution."""
         # Check for path violations
         for key, value in arguments.items():
@@ -164,12 +178,10 @@ class Sandbox:
                 violation = self._check_path(value)
                 if violation:
                     return violation
-        
+
         return None
-    
-    def _post_execution_check(
-        self, output: Any
-    ) -> Optional[SandboxViolation]:
+
+    def _post_execution_check(self, output: Any) -> SandboxViolation | None:
         """Check output after execution."""
         # Check output size
         if isinstance(output, (str, bytes)):
@@ -181,17 +193,17 @@ class Sandbox:
                     details=f"Output size {size_mb:.2f}MB exceeds limit",
                     context={"size_mb": size_mb},
                 )
-        
+
         return None
-    
-    def _check_path(self, path: str) -> Optional[SandboxViolation]:
+
+    def _check_path(self, path: str) -> SandboxViolation | None:
         """Check if path is allowed."""
         # Normalize path
         try:
             normalized = os.path.normpath(os.path.abspath(path))
         except Exception:
             return None  # Not a valid path
-        
+
         # Check denied paths
         for denied in self.config.denied_paths:
             if normalized.startswith(denied):
@@ -201,7 +213,7 @@ class Sandbox:
                     details=f"Access to {path} is denied",
                     context={"path": path, "denied_pattern": denied},
                 )
-        
+
         # If allowed_paths specified, check whitelist
         if self.config.allowed_paths:
             allowed = False
@@ -209,7 +221,7 @@ class Sandbox:
                 if normalized.startswith(os.path.normpath(os.path.abspath(allow_path))):
                     allowed = True
                     break
-            
+
             if not allowed:
                 return SandboxViolation(
                     timestamp=datetime.utcnow().isoformat(),
@@ -217,29 +229,29 @@ class Sandbox:
                     details=f"Access to {path} is not in allowed list",
                     context={"path": path},
                 )
-        
+
         return None
-    
+
     def _apply_limits(self) -> None:
         """Apply resource limits."""
         # Platform-specific limit application
         try:
             import resource
-            
+
             # Memory limit
             mem_bytes = self.config.max_memory_mb * 1024 * 1024
             resource.setrlimit(resource.RLIMIT_AS, (mem_bytes, mem_bytes))
-            
+
             # CPU time limit
             resource.setrlimit(
                 resource.RLIMIT_CPU,
-                (self.config.max_cpu_time_s, self.config.max_cpu_time_s)
+                (self.config.max_cpu_time_s, self.config.max_cpu_time_s),
             )
-            
+
         except (ImportError, AttributeError):
             # Not available on Windows
             pass
-    
+
     def _create_sandboxed_context(
         self, context: ToolExecutionContext
     ) -> ToolExecutionContext:
@@ -256,12 +268,12 @@ class Sandbox:
                 "_allowed_paths": self.config.allowed_paths,
             },
         )
-    
+
     def _normalize_output(self, output: Any) -> ToolResult:
         """Normalize handler output to ToolResult."""
         if isinstance(output, ToolResult):
             return output
-        
+
         if isinstance(output, dict):
             if "error" in output:
                 return ToolResult(
@@ -274,27 +286,25 @@ class Sandbox:
                 error=None,
                 metadata={},
             )
-        
+
         return ToolResult(
             output=output,
             error=None,
             metadata={},
         )
-    
+
     def _record_violation(self, violation: SandboxViolation) -> None:
         """Record a sandbox violation."""
         self._violations.append(violation)
         logger.warning(
-            "Sandbox violation: %s - %s",
-            violation.violation_type,
-            violation.details
+            "Sandbox violation: %s - %s", violation.violation_type, violation.details
         )
-        
+
         # Trim old violations
         if len(self._violations) > 1000:
             self._violations = self._violations[-500:]
-    
-    def _audit(self, event: str, details: Dict[str, Any]) -> None:
+
+    def _audit(self, event: str, details: dict[str, Any]) -> None:
         """Add audit log entry."""
         entry = {
             "timestamp": datetime.utcnow().isoformat(),
@@ -302,16 +312,16 @@ class Sandbox:
             **details,
         }
         self._audit_log.append(entry)
-        
+
         # Trim old entries
         if len(self._audit_log) > 10000:
             self._audit_log = self._audit_log[-5000:]
-    
-    def _sanitize_for_audit(self, data: Dict[str, Any]) -> Dict[str, Any]:
+
+    def _sanitize_for_audit(self, data: dict[str, Any]) -> dict[str, Any]:
         """Sanitize data for audit logging."""
         sanitized = {}
         sensitive_keys = {"password", "secret", "token", "key", "credential"}
-        
+
         for key, value in data.items():
             if any(s in key.lower() for s in sensitive_keys):
                 sanitized[key] = "[REDACTED]"
@@ -319,21 +329,17 @@ class Sandbox:
                 sanitized[key] = f"{value[:100]}... [truncated]"
             else:
                 sanitized[key] = value
-        
+
         return sanitized
-    
-    def get_violations(
-        self, limit: int = 100
-    ) -> list:
+
+    def get_violations(self, limit: int = 100) -> list:
         """Get recent violations."""
         return self._violations[-limit:]
-    
-    def get_audit_log(
-        self, limit: int = 100
-    ) -> list:
+
+    def get_audit_log(self, limit: int = 100) -> list:
         """Get recent audit entries."""
         return self._audit_log[-limit:]
-    
+
     def get_active_count(self) -> int:
         """Get count of active executions."""
         return len(self._active_executions)

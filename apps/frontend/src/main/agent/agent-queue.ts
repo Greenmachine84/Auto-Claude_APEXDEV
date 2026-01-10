@@ -7,7 +7,6 @@ import { AgentEvents } from './agent-events';
 import { AgentProcessManager } from './agent-process';
 import { RoadmapConfig } from './types';
 import type { IdeationConfig, Idea } from '../../shared/types';
-import { MODEL_ID_MAP } from '../../shared/constants';
 import { detectRateLimit, createSDKRateLimitInfo, getProfileEnv } from '../rate-limit-detector';
 import { getAPIProfileEnv } from '../services/profile';
 import { getOAuthModeClearVars } from './env-utils';
@@ -37,6 +36,40 @@ export class AgentQueueManager {
     this.events = events;
     this.processManager = processManager;
     this.emitter = emitter;
+  }
+
+  /**
+   * Ensure Python environment is ready before spawning processes.
+   * Prevents the race condition where generation starts before dependencies are installed,
+   * which would cause it to fall back to system Python and fail with ModuleNotFoundError.
+   *
+   * @param projectId - The project ID for error event emission
+   * @param eventType - The error event type to emit on failure
+   * @returns true if environment is ready, false if initialization failed (error already emitted)
+   */
+  private async ensurePythonEnvReady(
+    projectId: string,
+    eventType: 'ideation-error' | 'roadmap-error'
+  ): Promise<boolean> {
+    const autoBuildSource = this.processManager.getAutoBuildSourcePath();
+
+    if (!pythonEnvManager.isEnvReady()) {
+      debugLog('[Agent Queue] Python environment not ready, waiting for initialization...');
+      if (autoBuildSource) {
+        const status = await pythonEnvManager.initialize(autoBuildSource);
+        if (!status.ready) {
+          debugError('[Agent Queue] Python environment initialization failed:', status.error);
+          this.emitter.emit(eventType, projectId, `Python environment not ready: ${status.error || 'initialization failed'}`);
+          return false;
+        }
+        debugLog('[Agent Queue] Python environment now ready');
+      } else {
+        debugError('[Agent Queue] Cannot initialize Python - auto-build source not found');
+        this.emitter.emit(eventType, projectId, 'Python environment not ready: auto-build source not found');
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
@@ -96,9 +129,9 @@ export class AgentQueueManager {
     }
 
     // Add model and thinking level from config
+    // Pass shorthand (opus/sonnet/haiku) - backend resolves using API profile env vars
     if (config?.model) {
-      const modelId = MODEL_ID_MAP[config.model] || MODEL_ID_MAP['opus'];
-      args.push('--model', modelId);
+      args.push('--model', config.model);
     }
     if (config?.thinkingLevel) {
       args.push('--thinking-level', config.thinkingLevel);
@@ -172,9 +205,9 @@ export class AgentQueueManager {
     }
 
     // Add model and thinking level from config
+    // Pass shorthand (opus/sonnet/haiku) - backend resolves using API profile env vars
     if (config.model) {
-      const modelId = MODEL_ID_MAP[config.model] || MODEL_ID_MAP['opus'];
-      args.push('--model', modelId);
+      args.push('--model', config.model);
     }
     if (config.thinkingLevel) {
       args.push('--thinking-level', config.thinkingLevel);
@@ -196,6 +229,15 @@ export class AgentQueueManager {
   ): Promise<void> {
     debugLog('[Agent Queue] Spawning ideation process:', { projectId, projectPath });
 
+    // Run from APEXDEV source directory so imports work correctly
+    const autoBuildSource = this.processManager.getAutoBuildSourcePath();
+    const cwd = autoBuildSource || process.cwd();
+
+    // Ensure Python environment is ready before spawning
+    if (!await this.ensurePythonEnvReady(projectId, 'ideation-error')) {
+      return;
+    }
+
     // Kill existing process for this project if any
     const wasKilled = this.processManager.killProcess(projectId);
     if (wasKilled) {
@@ -206,9 +248,6 @@ export class AgentQueueManager {
     const spawnId = this.state.generateSpawnId();
     debugLog('[Agent Queue] Generated spawn ID:', spawnId);
 
-    // Run from auto-claude source directory so imports work correctly
-    const autoBuildSource = this.processManager.getAutoBuildSourcePath();
-    const cwd = autoBuildSource || process.cwd();
 
     // Get combined environment variables
     const combinedEnv = this.processManager.getCombinedEnv(projectPath);
@@ -241,7 +280,7 @@ export class AgentQueueManager {
     // Build final environment with proper precedence:
     // 1. process.env (system)
     // 2. pythonEnv (bundled packages environment)
-    // 3. combinedEnv (auto-claude/.env for CLI usage)
+    // 3. combinedEnv (APEXDEV/.env for CLI usage)
     // 4. oauthModeClearVars (clear stale ANTHROPIC_* vars when in OAuth mode)
     // 5. profileEnv (Electron app OAuth token)
     // 6. apiProfileEnv (Active API profile config - highest priority for ANTHROPIC_* vars)
@@ -261,7 +300,7 @@ export class AgentQueueManager {
     // Debug: Show OAuth token source (token values intentionally omitted for security - AC4)
     const tokenSource = profileEnv['CLAUDE_CODE_OAUTH_TOKEN']
       ? 'Electron app profile'
-      : (combinedEnv['CLAUDE_CODE_OAUTH_TOKEN'] ? 'auto-claude/.env' : 'not found');
+      : (combinedEnv['CLAUDE_CODE_OAUTH_TOKEN'] ? 'APEXDEV/.env' : 'not found');
     const hasToken = !!(finalEnv as Record<string, string | undefined>)['CLAUDE_CODE_OAUTH_TOKEN'];
     debugLog('[Agent Queue] OAuth token status:', {
       source: tokenSource,
@@ -328,7 +367,7 @@ export class AgentQueueManager {
 
         const typeFilePath = path.join(
           projectPath,
-          '.auto-claude',
+          '.APEXDEV',
           'ideation',
           `${ideationType}_ideas.json`
         );
@@ -454,7 +493,7 @@ export class AgentQueueManager {
           try {
             const ideationFilePath = path.join(
               storedProjectPath,
-              '.auto-claude',
+              '.APEXDEV',
               'ideation',
               'ideation.json'
             );
@@ -517,6 +556,15 @@ export class AgentQueueManager {
   ): Promise<void> {
     debugLog('[Agent Queue] Spawning roadmap process:', { projectId, projectPath });
 
+    // Run from APEXDEV source directory so imports work correctly
+    const autoBuildSource = this.processManager.getAutoBuildSourcePath();
+    const cwd = autoBuildSource || process.cwd();
+
+    // Ensure Python environment is ready before spawning
+    if (!await this.ensurePythonEnvReady(projectId, 'roadmap-error')) {
+      return;
+    }
+
     // Kill existing process for this project if any
     const wasKilled = this.processManager.killProcess(projectId);
     if (wasKilled) {
@@ -527,9 +575,6 @@ export class AgentQueueManager {
     const spawnId = this.state.generateSpawnId();
     debugLog('[Agent Queue] Generated roadmap spawn ID:', spawnId);
 
-    // Run from auto-claude source directory so imports work correctly
-    const autoBuildSource = this.processManager.getAutoBuildSourcePath();
-    const cwd = autoBuildSource || process.cwd();
 
     // Get combined environment variables
     const combinedEnv = this.processManager.getCombinedEnv(projectPath);
@@ -562,7 +607,7 @@ export class AgentQueueManager {
     // Build final environment with proper precedence:
     // 1. process.env (system)
     // 2. pythonEnv (bundled packages environment)
-    // 3. combinedEnv (auto-claude/.env for CLI usage)
+    // 3. combinedEnv (APEXDEV/.env for CLI usage)
     // 4. oauthModeClearVars (clear stale ANTHROPIC_* vars when in OAuth mode)
     // 5. profileEnv (Electron app OAuth token)
     // 6. apiProfileEnv (Active API profile config - highest priority for ANTHROPIC_* vars)
@@ -582,7 +627,7 @@ export class AgentQueueManager {
     // Debug: Show OAuth token source (token values intentionally omitted for security - AC4)
     const tokenSource = profileEnv['CLAUDE_CODE_OAUTH_TOKEN']
       ? 'Electron app profile'
-      : (combinedEnv['CLAUDE_CODE_OAUTH_TOKEN'] ? 'auto-claude/.env' : 'not found');
+      : (combinedEnv['CLAUDE_CODE_OAUTH_TOKEN'] ? 'APEXDEV/.env' : 'not found');
     const hasToken = !!(finalEnv as Record<string, string | undefined>)['CLAUDE_CODE_OAUTH_TOKEN'];
     debugLog('[Agent Queue] OAuth token status:', {
       source: tokenSource,
@@ -703,7 +748,7 @@ export class AgentQueueManager {
           try {
             const roadmapFilePath = path.join(
               storedProjectPath,
-              '.auto-claude',
+              '.APEXDEV',
               'roadmap',
               'roadmap.json'
             );
@@ -812,3 +857,4 @@ export class AgentQueueManager {
     return processInfo?.queueProcessType === 'roadmap';
   }
 }
+

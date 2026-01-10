@@ -9,23 +9,22 @@ Capabilities:
 - Limit results
 """
 
-from typing import Any, Dict, List, Optional
-import subprocess
 import os
+import subprocess
 
 from tools.core.base_tool import (
     BaseTool,
     ToolCategory,
     ToolContext,
+    ToolParameter,
     ToolResult,
     ToolStatus,
-    ToolParameter,
 )
 
 
 class GitLogTool(BaseTool):
     """Show git commit history.
-    
+
     Example:
         tool = GitLogTool()
         result = await tool.run(ToolContext(
@@ -33,14 +32,14 @@ class GitLogTool(BaseTool):
             parameters={"limit": 10}
         ))
     """
-    
+
     name = "git_log"
     description = "Show git commit history"
     category = ToolCategory.GIT
     required_permissions = {"git_read"}
     version = "1.0.0"
-    
-    def get_parameters(self) -> List[ToolParameter]:
+
+    def get_parameters(self) -> list[ToolParameter]:
         """Get parameter definitions."""
         return [
             ToolParameter(
@@ -79,7 +78,7 @@ class GitLogTool(BaseTool):
                 default=None,
             ),
         ]
-    
+
     async def execute(self, context: ToolContext) -> ToolResult:
         """Execute git log."""
         path = context.parameters.get("path", context.working_directory)
@@ -87,25 +86,26 @@ class GitLogTool(BaseTool):
         author = context.parameters.get("author")
         since = context.parameters.get("since")
         file = context.parameters.get("file")
-        
+
         if not os.path.isabs(path):
             path = os.path.join(context.working_directory, path)
-        
+
         try:
             # Build command
             cmd = [
-                "git", "log",
+                "git",
+                "log",
                 f"--max-count={limit}",
                 "--format=%H|%an|%ae|%at|%s",
             ]
-            
+
             if author:
                 cmd.append(f"--author={author}")
             if since:
                 cmd.append(f"--since={since}")
             if file:
                 cmd.extend(["--", file])
-            
+
             result = subprocess.run(
                 cmd,
                 cwd=path,
@@ -113,7 +113,7 @@ class GitLogTool(BaseTool):
                 text=True,
                 timeout=30,
             )
-            
+
             if result.returncode != 0:
                 return ToolResult(
                     tool_name=self.name,
@@ -121,7 +121,7 @@ class GitLogTool(BaseTool):
                     output=None,
                     error=result.stderr,
                 )
-            
+
             # Parse commits
             commits = []
             for line in result.stdout.strip().split("\n"):
@@ -129,14 +129,16 @@ class GitLogTool(BaseTool):
                     continue
                 parts = line.split("|")
                 if len(parts) >= 5:
-                    commits.append({
-                        "hash": parts[0],
-                        "author": parts[1],
-                        "email": parts[2],
-                        "timestamp": int(parts[3]),
-                        "message": parts[4],
-                    })
-            
+                    commits.append(
+                        {
+                            "hash": parts[0],
+                            "author": parts[1],
+                            "email": parts[2],
+                            "timestamp": int(parts[3]),
+                            "message": parts[4],
+                        }
+                    )
+
             return ToolResult(
                 tool_name=self.name,
                 status=ToolStatus.COMPLETED,
@@ -145,7 +147,7 @@ class GitLogTool(BaseTool):
                     "count": len(commits),
                 },
             )
-            
+
         except Exception as e:
             return ToolResult(
                 tool_name=self.name,

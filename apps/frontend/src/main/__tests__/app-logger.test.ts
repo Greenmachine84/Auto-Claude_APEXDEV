@@ -44,6 +44,7 @@ vi.mock('electron-log/main.js', () => ({
 // Mock electron app
 vi.mock('electron', () => ({
   app: {
+    getName: vi.fn(() => 'APEXDEV'),
     getVersion: vi.fn(() => '2.7.2-beta.10'),
     getLocale: vi.fn(() => 'en-US'),
     isPackaged: false,
@@ -302,7 +303,7 @@ describe('Application Logger', () => {
       const { generateDebugReport } = await import('../app-logger');
       const report = generateDebugReport();
 
-      expect(report).toContain('=== Auto Claude Debug Report ===');
+      expect(report).toContain('=== APEXDEV Debug Report ===');
       expect(report).toContain('--- System Information ---');
       expect(report).toContain('--- Recent Errors ---');
       expect(report).toContain('=== End Debug Report ===');
@@ -475,3 +476,6 @@ describe('Logger exports', () => {
     expect(typeof appLog.log).toBe('function');
   });
 });
+
+
+

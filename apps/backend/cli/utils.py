@@ -15,7 +15,47 @@ if str(_PARENT_DIR) not in sys.path:
     sys.path.insert(0, str(_PARENT_DIR))
 
 from core.auth import get_auth_token, get_auth_token_source
-from dotenv import load_dotenv
+from core.dependency_validator import validate_platform_dependencies
+
+
+def import_dotenv():
+    """
+    Import and return load_dotenv with helpful error message if not installed.
+
+    This centralized function ensures consistent error messaging across all
+    runner scripts when python-dotenv is not available.
+
+    Returns:
+        The load_dotenv function
+
+    Raises:
+        SystemExit: If dotenv cannot be imported, with helpful installation instructions.
+    """
+    try:
+        from dotenv import load_dotenv as _load_dotenv
+
+        return _load_dotenv
+    except ImportError:
+        sys.exit(
+            "Error: Required Python package 'python-dotenv' is not installed.\n"
+            "\n"
+            "This usually means you're not using the virtual environment.\n"
+            "\n"
+            "To fix this:\n"
+            "1. From the 'apps/backend/' directory, activate the venv:\n"
+            "   source .venv/bin/activate  # Linux/macOS\n"
+            "   .venv\\Scripts\\activate   # Windows\n"
+            "\n"
+            "2. Or install dependencies directly:\n"
+            "   pip install python-dotenv\n"
+            "   pip install -r requirements.txt\n"
+            "\n"
+            f"Current Python: {sys.executable}\n"
+        )
+
+
+# Load .env with helpful error if dependencies not installed
+load_dotenv = import_dotenv()
 from graphiti_config import get_graphiti_status
 from linear_integration import LinearManager
 from linear_updater import is_linear_enabled
@@ -45,7 +85,7 @@ def setup_environment() -> Path:
 
     # Load .env file - check both auto-claude/ and dev/auto-claude/ locations
     env_file = script_dir / ".env"
-    dev_env_file = script_dir.parent / "dev" / "auto-claude" / ".env"
+    dev_env_file = script_dir.parent / "dev" / "apexdev" / ".env"
     if env_file.exists():
         load_dotenv(env_file)
     elif dev_env_file.exists():
@@ -82,11 +122,11 @@ def find_spec(project_dir: Path, spec_identifier: str) -> Path | None:
                     return spec_folder
 
     # Check worktree specs (for merge-preview, merge, review, discard operations)
-    worktree_base = project_dir / ".auto-claude" / "worktrees" / "tasks"
+    worktree_base = project_dir / ".apexdev" / "worktrees" / "tasks"
     if worktree_base.exists():
         # Try exact match in worktree
         worktree_spec = (
-            worktree_base / spec_identifier / ".auto-claude" / "specs" / spec_identifier
+            worktree_base / spec_identifier / ".apexdev" / "specs" / spec_identifier
         )
         if worktree_spec.exists() and (worktree_spec / "spec.md").exists():
             return worktree_spec
@@ -97,7 +137,7 @@ def find_spec(project_dir: Path, spec_identifier: str) -> Path | None:
                 spec_identifier + "-"
             ):
                 spec_in_worktree = (
-                    worktree_dir / ".auto-claude" / "specs" / worktree_dir.name
+                    worktree_dir / ".apexdev" / "specs" / worktree_dir.name
                 )
                 if (
                     spec_in_worktree.exists()
@@ -115,6 +155,9 @@ def validate_environment(spec_dir: Path) -> bool:
     Returns:
         True if valid, False otherwise (with error messages printed)
     """
+    # Validate platform-specific dependencies first (exits if missing)
+    validate_platform_dependencies()
+
     valid = True
 
     # Check for OAuth token (API keys are not supported)

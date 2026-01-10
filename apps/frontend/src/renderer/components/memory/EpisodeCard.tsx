@@ -66,16 +66,16 @@ export const EpisodeCard: React.FC<EpisodeCardProps> = ({
       <div className="apex-episode-card__header">
         <span
           className="apex-episode-card__type"
-          style={{ backgroundColor: typeColors[episode.metadata.type] }}
+          style={{ backgroundColor: (typeColors[episode.metadata?.type ?? 'task'] ?? '#6b7280') }}
         >
-          {typeIcons[episode.metadata.type]} {episode.metadata.type}
+          {(typeIcons[episode.metadata?.type ?? 'task'] ?? '📝')} {episode.metadata?.type ?? "task"}
         </span>
-        {episode.metadata.importance && (
+        {episode.metadata?.importance && (
           <span
             className="apex-episode-card__importance"
             title={`Importance: ${episode.metadata.importance}/10`}
           >
-            {'★'.repeat(Math.ceil(episode.metadata.importance / 2))}
+            {'★'.repeat(Math.ceil(((episode.metadata?.importance === "high" ? 10 : episode.metadata?.importance === "medium" ? 5 : 2) / 2)))}
           </span>
         )}
       </div>
@@ -115,3 +115,5 @@ export const EpisodeCard: React.FC<EpisodeCardProps> = ({
     </div>
   );
 };
+
+

@@ -1,9 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, MutableRefObject } from 'react';
 import { useTerminalStore } from '../../stores/terminal-store';
 import { terminalBufferManager } from '../../lib/terminal-buffer-manager';
 
 interface UseTerminalEventsOptions {
   terminalId: string;
+  // Track deliberate terminal recreation to skip auto-removal
+  isRecreatingRef?: MutableRefObject<boolean>;
   onOutput?: (data: string) => void;
   onExit?: (exitCode: number) => void;
   onTitleChange?: (title: string) => void;
@@ -12,6 +14,7 @@ interface UseTerminalEventsOptions {
 
 export function useTerminalEvents({
   terminalId,
+  isRecreatingRef,
   onOutput,
   onExit,
   onTitleChange,
@@ -58,6 +61,13 @@ export function useTerminalEvents({
   useEffect(() => {
     const cleanup = window.electronAPI.onTerminalExit((id, exitCode) => {
       if (id === terminalId) {
+        // During deliberate recreation (e.g., worktree switching), skip status update
+        // and auto-removal to allow proper recreation
+        if (isRecreatingRef?.current) {
+          onExitRef.current?.(exitCode);
+          return;
+        }
+        
         const store = useTerminalStore.getState();
         store.setTerminalStatus(terminalId, 'exited');
         // Reset Claude mode when terminal exits - the Claude process has ended
@@ -72,6 +82,11 @@ export function useTerminalEvents({
         // This prevents them from counting toward the max terminal limit
         // and ensures they don't get persisted and restored on next launch
         setTimeout(() => {
+          // Skip auto-removal if recreation was triggered during the timeout
+          if (isRecreatingRef?.current) {
+            return;
+          }
+          
           const currentStore = useTerminalStore.getState();
           const currentTerminal = currentStore.getTerminal(terminalId);
           // Only remove if still exited (user hasn't recreated it)

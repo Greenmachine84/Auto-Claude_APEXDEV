@@ -7,16 +7,16 @@ Slack API integration for messaging and notifications.
 
 from .client import SlackClient
 from .models import (
-    SlackConfig,
-    SlackMessage,
-    SlackChannel,
-    SlackUser,
+    BlockType,
     SlackAttachment,
     SlackBlock,
-    BlockType,
+    SlackChannel,
+    SlackConfig,
+    SlackMessage,
+    SlackUser,
 )
 from .service import SlackService
-from .webhooks import SlackWebhookHandler, EventType
+from .webhooks import EventType, SlackWebhookHandler
 
 __all__ = [
     # Client

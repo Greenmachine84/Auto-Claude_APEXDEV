@@ -595,7 +595,7 @@ export interface ElectronAPI {
   openExternal: (url: string) => Promise<void>;
   openTerminal: (dirPath: string) => Promise<IPCResult<void>>;
 
-  // Auto Claude source environment operations
+  // APEXDEV source environment operations
   getSourceEnv: () => Promise<IPCResult<SourceEnvConfig>>;
   updateSourceEnv: (config: { claudeOAuthToken?: string }) => Promise<IPCResult>;
   checkSourceToken: () => Promise<IPCResult<SourceEnvCheckResult>>;
@@ -775,11 +775,99 @@ export interface ElectronAPI {
   // MCP Server health check operations
   checkMcpHealth: (server: CustomMcpServer) => Promise<IPCResult<McpHealthCheckResult>>;
   testMcpConnection: (server: CustomMcpServer) => Promise<IPCResult<McpTestConnectionResult>>;
+  // ============================================
+  // Namespaced APIs for component compatibility
+  // ============================================
+  
+  // Agents API (namespaced)
+  agents: {
+    list: () => Promise<unknown[]>;
+    getPoolStatus: () => Promise<{ totalAgents: number; activeAgents: number; runningAgents: number; idleAgents: number; queuedTasks: number; utilizationPercent: number; agentsByType?: Record<string, number> } | null>;
+    start: (input: { name: string; type: string; config?: Record<string, unknown> }) => Promise<unknown>;
+    stop: (id: string) => Promise<void>;
+    pause: (id: string) => Promise<void>;
+    resume: (id: string) => Promise<void>;
+    logs: (agentId: string, options?: { limit?: number }) => Promise<Array<{ timestamp: string; level: string; message: string; agentId: string; taskId?: string }>>;
+    onStarted: (callback: (agent: unknown) => void) => () => void;
+    onStopped: (callback: (agentId: string) => void) => () => void;
+    onStatusChanged: (callback: (data: { agentId: string; status: string }) => void) => () => void;
+    onPoolUpdated: (callback: (status: unknown) => void) => () => void;
+    onAgentLog: (callback: (agentId: string, log: unknown) => void) => () => void;
+  };
+  
+  // Memory API (namespaced)
+  memory: {
+    list: (options?: { limit?: number }) => Promise<Array<{ id: string; content: string; metadata: { type?: string; importance?: number; source: string; timestamp: string; projectId?: string; taskId?: string; agentId?: string; tags?: string[] } }>>;
+    search: (options: Record<string, unknown>) => Promise<unknown[]>;
+    add: (content: string, metadata: Record<string, unknown>) => Promise<unknown>;
+    delete: (id: string) => Promise<void>;
+    getInsights: () => Promise<unknown[]>;
+    getStats: () => Promise<unknown>;
+    onEpisodeAdded: (callback: (episode: unknown) => void) => () => void;
+    onEpisodeDeleted: (callback: (episodeId: string) => void) => () => void;
+  };
+  
+  // Tasks API (namespaced)
+  tasks: {
+    list: (filter?: Record<string, unknown>) => Promise<unknown[]>;
+    create: (input: { title: string; description: string; projectId?: string }) => Promise<unknown>;
+    update: (id: string, updates: Record<string, unknown>) => Promise<unknown>;
+    delete: (id: string) => Promise<void>;
+    onCreated: (callback: (task: unknown) => void) => () => void;
+    onUpdated: (callback: (task: unknown) => void) => () => void;
+    onDeleted: (callback: (taskId: string) => void) => () => void;
+    onTaskUpdate: (callback: (task: unknown) => void) => () => void;
+  };
+  
+  // Settings API (namespaced)
+  settings: {
+    getAll: () => Promise<Record<string, unknown>>;
+    update: (updates: Record<string, unknown>) => Promise<void>;
+    reset: () => Promise<void>;
+    onChange: (callback: (settings: Record<string, unknown>) => void) => () => void;
+  };
+  
+  // Events API
+  events: {
+    on: (event: string, callback: (...args: unknown[]) => void) => () => void;
+    off: (event: string, callback: (...args: unknown[]) => void) => void;
+    emit: (event: string, ...args: unknown[]) => void;
+  };
+  
+  // Window controls
+  window: {
+    minimize: () => void;
+    maximize: () => void;
+    close: () => void;
+    isMaximized: () => Promise<boolean>;
+  };
+  
+  // Platform info
+  platform: {
+    os: string;
+    isMac: boolean;
+    isWindows: boolean;
+    isLinux: boolean;
+    versions: {
+      electron: string;
+      chrome: string;
+      node: string;
+    };
+  } | string;
+  
+  // Terminal auth created event
+  onTerminalAuthCreated: (callback: (info: unknown) => void) => () => void;
+
+
+  // Virtual project support
+  addVirtualProject: (options: { fullName: string; defaultBranch?: string }) => Promise<{ success: boolean; projectId?: string; error?: string }>;
 }
 
 declare global {
   interface Window {
     electronAPI: ElectronAPI;
+    apex: ElectronAPI;
     DEBUG: boolean;
   }
 }
+

@@ -14,6 +14,7 @@ const TEST_PROJECT_PATH = path.join(TEST_DIR, 'test-project');
 // Mock Electron before importing the store
 vi.mock('electron', () => ({
   app: {
+    getName: vi.fn(() => 'APEXDEV'),
     getPath: vi.fn((name: string) => {
       if (name === 'userData') return USER_DATA_PATH;
       return TEST_DIR;
@@ -82,16 +83,16 @@ describe('ProjectStore', () => {
       expect(project1.id).toBe(project2.id);
     });
 
-    it('should detect auto-claude directory if present', async () => {
-      // Create .auto-claude directory (the data directory, not source code)
-      mkdirSync(path.join(TEST_PROJECT_PATH, '.auto-claude'), { recursive: true });
+    it('should detect APEXDEV directory if present', async () => {
+      // Create .APEXDEV directory (the data directory, not source code)
+      mkdirSync(path.join(TEST_PROJECT_PATH, '.APEXDEV'), { recursive: true });
 
       const { ProjectStore } = await import('../project-store');
       const store = new ProjectStore();
 
       const project = store.addProject(TEST_PROJECT_PATH);
 
-      expect(project.autoBuildPath).toBe('.auto-claude');
+      expect(project.autoBuildPath).toBe('.apexdev');
     });
 
     it('should set empty autoBuildPath if not present', async () => {
@@ -278,8 +279,8 @@ describe('ProjectStore', () => {
     });
 
     it('should read tasks from filesystem correctly', async () => {
-      // Create spec directory structure in .auto-claude (the data directory)
-      const specsDir = path.join(TEST_PROJECT_PATH, '.auto-claude', 'specs', '001-test-feature');
+      // Create spec directory structure in .APEXDEV (the data directory)
+      const specsDir = path.join(TEST_PROJECT_PATH, '.APEXDEV', 'specs', '001-test-feature');
       mkdirSync(specsDir, { recursive: true });
 
       const plan = {
@@ -325,7 +326,7 @@ describe('ProjectStore', () => {
     });
 
     it('should determine status as backlog when no subtasks completed', async () => {
-      const specsDir = path.join(TEST_PROJECT_PATH, '.auto-claude', 'specs', '002-pending');
+      const specsDir = path.join(TEST_PROJECT_PATH, '.APEXDEV', 'specs', '002-pending');
       mkdirSync(specsDir, { recursive: true });
 
       const plan = {
@@ -364,7 +365,7 @@ describe('ProjectStore', () => {
     });
 
     it('should determine status as ai_review when all subtasks completed', async () => {
-      const specsDir = path.join(TEST_PROJECT_PATH, '.auto-claude', 'specs', '003-complete');
+      const specsDir = path.join(TEST_PROJECT_PATH, '.APEXDEV', 'specs', '003-complete');
       mkdirSync(specsDir, { recursive: true });
 
       const plan = {
@@ -403,7 +404,7 @@ describe('ProjectStore', () => {
     });
 
     it('should determine status as human_review when QA report rejected', async () => {
-      const specsDir = path.join(TEST_PROJECT_PATH, '.auto-claude', 'specs', '004-rejected');
+      const specsDir = path.join(TEST_PROJECT_PATH, '.APEXDEV', 'specs', '004-rejected');
       mkdirSync(specsDir, { recursive: true });
 
       const plan = {
@@ -447,7 +448,7 @@ describe('ProjectStore', () => {
 
     it('should determine status as human_review when QA report approved', async () => {
       // QA approval moves task to human_review (user needs to review before marking done)
-      const specsDir = path.join(TEST_PROJECT_PATH, '.auto-claude', 'specs', '005-approved');
+      const specsDir = path.join(TEST_PROJECT_PATH, '.APEXDEV', 'specs', '005-approved');
       mkdirSync(specsDir, { recursive: true });
 
       const plan = {
@@ -492,7 +493,7 @@ describe('ProjectStore', () => {
 
     it('should determine status as done when plan status is explicitly done', async () => {
       // User explicitly marking task as done via drag-and-drop sets status to done
-      const specsDir = path.join(TEST_PROJECT_PATH, '.auto-claude', 'specs', '006-done');
+      const specsDir = path.join(TEST_PROJECT_PATH, '.APEXDEV', 'specs', '006-done');
       mkdirSync(specsDir, { recursive: true });
 
       const plan = {
@@ -586,3 +587,6 @@ describe('ProjectStore', () => {
     });
   });
 });
+
+
+

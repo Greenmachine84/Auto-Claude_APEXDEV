@@ -9,11 +9,12 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 
 class Visibility(Enum):
     """Visibility levels for documentation."""
+
     PUBLIC = "public"
     INTERNAL = "internal"
     PRIVATE = "private"
@@ -21,6 +22,7 @@ class Visibility(Enum):
 
 class HttpMethod(Enum):
     """HTTP methods for API endpoints."""
+
     GET = "GET"
     POST = "POST"
     PUT = "PUT"
@@ -30,6 +32,7 @@ class HttpMethod(Enum):
 
 class ParameterLocation(Enum):
     """Parameter locations for API endpoints."""
+
     PATH = "path"
     QUERY = "query"
     HEADER = "header"
@@ -38,6 +41,7 @@ class ParameterLocation(Enum):
 
 class ExampleType(Enum):
     """Types of code examples."""
+
     BASIC = "basic"
     ADVANCED = "advanced"
     ERROR_HANDLING = "error_handling"
@@ -47,6 +51,7 @@ class ExampleType(Enum):
 @dataclass
 class Parameter:
     """API parameter definition."""
+
     name: str
     type: str
     description: str = ""
@@ -60,23 +65,25 @@ class Parameter:
 @dataclass
 class Response:
     """API response definition."""
+
     status_code: int
     description: str
     content_type: str = "application/json"
-    schema: Optional[dict] = None
+    schema: dict | None = None
     examples: list[dict] = field(default_factory=list)
 
 
 @dataclass
 class CodeExample:
     """Code example in documentation."""
+
     id: str
     title: str
     code: str
     language: str = "python"
     description: str = ""
     example_type: ExampleType = ExampleType.BASIC
-    output: Optional[str] = None
+    output: str | None = None
     dependencies: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
 
@@ -101,11 +108,12 @@ class CodeExample:
 @dataclass
 class CrossReference:
     """Cross-reference to another documentation entry."""
+
     target_id: str
     target_title: str
     reference_type: str = "see_also"
     description: str = ""
-    url: Optional[str] = None
+    url: str | None = None
 
     def to_markdown(self) -> str:
         """Convert to Markdown link."""
@@ -117,19 +125,20 @@ class CrossReference:
 @dataclass
 class ApiEndpoint:
     """API endpoint documentation."""
+
     id: str
     path: str
     method: HttpMethod
     summary: str
     description: str = ""
     parameters: list[Parameter] = field(default_factory=list)
-    request_body: Optional[dict] = None
+    request_body: dict | None = None
     responses: list[Response] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
     deprecated: bool = False
     security: list[str] = field(default_factory=list)
     examples: list[CodeExample] = field(default_factory=list)
-    rate_limit: Optional[str] = None
+    rate_limit: str | None = None
 
     def to_markdown(self) -> str:
         """Convert to Markdown format."""
@@ -186,14 +195,15 @@ class ApiEndpoint:
 @dataclass
 class DocumentationEntry:
     """A documentation entry (page or section)."""
+
     id: str
     title: str
     content: str
     entry_type: str = "page"
     visibility: Visibility = Visibility.PUBLIC
-    source_file: Optional[Path] = None
-    source_line: Optional[int] = None
-    parent_id: Optional[str] = None
+    source_file: Path | None = None
+    source_line: int | None = None
+    parent_id: str | None = None
     children: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
     examples: list[CodeExample] = field(default_factory=list)
@@ -259,6 +269,7 @@ class DocumentationEntry:
 @dataclass
 class DocumentationIndex:
     """Index of all documentation entries."""
+
     entries: dict[str, DocumentationEntry] = field(default_factory=dict)
     categories: dict[str, list[str]] = field(default_factory=dict)
     tags: dict[str, list[str]] = field(default_factory=dict)
@@ -295,7 +306,9 @@ class DocumentationIndex:
         query_lower = query.lower()
         results = []
         for entry in self.entries.values():
-            if (query_lower in entry.title.lower() or
-                query_lower in entry.content.lower()):
+            if (
+                query_lower in entry.title.lower()
+                or query_lower in entry.content.lower()
+            ):
                 results.append(entry)
         return results

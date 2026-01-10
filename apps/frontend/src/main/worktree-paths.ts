@@ -9,8 +9,8 @@ import path from 'path';
 import { existsSync } from 'fs';
 
 // Path constants for worktree directories
-export const TASK_WORKTREE_DIR = '.auto-claude/worktrees/tasks';
-export const TERMINAL_WORKTREE_DIR = '.auto-claude/worktrees/terminal';
+export const TASK_WORKTREE_DIR = '.APEXDEV/worktrees/tasks';
+export const TERMINAL_WORKTREE_DIR = '.APEXDEV/worktrees/terminal';
 
 // Legacy path for backwards compatibility
 export const LEGACY_WORKTREE_DIR = '.worktrees';
@@ -74,3 +74,4 @@ export function findTerminalWorktree(projectPath: string, name: string): string 
 
   return null;
 }
+

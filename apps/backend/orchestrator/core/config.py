@@ -4,13 +4,13 @@ Defines configuration for the orchestrator system.
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 @dataclass
 class OrchestratorConfig:
     """Configuration for the orchestrator.
-    
+
     Attributes:
         worker_count: Number of worker tasks
         max_queue_size: Maximum task queue size
@@ -21,34 +21,34 @@ class OrchestratorConfig:
         enable_metrics: Enable metrics collection
         enable_persistence: Enable task persistence
     """
-    
+
     # Worker configuration
     worker_count: int = 4
     max_queue_size: int = 1000
-    
+
     # Timeout configuration
     default_timeout: float = 300.0  # 5 minutes
-    task_timeout: float = 600.0     # 10 minutes
-    
+    task_timeout: float = 600.0  # 10 minutes
+
     # Retry configuration
     retry_enabled: bool = True
     max_retries: int = 3
     retry_delay: float = 1.0
     retry_backoff: float = 2.0
-    
+
     # Feature flags
     enable_metrics: bool = True
     enable_persistence: bool = False
     enable_logging: bool = True
-    
+
     # Resource limits
     max_concurrent_tasks: int = 10
     max_memory_mb: int = 1024
     max_cpu_percent: float = 80.0
-    
+
     # Custom settings
-    custom: Dict[str, Any] = field(default_factory=dict)
-    
+    custom: dict[str, Any] = field(default_factory=dict)
+
     def __post_init__(self) -> None:
         """Validate configuration."""
         if self.worker_count < 1:
@@ -57,9 +57,9 @@ class OrchestratorConfig:
             raise ValueError("max_queue_size must be >= 1")
         if self.default_timeout <= 0:
             raise ValueError("default_timeout must be > 0")
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "OrchestratorConfig":
+    def from_dict(cls, data: dict[str, Any]) -> "OrchestratorConfig":
         """Create config from dictionary."""
         return cls(
             worker_count=data.get("worker_count", 4),
@@ -78,8 +78,8 @@ class OrchestratorConfig:
             max_cpu_percent=data.get("max_cpu_percent", 80.0),
             custom=data.get("custom", {}),
         )
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "worker_count": self.worker_count,
@@ -98,7 +98,7 @@ class OrchestratorConfig:
             "max_cpu_percent": self.max_cpu_percent,
             "custom": self.custom,
         }
-    
+
     def with_overrides(self, **kwargs: Any) -> "OrchestratorConfig":
         """Create new config with overrides."""
         data = self.to_dict()

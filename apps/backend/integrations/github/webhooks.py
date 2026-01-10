@@ -8,9 +8,10 @@ Webhook handler for GitHub events.
 import hashlib
 import hmac
 import logging
+from collections.abc import Callable, Coroutine
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Coroutine, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +39,7 @@ class WebhookPayload:
     """Webhook payload data."""
 
     event: WebhookEvent
-    action: Optional[str]
+    action: str | None
     sender: dict
     repository: dict
     data: dict
@@ -51,7 +52,7 @@ EventHandler = Callable[[WebhookPayload], Coroutine[Any, Any, None]]
 class GitHubWebhookHandler:
     """GitHub webhook handler."""
 
-    secret: Optional[str] = None
+    secret: str | None = None
     handlers: dict[str, list[EventHandler]] = field(default_factory=dict)
 
     def verify_signature(self, payload: bytes, signature: str) -> bool:
@@ -62,18 +63,21 @@ class GitHubWebhookHandler:
         if not signature or not signature.startswith("sha256="):
             return False
 
-        expected = "sha256=" + hmac.new(
-            self.secret.encode(),
-            payload,
-            hashlib.sha256,
-        ).hexdigest()
+        expected = (
+            "sha256="
+            + hmac.new(
+                self.secret.encode(),
+                payload,
+                hashlib.sha256,
+            ).hexdigest()
+        )
 
         return hmac.compare_digest(expected, signature)
 
     def register(
         self,
         event: WebhookEvent,
-        action: Optional[str] = None,
+        action: str | None = None,
     ) -> Callable[[EventHandler], EventHandler]:
         """Register event handler decorator."""
         key = f"{event.value}:{action}" if action else event.value
@@ -86,19 +90,27 @@ class GitHubWebhookHandler:
 
         return decorator
 
-    def on_pull_request(self, action: Optional[str] = None) -> Callable[[EventHandler], EventHandler]:
+    def on_pull_request(
+        self, action: str | None = None
+    ) -> Callable[[EventHandler], EventHandler]:
         """Register pull request handler."""
         return self.register(WebhookEvent.PULL_REQUEST, action)
 
-    def on_pull_request_review(self, action: Optional[str] = None) -> Callable[[EventHandler], EventHandler]:
+    def on_pull_request_review(
+        self, action: str | None = None
+    ) -> Callable[[EventHandler], EventHandler]:
         """Register pull request review handler."""
         return self.register(WebhookEvent.PULL_REQUEST_REVIEW, action)
 
-    def on_issue(self, action: Optional[str] = None) -> Callable[[EventHandler], EventHandler]:
+    def on_issue(
+        self, action: str | None = None
+    ) -> Callable[[EventHandler], EventHandler]:
         """Register issue handler."""
         return self.register(WebhookEvent.ISSUES, action)
 
-    def on_issue_comment(self, action: Optional[str] = None) -> Callable[[EventHandler], EventHandler]:
+    def on_issue_comment(
+        self, action: str | None = None
+    ) -> Callable[[EventHandler], EventHandler]:
         """Register issue comment handler."""
         return self.register(WebhookEvent.ISSUE_COMMENT, action)
 
@@ -110,8 +122,8 @@ class GitHubWebhookHandler:
         self,
         event_type: str,
         payload: dict,
-        signature: Optional[str] = None,
-        raw_payload: Optional[bytes] = None,
+        signature: str | None = None,
+        raw_payload: bytes | None = None,
     ) -> bool:
         """Handle incoming webhook."""
         # Verify signature if provided

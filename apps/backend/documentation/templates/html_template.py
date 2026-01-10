@@ -5,7 +5,6 @@ Renders documentation entries in HTML format.
 """
 
 import html
-from typing import Any
 
 from ..config import TemplateConfig
 from ..models import (
@@ -141,10 +140,9 @@ class HtmlTemplate(BaseTemplate):
 
         # Tags
         if entry.tags:
-            tags_html = "".join([
-                f'<span class="tag">{self.escape(tag)}</span>'
-                for tag in entry.tags
-            ])
+            tags_html = "".join(
+                [f'<span class="tag">{self.escape(tag)}</span>' for tag in entry.tags]
+            )
             parts.append(f'<div class="tags">{tags_html}</div>')
 
         # Source link
@@ -169,7 +167,7 @@ class HtmlTemplate(BaseTemplate):
 
         # Examples
         if entry.examples:
-            parts.append("<section class=\"examples\">")
+            parts.append('<section class="examples">')
             parts.append("<h2>Examples</h2>")
             for example in entry.examples:
                 parts.append(self._render_example(example))
@@ -177,7 +175,7 @@ class HtmlTemplate(BaseTemplate):
 
         # Cross-references
         if entry.cross_refs:
-            parts.append("<section class=\"see-also\">")
+            parts.append('<section class="see-also">')
             parts.append("<h2>See Also</h2>")
             parts.append("<ul>")
             for ref in entry.cross_refs:
@@ -201,7 +199,9 @@ class HtmlTemplate(BaseTemplate):
 
         parts.append("<h1>Documentation Index</h1>")
         parts.append(f"<p><strong>Version:</strong> {index.version}</p>")
-        parts.append(f"<p><strong>Generated:</strong> {index.generated_at.strftime('%Y-%m-%d %H:%M')}</p>")
+        parts.append(
+            f"<p><strong>Generated:</strong> {index.generated_at.strftime('%Y-%m-%d %H:%M')}</p>"
+        )
 
         # Categories
         for category, entry_ids in index.categories.items():
@@ -210,7 +210,9 @@ class HtmlTemplate(BaseTemplate):
             for entry_id in entry_ids:
                 entry = index.entries.get(entry_id)
                 if entry:
-                    parts.append(f'<li><a href="{entry_id}.html">{self.escape(entry.title)}</a></li>')
+                    parts.append(
+                        f'<li><a href="{entry_id}.html">{self.escape(entry.title)}</a></li>'
+                    )
             parts.append("</ul>")
 
         return "\n".join(parts)
@@ -243,7 +245,9 @@ class HtmlTemplate(BaseTemplate):
 
     def _render_breadcrumbs(self, breadcrumbs: list[tuple[str, str]]) -> str:
         """Render breadcrumb navigation."""
-        links = [f'<a href="{url}">{self.escape(title)}</a>' for title, url in breadcrumbs]
+        links = [
+            f'<a href="{url}">{self.escape(title)}</a>' for title, url in breadcrumbs
+        ]
         return f'<nav class="breadcrumbs">{" &gt; ".join(links)}</nav>'
 
     def _render_footer(self, context: TemplateContext) -> str:
@@ -264,7 +268,9 @@ class HtmlTemplate(BaseTemplate):
             parts.append(f"<p>{self.escape(example.description)}</p>")
 
         code = self.escape(example.code)
-        parts.append(f'<pre><code class="language-{example.language}">{code}</code></pre>')
+        parts.append(
+            f'<pre><code class="language-{example.language}">{code}</code></pre>'
+        )
 
         if example.output:
             parts.append("<p><strong>Output:</strong></p>")
@@ -292,7 +298,9 @@ class HtmlTemplate(BaseTemplate):
             elif line.startswith("### "):
                 title = line[4:].strip()
                 anchor = title.lower().replace(" ", "-")
-                items.append(f'<li class="indent"><a href="#{anchor}">{self.escape(title)}</a></li>')
+                items.append(
+                    f'<li class="indent"><a href="#{anchor}">{self.escape(title)}</a></li>'
+                )
 
         if items:
             return "<ul>" + "\n".join(items) + "</ul>"
@@ -340,11 +348,7 @@ class HtmlTemplate(BaseTemplate):
         """Escape HTML special characters."""
         return html.escape(str(text))
 
-    def render_table(
-        self,
-        headers: list[str],
-        rows: list[list[str]]
-    ) -> str:
+    def render_table(self, headers: list[str], rows: list[list[str]]) -> str:
         """
         Render an HTML table.
 

@@ -1,4 +1,4 @@
-import { FolderOpen, FolderPlus, Clock, ChevronRight, Folder } from 'lucide-react';
+import { FolderOpen, FolderPlus, Clock, ChevronRight, Folder, Github, Cloud } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
@@ -11,13 +11,15 @@ interface WelcomeScreenProps {
   onNewProject: () => void;
   onOpenProject: () => void;
   onSelectProject: (projectId: string) => void;
+  onConnectGitHub?: () => void;
 }
 
 export function WelcomeScreen({
   projects,
   onNewProject,
   onOpenProject,
-  onSelectProject
+  onSelectProject,
+  onConnectGitHub
 }: WelcomeScreenProps) {
   const { t } = useTranslation(['welcome', 'common']);
 
@@ -54,24 +56,43 @@ export function WelcomeScreen({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-4 justify-center mb-10">
-          <Button
-            size="lg"
-            onClick={onNewProject}
-            className="gap-2 px-6"
-          >
-            <FolderPlus className="h-5 w-5" />
-            {t('welcome:actions.newProject')}
-          </Button>
-          <Button
-            size="lg"
-            variant="secondary"
-            onClick={onOpenProject}
-            className="gap-2 px-6"
-          >
-            <FolderOpen className="h-5 w-5" />
-            {t('welcome:actions.openProject')}
-          </Button>
+        <div className="flex flex-col gap-3 mb-10">
+          {/* Primary Actions Row */}
+          <div className="flex gap-4 justify-center">
+            <Button
+              size="lg"
+              onClick={onNewProject}
+              className="gap-2 px-6"
+            >
+              <FolderPlus className="h-5 w-5" />
+              {t('welcome:actions.newProject')}
+            </Button>
+            <Button
+              size="lg"
+              variant="secondary"
+              onClick={onOpenProject}
+              className="gap-2 px-6"
+            >
+              <FolderOpen className="h-5 w-5" />
+              {t('welcome:actions.openProject')}
+            </Button>
+          </div>
+
+          {/* GitHub Connection Button */}
+          {onConnectGitHub && (
+            <div className="flex justify-center">
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={onConnectGitHub}
+                className="gap-2 px-6 border-dashed border-2 hover:border-primary hover:bg-primary/5"
+              >
+                <Github className="h-5 w-5" />
+                Connect GitHub Repository
+                <Cloud className="h-4 w-4 text-muted-foreground" />
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Recent Projects Section */}
@@ -94,13 +115,22 @@ export function WelcomeScreen({
                     aria-label={t('welcome:recentProjects.openProjectAriaLabel', { name: project.name })}
                   >
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/20 text-accent-foreground shrink-0">
-                      <Folder className="h-5 w-5" />
+                      {project.sourceType === 'github' ? (
+                        <Github className="h-5 w-5" />
+                      ) : (
+                        <Folder className="h-5 w-5" />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-foreground truncate">
                           {project.name}
                         </span>
+                        {project.sourceType === 'github' && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary shrink-0">
+                            GitHub
+                          </span>
+                        )}
                         {project.autoBuildPath && (
                           <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-success/20 text-success shrink-0">
                             Initialized
@@ -108,7 +138,9 @@ export function WelcomeScreen({
                         )}
                       </div>
                       <p className="text-xs text-muted-foreground truncate mt-0.5">
-                        {project.path}
+                        {project.sourceType === 'github' && project.virtualRepo
+                          ? project.virtualRepo.fullName
+                          : project.path}
                       </p>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">

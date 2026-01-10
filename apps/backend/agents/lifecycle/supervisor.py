@@ -12,15 +12,15 @@ Provides:
 
 import logging
 import threading
-from dataclasses import dataclass, field
-from enum import Enum, auto
-from typing import Any, Callable
-from datetime import datetime, timezone
 import time
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from enum import Enum, auto
+from typing import Any
 
-from ..types import AgentStatus, AgentResult
 from ..base import BaseAgent, ExecutionContext
-from .lifecycle_manager import LifecycleManager, LifecycleEvent
+from ..types import AgentResult, AgentStatus
+from .lifecycle_manager import LifecycleEvent, LifecycleManager
 
 logger = logging.getLogger(__name__)
 
@@ -28,9 +28,9 @@ logger = logging.getLogger(__name__)
 class RestartPolicy(Enum):
     """Agent restart policies."""
 
-    NEVER = auto()           # Never restart
-    ON_FAILURE = auto()      # Restart only on failure
-    ALWAYS = auto()          # Always restart (for long-running)
+    NEVER = auto()  # Never restart
+    ON_FAILURE = auto()  # Restart only on failure
+    ALWAYS = auto()  # Always restart (for long-running)
     EXPONENTIAL_BACKOFF = auto()  # Restart with increasing delay
 
 
@@ -150,7 +150,8 @@ class AgentSupervisor:
                 if self._should_restart(e):
                     self._do_restart()
                 else:
-                    from ..types import ErrorResult, ErrorCode
+                    from ..types import ErrorCode, ErrorResult
+
                     return ErrorResult(
                         message=error_msg,
                         code=ErrorCode.EXECUTION_ERROR,
@@ -158,7 +159,8 @@ class AgentSupervisor:
                     )
 
         # Stop requested
-        from ..types import ErrorResult, ErrorCode
+        from ..types import ErrorCode, ErrorResult
+
         return ErrorResult(
             message="Execution stopped by supervisor",
             code=ErrorCode.TIMEOUT,
@@ -256,6 +258,7 @@ class AgentSupervisor:
 
     def _start_health_monitoring(self) -> None:
         """Start health monitoring thread."""
+
         def monitor() -> None:
             while self._running and not self._stop_requested:
                 if not self.agent.is_healthy:

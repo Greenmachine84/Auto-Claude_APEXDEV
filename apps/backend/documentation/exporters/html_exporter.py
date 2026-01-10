@@ -4,15 +4,13 @@ HTML exporter.
 Exports documentation entries to HTML files.
 """
 
-import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 from ..config import ExportConfig
 from ..models import DocumentationEntry, DocumentationIndex
+from ..templates.base import TemplateConfig, TemplateContext
 from ..templates.html_template import HtmlTemplate
-from ..templates.base import TemplateContext, TemplateConfig
 
 
 class HtmlExporter:
@@ -36,8 +34,8 @@ class HtmlExporter:
     def export_entry(
         self,
         entry: DocumentationEntry,
-        filename: Optional[str] = None,
-        navigation: Optional[list] = None
+        filename: str | None = None,
+        navigation: list | None = None,
     ) -> Path:
         """
         Export a single documentation entry.
@@ -86,7 +84,7 @@ class HtmlExporter:
         self,
         entries: list[DocumentationEntry],
         subdir: str = "",
-        navigation: Optional[list] = None
+        navigation: list | None = None,
     ) -> list[Path]:
         """
         Export multiple documentation entries.
@@ -130,7 +128,7 @@ class HtmlExporter:
         index: DocumentationIndex,
         filename: str = "index.html",
         project_name: str = "",
-        project_description: str = ""
+        project_description: str = "",
     ) -> Path:
         """
         Export documentation index.
@@ -149,7 +147,9 @@ class HtmlExporter:
         # Create a synthetic entry for the index
         index_entry = DocumentationEntry(
             id="index",
-            title=f"{project_name} Documentation" if project_name else "Documentation Index",
+            title=f"{project_name} Documentation"
+            if project_name
+            else "Documentation Index",
             content=self.template.render_index(index),
             entry_type="index",
         )
@@ -175,7 +175,7 @@ class HtmlExporter:
         self,
         index: DocumentationIndex,
         project_name: str = "",
-        project_version: str = ""
+        project_version: str = "",
     ) -> list[Path]:
         """
         Export full documentation including all entries, index, and assets.
@@ -217,14 +217,10 @@ class HtmlExporter:
             # Create category indexes
             for category, entry_ids in index.categories.items():
                 category_entries = [
-                    index.entries[eid]
-                    for eid in entry_ids
-                    if eid in index.entries
+                    index.entries[eid] for eid in entry_ids if eid in index.entries
                 ]
                 category_path = self._export_category_index(
-                    category,
-                    category_entries,
-                    navigation
+                    category, category_entries, navigation
                 )
                 paths.append(category_path)
 
@@ -249,20 +245,19 @@ class HtmlExporter:
             for entry_id in entry_ids:
                 entry = index.entries.get(entry_id)
                 if entry:
-                    category_nav["children"].append({
-                        "title": entry.title,
-                        "url": f"{category}/{entry.id}.html",
-                    })
+                    category_nav["children"].append(
+                        {
+                            "title": entry.title,
+                            "url": f"{category}/{entry.id}.html",
+                        }
+                    )
 
             nav.append(category_nav)
 
         return nav
 
     def _export_category_index(
-        self,
-        category: str,
-        entries: list[DocumentationEntry],
-        navigation: list
+        self, category: str, entries: list[DocumentationEntry], navigation: list
     ) -> Path:
         """Export category index page."""
         output_path = self.config.output_dir / category / "index.html"
@@ -277,7 +272,9 @@ class HtmlExporter:
         ]
 
         for entry in entries:
-            content_lines.append(f'<li><a href="{entry.id}.html">{entry.title}</a></li>')
+            content_lines.append(
+                f'<li><a href="{entry.id}.html">{entry.title}</a></li>'
+            )
 
         content_lines.append("</ul>")
 
@@ -303,7 +300,7 @@ class HtmlExporter:
 
         return output_path
 
-    def _export_assets(self) -> Optional[Path]:
+    def _export_assets(self) -> Path | None:
         """Export static assets (CSS, JS, images)."""
         assets_dir = self.config.output_dir / self.config.asset_prefix.rstrip("/")
         assets_dir.mkdir(parents=True, exist_ok=True)
@@ -474,14 +471,16 @@ document.addEventListener('DOMContentLoaded', function() {
         search_data = []
 
         for entry_id, entry in index.entries.items():
-            search_data.append({
-                "id": entry.id,
-                "title": entry.title,
-                "content": entry.content[:500],  # First 500 chars
-                "type": entry.entry_type,
-                "tags": entry.tags,
-                "url": f"{entry.entry_type}/{entry.id}.html",
-            })
+            search_data.append(
+                {
+                    "id": entry.id,
+                    "title": entry.title,
+                    "content": entry.content[:500],  # First 500 chars
+                    "type": entry.entry_type,
+                    "tags": entry.tags,
+                    "url": f"{entry.entry_type}/{entry.id}.html",
+                }
+            )
 
         output_path = self.config.output_dir / "search-index.json"
         output_path.write_text(json.dumps(search_data, indent=2), encoding="utf-8")

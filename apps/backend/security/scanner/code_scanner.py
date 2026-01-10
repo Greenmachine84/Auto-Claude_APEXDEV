@@ -7,30 +7,31 @@ World-Class Standards:
 - Path traversal detection
 - Command injection detection
 """
+
 import re
 import uuid
-from pathlib import Path
-from typing import List, Dict, Optional
 from dataclasses import dataclass
+from pathlib import Path
 
-from ..models import SecurityFinding, ThreatType, Severity
+from ..models import SecurityFinding, Severity, ThreatType
 
 
 @dataclass
 class VulnerabilityPattern:
     """Definition of a code vulnerability pattern."""
+
     name: str
     pattern: str
     severity: Severity
     message: str
     cwe_id: str
     remediation: str
-    languages: List[str]  # Applicable languages
+    languages: list[str]  # Applicable languages
 
 
 class CodeScanner:
     """Static code analysis for security vulnerabilities.
-    
+
     Detects common security issues including:
     - SQL Injection (CWE-89)
     - Cross-Site Scripting (CWE-79)
@@ -38,8 +39,8 @@ class CodeScanner:
     - Command Injection (CWE-78)
     - Insecure Deserialization (CWE-502)
     """
-    
-    VULNERABILITY_PATTERNS: Dict[str, VulnerabilityPattern] = {
+
+    VULNERABILITY_PATTERNS: dict[str, VulnerabilityPattern] = {
         # SQL Injection
         "sql_injection_concat": VulnerabilityPattern(
             name="sql_injection_concat",
@@ -59,7 +60,6 @@ class CodeScanner:
             remediation="Use parameterized queries or ORM",
             languages=["python"],
         ),
-        
         # XSS Vulnerabilities
         "xss_innerhtml": VulnerabilityPattern(
             name="xss_innerhtml",
@@ -79,7 +79,6 @@ class CodeScanner:
             remediation="Use DOM manipulation methods instead",
             languages=["javascript", "typescript"],
         ),
-        
         # Path Traversal
         "path_traversal": VulnerabilityPattern(
             name="path_traversal",
@@ -99,7 +98,6 @@ class CodeScanner:
             remediation="Validate and normalize file paths",
             languages=["python", "javascript", "typescript"],
         ),
-        
         # Command Injection
         "command_injection_shell": VulnerabilityPattern(
             name="command_injection_shell",
@@ -119,7 +117,6 @@ class CodeScanner:
             remediation="Use execFile with arguments array",
             languages=["javascript", "typescript"],
         ),
-        
         # Insecure Deserialization
         "insecure_pickle": VulnerabilityPattern(
             name="insecure_pickle",
@@ -139,7 +136,6 @@ class CodeScanner:
             remediation="Use yaml.safe_load() or specify SafeLoader",
             languages=["python"],
         ),
-        
         # Hardcoded Secrets (complement to SecretsScanner)
         "hardcoded_password": VulnerabilityPattern(
             name="hardcoded_password",
@@ -150,7 +146,6 @@ class CodeScanner:
             remediation="Use environment variables or secure vault",
             languages=["python", "javascript", "typescript"],
         ),
-        
         # Insecure Cryptography
         "weak_hash_md5": VulnerabilityPattern(
             name="weak_hash_md5",
@@ -170,7 +165,6 @@ class CodeScanner:
             remediation="Use SHA-256 or stronger hash functions",
             languages=["python"],
         ),
-        
         # Debug/Development Artifacts
         "debug_enabled": VulnerabilityPattern(
             name="debug_enabled",
@@ -182,15 +176,15 @@ class CodeScanner:
             languages=["python"],
         ),
     }
-    
+
     def __init__(self):
         """Initialize scanner with compiled patterns."""
-        self._compiled: Dict[str, re.Pattern] = {
+        self._compiled: dict[str, re.Pattern] = {
             name: re.compile(vuln.pattern)
             for name, vuln in self.VULNERABILITY_PATTERNS.items()
         }
-    
-    def _detect_language(self, file_path: Path) -> Optional[str]:
+
+    def _detect_language(self, file_path: Path) -> str | None:
         """Detect programming language from file extension."""
         ext_map = {
             ".py": "python",
@@ -200,70 +194,72 @@ class CodeScanner:
             ".jsx": "javascript",
         }
         return ext_map.get(file_path.suffix.lower())
-    
+
     def scan_text(
         self,
         text: str,
         source: str = "input",
-        language: Optional[str] = None,
-    ) -> List[SecurityFinding]:
+        language: str | None = None,
+    ) -> list[SecurityFinding]:
         """Scan text for code vulnerabilities.
-        
+
         Args:
             text: Code content to scan
             source: Source identifier
             language: Programming language (auto-detected if None)
-            
+
         Returns:
             List of security findings
         """
         findings = []
         lines = text.split("\n")
-        
+
         for line_num, line in enumerate(lines, 1):
             for name, compiled in self._compiled.items():
                 vuln = self.VULNERABILITY_PATTERNS[name]
-                
+
                 # Skip if language doesn't match
                 if language and language not in vuln.languages:
                     continue
-                
+
                 if compiled.search(line):
-                    findings.append(SecurityFinding(
-                        id=str(uuid.uuid4()),
-                        threat_type=ThreatType.CODE_INJECTION,
-                        severity=vuln.severity,
-                        message=vuln.message,
-                        source=source,
-                        line_number=line_num,
-                        evidence=line.strip()[:100],  # Truncate long lines
-                        remediation=vuln.remediation,
-                        cwe_id=vuln.cwe_id,
-                    ))
-        
+                    findings.append(
+                        SecurityFinding(
+                            id=str(uuid.uuid4()),
+                            threat_type=ThreatType.CODE_INJECTION,
+                            severity=vuln.severity,
+                            message=vuln.message,
+                            source=source,
+                            line_number=line_num,
+                            evidence=line.strip()[:100],  # Truncate long lines
+                            remediation=vuln.remediation,
+                            cwe_id=vuln.cwe_id,
+                        )
+                    )
+
         return findings
-    
-    def scan_file(self, file_path: Path) -> List[SecurityFinding]:
+
+    def scan_file(self, file_path: Path) -> list[SecurityFinding]:
         """Scan a file for code vulnerabilities.
-        
+
         Args:
             file_path: Path to file to scan
-            
+
         Returns:
             List of security findings
         """
         path = Path(file_path)
-        
+
         if not path.exists():
             return []
-        
+
         language = self._detect_language(path)
         if not language:
             return []  # Skip unsupported languages
-        
+
         try:
             content = path.read_text(encoding="utf-8", errors="ignore")
         except (OSError, UnicodeDecodeError):
             return []
-        
+
         return self.scan_text(content, str(path), language)

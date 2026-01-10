@@ -6,11 +6,12 @@ Follows PHASE1_AGENT_SYSTEM_ARCHITECTURE.md specification.
 State transitions are validated against APEX governance rules.
 """
 
-import threading
 import logging
-from datetime import datetime, timezone
-from typing import Callable, Any
+import threading
+from collections.abc import Callable
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from typing import Any
 
 from ..types import AgentStatus, InvalidStatusTransitionError
 
@@ -33,7 +34,9 @@ class StateSnapshot:
         return {
             "status": self.status.value,
             "timestamp": self.timestamp.isoformat(),
-            "previous_status": self.previous_status.value if self.previous_status else None,
+            "previous_status": self.previous_status.value
+            if self.previous_status
+            else None,
             "transition_reason": self.transition_reason,
             "error_message": self.error_message,
             "metadata": self.metadata,
@@ -168,9 +171,7 @@ class AgentStateManager:
             current = self._status
             self._status = target
 
-            snapshot = self._record_state(
-                target, current, f"[FORCED] {reason}"
-            )
+            snapshot = self._record_state(target, current, f"[FORCED] {reason}")
 
             logger.warning(
                 f"Agent {self._agent_id}: FORCED {current.value} -> {target.value} ({reason})"
@@ -203,7 +204,9 @@ class AgentStateManager:
             return StateSnapshot(
                 status=self._status,
                 timestamp=datetime.now(timezone.utc),
-                previous_status=self._history[-1].previous_status if self._history else None,
+                previous_status=self._history[-1].previous_status
+                if self._history
+                else None,
                 error_message=self._error_message,
                 metadata=dict(self._metadata),
             )

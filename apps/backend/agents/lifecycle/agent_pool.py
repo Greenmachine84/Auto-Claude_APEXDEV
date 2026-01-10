@@ -12,13 +12,13 @@ Provides:
 import logging
 import threading
 from dataclasses import dataclass, field
-from queue import Queue, Empty
-from typing import Any
 from datetime import datetime, timezone
+from queue import Empty, Queue
+from typing import Any
 
-from ..types import AgentType, AgentStatus
-from ..base import BaseAgent, AgentConfig
+from ..base import BaseAgent
 from ..registry import AgentFactory
+from ..types import AgentType
 
 logger = logging.getLogger(__name__)
 

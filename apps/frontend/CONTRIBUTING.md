@@ -12,7 +12,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ```bash
 # Clone the repository
-git clone https://github.com/AndyMik90/Auto-Claude.git
+git clone https://github.com/Greenmachine84/Auto-Claude_APEXDEV.git
 cd Auto-Claude/apps/frontend
 
 # Install dependencies

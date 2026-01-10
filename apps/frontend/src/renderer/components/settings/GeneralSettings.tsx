@@ -136,7 +136,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
           <input
             type="checkbox"
             id="notifications"
-            checked={settings.notifications ?? true}
+            checked={typeof settings.notifications === "boolean" ? settings.notifications : settings.notifications?.enabled ?? true}
             onChange={(e) => onUpdate({ notifications: e.target.checked })}
           />
           <label htmlFor="notifications">Enable desktop notifications</label>
@@ -154,3 +154,4 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
     </div>
   );
 };
+

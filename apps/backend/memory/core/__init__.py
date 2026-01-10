@@ -9,15 +9,15 @@ Part of Phase 2: Memory System Architecture
 See: docs/architecture/PHASE2_MEMORY_LLM_ARCHITECTURE.md
 """
 
-from .memory_manager import MemoryManager, get_memory_manager
+from .memory_bridge import MemoryBridge, SyncResult, SyncStatus
 from .memory_config import (
-    MemorySystemConfig,
     L1CacheConfig,
     L2SessionConfig,
     L3PersistentConfig,
+    MemorySystemConfig,
     load_memory_config,
 )
-from .memory_bridge import MemoryBridge, SyncResult, SyncStatus
+from .memory_manager import MemoryManager, get_memory_manager
 
 __all__ = [
     # Manager

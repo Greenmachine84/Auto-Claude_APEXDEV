@@ -1,6 +1,6 @@
 import path from 'path';
 
-const INSIGHTS_DIR = '.auto-claude/insights';
+const INSIGHTS_DIR = '.APEXDEV/insights';
 const SESSIONS_DIR = 'sessions';
 const CURRENT_SESSION_FILE = 'current_session.json';
 
@@ -44,3 +44,4 @@ export class InsightsPaths {
     return path.join(this.getInsightsDir(projectPath), 'session.json');
   }
 }
+

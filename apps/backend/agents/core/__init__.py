@@ -10,9 +10,9 @@ All core agents inherit from BaseAgent and are registered with the registry.
 """
 
 from .coder_agent import CoderAgent
-from .reviewer_agent import ReviewerAgent
 from .fixer_agent import FixerAgent
 from .orchestrator_agent import OrchestratorAgent
+from .reviewer_agent import ReviewerAgent
 
 __all__ = [
     "CoderAgent",

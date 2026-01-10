@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Terminal, Loader2, Check, AlertTriangle, X, RefreshCw, Download, Info, ExternalLink } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -174,7 +174,7 @@ export function ClaudeCodeStep({ onNext, onBack, onSkip }: ClaudeCodeStepProps) 
                     {t('claudeCode.info.title', 'What is Claude Code?')}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {t('claudeCode.info.description', "Claude Code is Anthropic's official CLI that powers Auto Claude's AI features. It provides secure authentication and direct access to Claude models.")}
+                    {t('claudeCode.info.description', "Claude Code is Anthropic's official CLI that powers APEXDEV's AI features. It provides secure authentication and direct access to Claude models.")}
                   </p>
                 </div>
               </div>
@@ -315,3 +315,7 @@ export function ClaudeCodeStep({ onNext, onBack, onSkip }: ClaudeCodeStepProps) 
     </div>
   );
 }
+
+
+
+

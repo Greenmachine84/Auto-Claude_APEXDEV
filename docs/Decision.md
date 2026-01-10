@@ -62,6 +62,11 @@
 | ADR-050 | Phase 6 Security Infrastructure Complete | ✅ Accepted | 6-Impl | 2026-01-07 |
 | ADR-051 | Phase 7 Enterprise Agents Complete | ✅ Accepted | 7-Impl | 2026-01-07 |
 | ADR-052 | Phase 8 Analytics & Tools Complete | ✅ Accepted | 8-Impl | 2026-01-07 |
+| ADR-053 | Phase 9 Governance Implementation | ✅ Accepted | 9-Impl | 2026-01-07 |
+| ADR-054 | Phase 10 Testing and Documentation Framework | ✅ Accepted | 10-Impl | 2026-01-07 |
+| ADR-055 | Frontend Dashboard and Phase View Integration | ✅ Accepted | Frontend | 2026-01-08 |
+| ADR-056 | Upstream Integration Strategy (TIER 1-5) | ✅ Accepted | Integration | 2026-01-08 |
+| ADR-057 | TIER 6 Additional Safe Enhancements | ✅ Accepted | Enhancement | 2026-01-08 |
 
 ---
 
@@ -1141,3 +1146,279 @@ All Phase components rewritten with shadcn/ui styling:
 | Navigation i18n | 1 | Updated |
 | Config | 1 | Updated |
 | **Total** | **10** | Frontend integration |
+
+---
+
+### ADR-056: Upstream Integration Strategy (TIER 1-5)
+**Status**: ✅ Accepted
+**Date**: 2026-01-08
+**Phase**: Integration
+
+#### Context
+The APEXDEV_MERGE branch diverged 32 commits behind upstream Auto-Claude develop branch. Analysis revealed 847 files changed with +15,723/-130,832 lines delta. 636 files marked for deletion would have removed all Phase components, roadmap views, and DEVAPEX enhancements.
+
+#### Decision
+Implement a 5-tier risk-based cherry-pick strategy:
+
+**TIER 1 - SAFE (7 commits)**: Direct cherry-picks
+- Documentation, configs, version bumps
+- No code changes, no conflicts
+
+**TIER 2 - LOW RISK (8 commits)**: Direct cherry-picks
+- Bug fixes, accessibility improvements
+- Isolated changes with no Phase impact
+
+**TIER 3 - MEDIUM RISK (11 commits)**: Selective cherry-picks
+- 8 cherry-picked successfully
+- 3 skipped due to conflicts (handled in TIER 4/5)
+
+**TIER 4 - HIGH RISK (4 commits)**: Implement from scratch
+- CLI tool detection with warming
+- Git executable finder
+- Terminal crash prevention
+- Worktree creation fixes
+
+**TIER 5 - SAFE ENHANCEMENTS**: Extract valuable code
+- Binary file extension list expansion
+- Line ending normalization fixes
+- MergeReadiness interface and handler
+- PR creation backend methods
+- TextBlock type checking in insight_extractor
+- Cache invalidation in agent-events-handlers
+- Dual-location status persistence
+
+#### Rationale
+- **Phase Preservation**: All Phase folders, components, and workflows remain intact
+- **Cherry-Pick Discipline**: Only integrate verified-safe changes
+- **Risk Containment**: High-risk changes reimplemented with local testing
+- **Value Extraction**: TIER 5 extracts useful enhancements without mass deletions
+
+#### Implementation Summary
+| Tier | Commits | Strategy | Status |
+|------|---------|----------|--------|
+| TIER 1 | 7 | Cherry-pick | ✅ Complete |
+| TIER 2 | 8 | Cherry-pick | ✅ Complete |
+| TIER 3 | 8/11 | Selective cherry-pick | ✅ Complete |
+| TIER 4 | 4 | Implement from scratch | ✅ Complete |
+| TIER 5 | 2 | Extract enhancements | ✅ Complete |
+| **Total** | **27** | Mixed strategy | **upstream-integration branch** |
+
+#### Files Modified (TIER 4/5)
+| File | Enhancement |
+|------|-------------|
+| apps/backend/core/git_utils.py | Binary extensions + get_binary_file_content_from_ref() |
+| apps/backend/merge/file_merger.py | Line ending normalization |
+| apps/frontend/src/main/ipc-handlers/github/pr-handlers.ts | MergeReadiness interface |
+| apps/frontend/src/preload/github-api.ts | checkMergeReadiness() API |
+| apps/frontend/src/shared/ipc.ts | PR creation IPC channels |
+| apps/frontend/src/shared/task.ts | pr_created status |
+| apps/backend/core/worktree.py | PR creation methods with retry |
+| apps/backend/analysis/insight_extractor.py | TextBlock type checking |
+| apps/frontend/src/main/ipc-handlers/agent-events-handlers.ts | Cache invalidation + dual persist |
+
+#### Rejected Changes
+| File | Reason |
+|------|--------|
+| memory.py | Async conversion would break sync Phase callers |
+| KanbanBoard/TaskCard/TaskDetailModal | PR UI requires missing backend infrastructure |
+
+
+---
+
+### ADR-056: Upstream Integration Strategy (TIER 1-5)
+**Status**: ✅ Accepted
+**Date**: 2026-01-08
+**Phase**: Integration
+
+#### Context
+The APEXDEV_MERGE branch diverged 32 commits behind upstream Auto-Claude develop branch. Analysis revealed 847 files changed with +15,723/-130,832 lines delta. 636 files marked for deletion would have removed all Phase components, roadmap views, and DEVAPEX enhancements.
+
+#### Decision
+Implement a 5-tier risk-based cherry-pick strategy:
+
+**TIER 1 - SAFE (7 commits)**: Direct cherry-picks
+- Documentation, configs, version bumps
+- No code changes, no conflicts
+
+**TIER 2 - LOW RISK (8 commits)**: Direct cherry-picks
+- Bug fixes, accessibility improvements
+- Isolated changes with no Phase impact
+
+**TIER 3 - MEDIUM RISK (11 commits)**: Selective cherry-picks
+- 8 cherry-picked successfully
+- 3 skipped due to conflicts (handled in TIER 4/5)
+
+**TIER 4 - HIGH RISK (4 commits)**: Implement from scratch
+- CLI tool detection with warming
+- Git executable finder
+- Terminal crash prevention
+- Worktree creation fixes
+
+**TIER 5 - SAFE ENHANCEMENTS**: Extract valuable code
+- Binary file extension list expansion
+- Line ending normalization fixes
+- MergeReadiness interface and handler
+- PR creation backend methods
+- TextBlock type checking in insight_extractor
+- Cache invalidation in agent-events-handlers
+- Dual-location status persistence
+
+#### Rationale
+- **Phase Preservation**: All Phase folders, components, and workflows remain intact
+- **Cherry-Pick Discipline**: Only integrate verified-safe changes
+- **Risk Containment**: High-risk changes reimplemented with local testing
+- **Value Extraction**: TIER 5 extracts useful enhancements without mass deletions
+
+#### Implementation Summary
+| Tier | Commits | Strategy | Status |
+|------|---------|----------|--------|
+| TIER 1 | 7 | Cherry-pick | ✅ Complete |
+| TIER 2 | 8 | Cherry-pick | ✅ Complete |
+| TIER 3 | 8/11 | Selective cherry-pick | ✅ Complete |
+| TIER 4 | 4 | Implement from scratch | ✅ Complete |
+| TIER 5 | 2 | Extract enhancements | ✅ Complete |
+| **Total** | **27** | Mixed strategy | **upstream-integration branch** |
+
+#### Files Modified (TIER 4/5)
+| File | Enhancement |
+|------|-------------|
+| apps/backend/core/git_utils.py | Binary extensions + get_binary_file_content_from_ref() |
+| apps/backend/merge/file_merger.py | Line ending normalization |
+| apps/frontend/src/main/ipc-handlers/github/pr-handlers.ts | MergeReadiness interface |
+| apps/frontend/src/preload/github-api.ts | checkMergeReadiness() API |
+| apps/frontend/src/shared/ipc.ts | PR creation IPC channels |
+| apps/frontend/src/shared/task.ts | pr_created status |
+| apps/backend/core/worktree.py | PR creation methods with retry |
+| apps/backend/analysis/insight_extractor.py | TextBlock type checking |
+| apps/frontend/src/main/ipc-handlers/agent-events-handlers.ts | Cache invalidation + dual persist |
+
+#### Rejected Changes
+| File | Reason |
+|------|--------|
+| memory.py | Async conversion would break sync Phase callers |
+| KanbanBoard/TaskCard/TaskDetailModal | PR UI requires missing backend infrastructure |
+
+
+---
+
+### ADR-057: TIER 6 Additional Safe Enhancements
+**Status**: ✅ Accepted
+**Date**: 2026-01-08
+**Phase**: Enhancement
+
+#### Context
+After completing TIER 1-5 integration, additional safe enhancements were identified in the upstream commits that could be applied without risk to Phase components. These enhancements follow the APEX protocol of behavior-preserving transformations.
+
+#### Decision
+Apply the following TIER 6 enhancements:
+
+**1. Prompt Enhancements (Path Confusion Prevention)**:
+- Added 🚨 CRITICAL: PATH CONFUSION PREVENTION section to coder.md
+- Added same section to qa_fixer.md
+- Added Path Verification (MANDATORY FIRST STEP) to qa_fixer.md PHASE 6
+- Prevents doubled paths in monorepo cd + git operations
+
+**2. File Checkpointing Configuration**:
+- Added `enable_file_checkpointing: True` to client.py ClaudeAgentOptions
+- Prevents "File has not been read yet" errors in recovery sessions
+- Pure configuration change, no behavior modification
+
+**3. TextBlock Type Checking**:
+- Fixed commit_message.py to check block_type == "TextBlock" before accessing .text
+- Same pattern already applied to insight_extractor.py in TIER 5
+- Defensive fix preventing AttributeError on non-TextBlock content
+
+**4. Security Block Check Fix**:
+- Fixed session.py to check `is_error AND "blocked"` instead of just `"blocked"`
+- Previous logic incorrectly flagged any content containing "blocked" as blocked
+- Bug fix that reduces false positives in security logging
+
+**5. PR Status Mapping**:
+- Added `pr_created` case to mapStatusToPlanStatus() in plan-file-utils.ts
+- Returns 'pr_created' instead of falling through to 'pending'
+- Additive switch case, no existing behavior changed
+
+**6. Task Metadata PR URL Utility**:
+- Added updateTaskMetadataPrUrl() function to plan-file-utils.ts
+- New utility for storing PR URL in task_metadata.json
+- Additive function, supports future PR creation UI
+
+#### Rationale
+- **Behavior Preservation**: All changes are defensive fixes or additive
+- **No Caller Impact**: Existing callers unaffected
+- **Error Prevention**: TextBlock checks and security fixes prevent runtime errors
+- **Future-Ready**: PR metadata utility enables future PR creation features
+
+#### Implementation Summary
+| File | Change Type | Risk |
+|------|-------------|------|
+| apps/backend/prompts/coder.md | Prompt addition | ✅ None |
+| apps/backend/prompts/qa_fixer.md | Prompt addition | ✅ None |
+| apps/backend/core/client.py | Config param | ✅ None |
+| apps/backend/commit_message.py | Defensive check | ✅ None |
+| apps/backend/agents/session.py | Bug fix | ✅ None |
+| apps/frontend/src/main/ipc-handlers/task/plan-file-utils.ts | Additive | ✅ None |
+| **Total** | **6 files** | **Zero Risk** |
+
+
+---
+
+### ADR-057: TIER 6 Additional Safe Enhancements
+**Status**: ✅ Accepted
+**Date**: 2026-01-08
+**Phase**: Enhancement
+
+#### Context
+After completing TIER 1-5 integration, additional safe enhancements were identified in the upstream commits that could be applied without risk to Phase components. These enhancements follow the APEX protocol of behavior-preserving transformations.
+
+#### Decision
+Apply the following TIER 6 enhancements:
+
+**1. Prompt Enhancements (Path Confusion Prevention)**:
+- Added 🚨 CRITICAL: PATH CONFUSION PREVENTION section to coder.md
+- Added same section to qa_fixer.md
+- Added Path Verification (MANDATORY FIRST STEP) to qa_fixer.md PHASE 6
+- Prevents doubled paths in monorepo cd + git operations
+
+**2. File Checkpointing Configuration**:
+- Added `enable_file_checkpointing: True` to client.py ClaudeAgentOptions
+- Prevents "File has not been read yet" errors in recovery sessions
+- Pure configuration change, no behavior modification
+
+**3. TextBlock Type Checking**:
+- Fixed commit_message.py to check block_type == "TextBlock" before accessing .text
+- Same pattern already applied to insight_extractor.py in TIER 5
+- Defensive fix preventing AttributeError on non-TextBlock content
+
+**4. Security Block Check Fix**:
+- Fixed session.py to check `is_error AND "blocked"` instead of just `"blocked"`
+- Previous logic incorrectly flagged any content containing "blocked" as blocked
+- Bug fix that reduces false positives in security logging
+
+**5. PR Status Mapping**:
+- Added `pr_created` case to mapStatusToPlanStatus() in plan-file-utils.ts
+- Returns 'pr_created' instead of falling through to 'pending'
+- Additive switch case, no existing behavior changed
+
+**6. Task Metadata PR URL Utility**:
+- Added updateTaskMetadataPrUrl() function to plan-file-utils.ts
+- New utility for storing PR URL in task_metadata.json
+- Additive function, supports future PR creation UI
+
+#### Rationale
+- **Behavior Preservation**: All changes are defensive fixes or additive
+- **No Caller Impact**: Existing callers unaffected
+- **Error Prevention**: TextBlock checks and security fixes prevent runtime errors
+- **Future-Ready**: PR metadata utility enables future PR creation features
+
+#### Implementation Summary
+| File | Change Type | Risk |
+|------|-------------|------|
+| apps/backend/prompts/coder.md | Prompt addition | ✅ None |
+| apps/backend/prompts/qa_fixer.md | Prompt addition | ✅ None |
+| apps/backend/core/client.py | Config param | ✅ None |
+| apps/backend/commit_message.py | Defensive check | ✅ None |
+| apps/backend/agents/session.py | Bug fix | ✅ None |
+| apps/frontend/src/main/ipc-handlers/task/plan-file-utils.ts | Additive | ✅ None |
+| **Total** | **6 files** | **Zero Risk** |
+

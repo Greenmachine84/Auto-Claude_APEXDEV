@@ -9,27 +9,27 @@ Part of Phase 2: Memory System Architecture
 See: docs/architecture/PHASE2_MEMORY_LLM_ARCHITECTURE.md
 """
 
+from .episode_types import (
+    EpisodeMetadata,
+    EpisodeOutcome,
+    EpisodeRecord,
+    EpisodeSeverity,
+    ToolInvocation,
+)
 from .memory_types import (
-    MemoryType,
-    MemoryTier,
+    MemoryOperation,
     MemoryPriority,
     MemoryStatus,
-    MemoryOperation,
-)
-from .episode_types import (
-    EpisodeRecord,
-    EpisodeOutcome,
-    EpisodeSeverity,
-    EpisodeMetadata,
-    ToolInvocation,
+    MemoryTier,
+    MemoryType,
 )
 from .query_types import (
     MemoryQuery,
+    PaginationParams,
     QueryFilter,
+    QueryResult,
     QuerySort,
     SortOrder,
-    QueryResult,
-    PaginationParams,
 )
 
 __all__ = [

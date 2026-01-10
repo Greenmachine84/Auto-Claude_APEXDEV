@@ -8,21 +8,15 @@ including classes, functions, and endpoints.
 import ast
 import inspect
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from ..config import DocumentationConfig
-from .base import BaseGenerator
 from ..models import (
     ApiEndpoint,
-    CodeExample,
-    CrossReference,
     DocumentationEntry,
-    HttpMethod,
-    Parameter,
-    ParameterLocation,
-    Response,
     Visibility,
 )
+from .base import BaseGenerator
 
 
 class ApiDocGenerator(BaseGenerator):
@@ -31,7 +25,7 @@ class ApiDocGenerator(BaseGenerator):
     def __init__(self, config: DocumentationConfig):
         """Initialize API documentation generator."""
         super().__init__(config)
-        self.current_module: Optional[str] = None
+        self.current_module: str | None = None
 
     def generate(self, source: Any) -> list[DocumentationEntry]:
         """
@@ -70,7 +64,7 @@ class ApiDocGenerator(BaseGenerator):
             return entries
 
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 source = f.read()
 
             tree = ast.parse(source, filename=str(file_path))
@@ -79,11 +73,11 @@ class ApiDocGenerator(BaseGenerator):
             # Process module docstring
             module_doc = ast.get_docstring(tree)
             if module_doc:
-                entries.append(self._create_module_entry(
-                    self.current_module,
-                    module_doc,
-                    file_path
-                ))
+                entries.append(
+                    self._create_module_entry(
+                        self.current_module, module_doc, file_path
+                    )
+                )
 
             # Process classes and functions
             for node in ast.walk(tree):
@@ -106,7 +100,11 @@ class ApiDocGenerator(BaseGenerator):
     def _get_module_name(self, file_path: Path) -> str:
         """Get module name from file path."""
         # Remove .py extension and convert path separators to dots
-        relative = file_path.relative_to(self.config.source_dirs[0]) if self.config.source_dirs else file_path
+        relative = (
+            file_path.relative_to(self.config.source_dirs[0])
+            if self.config.source_dirs
+            else file_path
+        )
         return str(relative.with_suffix("")).replace("/", ".").replace("\\", ".")
 
     def _is_top_level(self, node: ast.AST, tree: ast.Module) -> bool:
@@ -114,10 +112,7 @@ class ApiDocGenerator(BaseGenerator):
         return node in tree.body
 
     def _create_module_entry(
-        self,
-        name: str,
-        docstring: str,
-        source_file: Path
+        self, name: str, docstring: str, source_file: Path
     ) -> DocumentationEntry:
         """Create documentation entry for a module."""
         return DocumentationEntry(
@@ -130,17 +125,17 @@ class ApiDocGenerator(BaseGenerator):
         )
 
     def _process_class_node(
-        self,
-        node: ast.ClassDef,
-        source_file: Path
-    ) -> Optional[DocumentationEntry]:
+        self, node: ast.ClassDef, source_file: Path
+    ) -> DocumentationEntry | None:
         """Process class AST node."""
         # Skip private classes unless configured
         if node.name.startswith("_") and not self.config.parser.include_private:
             return None
 
         docstring = ast.get_docstring(node) or ""
-        visibility = Visibility.PRIVATE if node.name.startswith("_") else Visibility.PUBLIC
+        visibility = (
+            Visibility.PRIVATE if node.name.startswith("_") else Visibility.PUBLIC
+        )
 
         # Extract methods
         methods = []
@@ -172,10 +167,8 @@ class ApiDocGenerator(BaseGenerator):
         )
 
     def _process_method_node(
-        self,
-        node: ast.FunctionDef,
-        class_name: str
-    ) -> Optional[dict]:
+        self, node: ast.FunctionDef, class_name: str
+    ) -> dict | None:
         """Process method AST node."""
         # Skip dunder methods unless configured
         if node.name.startswith("__") and not self.config.parser.include_dunder:
@@ -198,10 +191,8 @@ class ApiDocGenerator(BaseGenerator):
         }
 
     def _process_function_node(
-        self,
-        node: ast.FunctionDef,
-        source_file: Path
-    ) -> Optional[DocumentationEntry]:
+        self, node: ast.FunctionDef, source_file: Path
+    ) -> DocumentationEntry | None:
         """Process function AST node."""
         # Skip private functions unless configured
         if node.name.startswith("_") and not self.config.parser.include_private:
@@ -209,7 +200,9 @@ class ApiDocGenerator(BaseGenerator):
 
         docstring = ast.get_docstring(node) or ""
         signature = self._get_function_signature(node)
-        visibility = Visibility.PRIVATE if node.name.startswith("_") else Visibility.PUBLIC
+        visibility = (
+            Visibility.PRIVATE if node.name.startswith("_") else Visibility.PUBLIC
+        )
 
         content = f"{docstring}\n\n```python\n{signature}\n```"
 
@@ -257,13 +250,15 @@ class ApiDocGenerator(BaseGenerator):
         doc = inspect.getdoc(module) or ""
         module_name = module.__name__
 
-        entries.append(DocumentationEntry(
-            id=self.get_entry_id(module_name),
-            title=f"Module: {module_name}",
-            content=doc,
-            entry_type="module",
-            tags=["module", "api"],
-        ))
+        entries.append(
+            DocumentationEntry(
+                id=self.get_entry_id(module_name),
+                title=f"Module: {module_name}",
+                content=doc,
+                entry_type="module",
+                tags=["module", "api"],
+            )
+        )
 
         # Document classes
         for name, obj in inspect.getmembers(module, inspect.isclass):

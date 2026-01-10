@@ -105,14 +105,14 @@ export function registerTaskExecutionHandlers(
         return;
       }
 
-      // Check git status - Auto Claude requires git for worktree-based builds
+      // Check git status - APEXDEV requires git for worktree-based builds
       const gitStatus = checkGitStatus(project.path);
       if (!gitStatus.isGitRepo) {
         console.warn('[TASK_START] Project is not a git repository:', project.path);
         mainWindow.webContents.send(
           IPC_CHANNELS.TASK_ERROR,
           taskId,
-          'Git repository required. Please run "git init" in your project directory. Auto Claude uses git worktrees for isolated builds.'
+          'Git repository required. Please run "git init" in your project directory. APEXDEV uses git worktrees for isolated builds.'
         );
         return;
       }
@@ -382,14 +382,14 @@ export function registerTaskExecutionHandlers(
           }
 
           // Step 3: Clean untracked files that came from the merge
-          // IMPORTANT: Exclude .auto-claude directory to preserve specs and worktree data
-          const cleanResult = spawnSync('git', ['clean', '-fd', '-e', '.auto-claude'], {
+          // IMPORTANT: Exclude .APEXDEV directory to preserve specs and worktree data
+          const cleanResult = spawnSync('git', ['clean', '-fd', '-e', '.APEXDEV'], {
             cwd: project.path,
             encoding: 'utf-8',
             stdio: 'pipe'
           });
           if (cleanResult.status === 0) {
-            console.log('[TASK_REVIEW] Cleaned untracked files in main (excluding .auto-claude)');
+            console.log('[TASK_REVIEW] Cleaned untracked files in main (excluding .APEXDEV)');
           }
 
           console.log('[TASK_REVIEW] Main branch restored to pre-merge state');
@@ -981,3 +981,6 @@ export function registerTaskExecutionHandlers(
     }
   );
 }
+
+
+

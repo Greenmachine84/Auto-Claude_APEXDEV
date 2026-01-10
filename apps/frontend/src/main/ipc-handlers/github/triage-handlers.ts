@@ -83,7 +83,7 @@ export interface TriageProgress {
  * Get the GitHub directory for a project
  */
 function getGitHubDir(project: Project): string {
-  return path.join(project.path, '.auto-claude', 'github');
+  return path.join(project.path, '.APEXDEV', 'github');
 }
 
 /**
@@ -458,3 +458,4 @@ export function registerTriageHandlers(
 
   debugLog('Triage handlers registered');
 }
+

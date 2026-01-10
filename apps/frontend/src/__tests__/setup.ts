@@ -1,77 +1,134 @@
+import '@testing-library/jest-dom';
 /**
  * Test setup file for Vitest
  */
 import { vi, beforeEach, afterEach } from 'vitest';
 import { mkdirSync, rmSync, existsSync } from 'fs';
 import path from 'path';
+import os from 'os';
+
+// Mock electron module globally for all tests
+vi.mock('electron', async () => {
+  const { EventEmitter } = await vi.importActual<typeof import('events')>('events');
+  
+  const app = {
+    getName: vi.fn(() => 'APEXDEV'),
+    getPath: vi.fn((name: string) => {
+      const paths: Record<string, string> = {
+        userData: path.join(os.tmpdir(), 'test-app-data'),
+        home: os.homedir(),
+        temp: os.tmpdir()
+      };
+      return paths[name] || os.tmpdir();
+    }),
+    getAppPath: vi.fn(() => path.join(os.tmpdir(), 'test-app')),
+    getVersion: vi.fn(() => '0.1.0'),
+    isPackaged: false,
+    on: vi.fn(),
+    quit: vi.fn()
+  };
+
+  class MockIpcMain extends EventEmitter {
+    private handlers: Map<string, Function> = new Map();
+    handle(channel: string, handler: Function): void { this.handlers.set(channel, handler); }
+    handleOnce(channel: string, handler: Function): void { this.handlers.set(channel, handler); }
+    removeHandler(channel: string): void { this.handlers.delete(channel); }
+  }
+
+  const ipcMain = new MockIpcMain();
+  const ipcRenderer = {
+    invoke: vi.fn(),
+    send: vi.fn(),
+    on: vi.fn(),
+    once: vi.fn(),
+    removeListener: vi.fn(),
+    removeAllListeners: vi.fn(),
+    setMaxListeners: vi.fn()
+  };
+
+  class BrowserWindow extends EventEmitter {
+    webContents = { send: vi.fn(), on: vi.fn(), once: vi.fn() };
+    id = 1;
+    constructor(_options?: unknown) { super(); }
+    loadURL = vi.fn();
+    loadFile = vi.fn();
+    show = vi.fn();
+    hide = vi.fn();
+    close = vi.fn();
+    destroy = vi.fn();
+    isDestroyed = vi.fn(() => false);
+    isFocused = vi.fn(() => true);
+    focus = vi.fn();
+    blur = vi.fn();
+    minimize = vi.fn();
+    maximize = vi.fn();
+    restore = vi.fn();
+    isMinimized = vi.fn(() => false);
+    isMaximized = vi.fn(() => false);
+    setFullScreen = vi.fn();
+    isFullScreen = vi.fn(() => false);
+    getBounds = vi.fn(() => ({ x: 0, y: 0, width: 1200, height: 800 }));
+    setBounds = vi.fn();
+    getContentBounds = vi.fn(() => ({ x: 0, y: 0, width: 1200, height: 800 }));
+    setContentBounds = vi.fn();
+  }
+
+  const dialog = {
+    showOpenDialog: vi.fn(() => Promise.resolve({ canceled: false, filePaths: ['/test/path'] })),
+    showSaveDialog: vi.fn(() => Promise.resolve({ canceled: false, filePath: '/test/save/path' })),
+    showMessageBox: vi.fn(() => Promise.resolve({ response: 0 })),
+    showErrorBox: vi.fn()
+  };
+
+  return {
+    app,
+    ipcMain,
+    ipcRenderer,
+    BrowserWindow,
+    dialog,
+    contextBridge: { exposeInMainWorld: vi.fn() },
+    shell: { openExternal: vi.fn(), openPath: vi.fn(), showItemInFolder: vi.fn() },
+    nativeTheme: { themeSource: 'system', shouldUseDarkColors: false, on: vi.fn() },
+    screen: { getPrimaryDisplay: vi.fn(() => ({ workAreaSize: { width: 1920, height: 1080 } })) },
+    default: { app, ipcMain, ipcRenderer, BrowserWindow, dialog }
+  };
+});
 
 // Mock localStorage for tests that need it
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
-
   return {
     getItem: vi.fn((key: string) => store[key] || null),
-    setItem: vi.fn((key: string, value: string) => {
-      store[key] = value;
-    }),
-    removeItem: vi.fn((key: string) => {
-      delete store[key];
-    }),
-    clear: vi.fn(() => {
-      store = {};
-    })
+    setItem: vi.fn((key: string, value: string) => { store[key] = value; }),
+    removeItem: vi.fn((key: string) => { delete store[key]; }),
+    clear: vi.fn(() => { store = {}; })
   };
 })();
 
-// Make localStorage available globally
-Object.defineProperty(global, 'localStorage', {
-  value: localStorageMock
-});
+Object.defineProperty(global, 'localStorage', { value: localStorageMock });
 
-// Mock scrollIntoView for Radix Select in jsdom
 if (typeof HTMLElement !== 'undefined' && !HTMLElement.prototype.scrollIntoView) {
-  Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
-    value: vi.fn(),
-    writable: true
-  });
+  Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', { value: vi.fn(), writable: true });
 }
 
-// Test data directory for isolated file operations
-export const TEST_DATA_DIR = '/tmp/auto-claude-ui-tests';
+export const TEST_DATA_DIR = path.join(os.tmpdir(), 'APEXDEV-ui-tests');
 
-// Create fresh test directory before each test
 beforeEach(() => {
-  // Clear localStorage
   localStorageMock.clear();
-
-  // Use a unique subdirectory per test to avoid race conditions in parallel tests
-  const testId = `test-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const _testDir = path.join(TEST_DATA_DIR, testId);
-
   try {
-    if (existsSync(TEST_DATA_DIR)) {
-      rmSync(TEST_DATA_DIR, { recursive: true, force: true });
-    }
-  } catch {
-    // Ignore errors if directory is in use by another parallel test
-    // Each test uses unique subdirectory anyway
-  }
-
+    if (existsSync(TEST_DATA_DIR)) { rmSync(TEST_DATA_DIR, { recursive: true, force: true }); }
+  } catch {}
   try {
     mkdirSync(TEST_DATA_DIR, { recursive: true });
     mkdirSync(path.join(TEST_DATA_DIR, 'store'), { recursive: true });
-  } catch {
-    // Ignore errors if directory already exists from another parallel test
-  }
+  } catch {}
 });
 
-// Clean up test directory after each test
 afterEach(() => {
   vi.clearAllMocks();
   vi.resetModules();
 });
 
-// Mock window.electronAPI for renderer tests
 if (typeof window !== 'undefined') {
   (window as unknown as { electronAPI: unknown }).electronAPI = {
     addProject: vi.fn(),
@@ -91,13 +148,8 @@ if (typeof window !== 'undefined') {
     saveSettings: vi.fn(),
     selectDirectory: vi.fn(),
     getAppVersion: vi.fn(),
-    // Tab state persistence (IPC-based)
-    getTabState: vi.fn().mockResolvedValue({
-      success: true,
-      data: { openProjectIds: [], activeProjectId: null, tabOrder: [] }
-    }),
+    getTabState: vi.fn().mockResolvedValue({ success: true, data: { openProjectIds: [], activeProjectId: null, tabOrder: [] } }),
     saveTabState: vi.fn().mockResolvedValue({ success: true }),
-    // Profile-related API methods (API Profile feature)
     getAPIProfiles: vi.fn(),
     saveAPIProfile: vi.fn(),
     updateAPIProfile: vi.fn(),
@@ -107,12 +159,8 @@ if (typeof window !== 'undefined') {
   };
 }
 
-// Suppress console errors in tests unless explicitly testing error scenarios
 const originalConsoleError = console.error;
 console.error = (...args: unknown[]) => {
-  // Allow certain error messages through for debugging
   const message = args[0]?.toString() || '';
-  if (message.includes('[TEST]')) {
-    originalConsoleError(...args);
-  }
+  if (message.includes('[TEST]')) { originalConsoleError(...args); }
 };

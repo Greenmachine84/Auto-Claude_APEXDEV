@@ -25,6 +25,7 @@ const KanbanView: React.FC = () => {
     const groups: Record<TaskStatus, Task[]> = {
       pending: [],
       running: [],
+      'in-progress': [],
       completed: [],
       failed: [],
       cancelled: [],

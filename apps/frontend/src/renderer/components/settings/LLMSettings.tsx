@@ -38,7 +38,7 @@ export const LLMSettings: React.FC<LLMSettingsProps> = ({ settings, onUpdate }) 
   const [expandedProvider, setExpandedProvider] = useState<LLMProviderId | null>(null);
 
   // Get provider configs
-  const providers = settings.llmProviders || {};
+  const providers = (settings.llmProviders || {}) as Record<LLMProviderId, LLMProviderConfig>;
 
   // Update a specific provider
   const updateProvider = (id: LLMProviderId, config: Partial<LLMProviderConfig>) => {
@@ -131,7 +131,7 @@ export const LLMSettings: React.FC<LLMSettingsProps> = ({ settings, onUpdate }) 
             min="256"
             max="128000"
             step="256"
-            value={settings.maxTokens || 4096}
+            value={(settings.maxTokens as number) || 4096}
             onChange={(e) => onUpdate({ maxTokens: parseInt(e.target.value) })}
           />
         </div>
@@ -142,12 +142,14 @@ export const LLMSettings: React.FC<LLMSettingsProps> = ({ settings, onUpdate }) 
             min="0"
             max="2"
             step="0.1"
-            value={settings.temperature || 0.7}
+            value={(settings.temperature as number) || 0.7}
             onChange={(e) => onUpdate({ temperature: parseFloat(e.target.value) })}
           />
-          <span>{(settings.temperature || 0.7).toFixed(1)}</span>
+          <span>{((settings.temperature as number) || 0.7).toFixed(1)}</span>
         </div>
       </div>
     </div>
   );
 };
+
+

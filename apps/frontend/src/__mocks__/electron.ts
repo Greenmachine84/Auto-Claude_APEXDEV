@@ -3,18 +3,21 @@
  */
 import { vi } from 'vitest';
 import { EventEmitter } from 'events';
+import os from 'os';
+import path from 'path';
 
 // Mock app
 export const app = {
+  getName: vi.fn(() => 'APEXDEV'),
   getPath: vi.fn((name: string) => {
     const paths: Record<string, string> = {
-      userData: '/tmp/test-app-data',
-      home: '/tmp/test-home',
-      temp: '/tmp'
+      userData: path.join(os.tmpdir(), 'test-app-data'),
+      home: os.homedir(),
+      temp: os.tmpdir()
     };
-    return paths[name] || '/tmp';
+    return paths[name] || os.tmpdir();
   }),
-  getAppPath: vi.fn(() => '/tmp/test-app'),
+  getAppPath: vi.fn(() => path.join(os.tmpdir(), 'test-app')),
   getVersion: vi.fn(() => '0.1.0'),
   isPackaged: false,
   on: vi.fn(),

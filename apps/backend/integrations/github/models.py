@@ -7,7 +7,6 @@ Pydantic models for GitHub API entities.
 
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 from pydantic import BaseModel, Field, HttpUrl
 
@@ -41,11 +40,15 @@ class GitHubConfig(BaseModel):
     """GitHub integration configuration."""
 
     token: str = Field(..., description="GitHub personal access token")
-    base_url: str = Field(default="https://api.github.com", description="GitHub API base URL")
-    enterprise_url: Optional[str] = Field(None, description="GitHub Enterprise URL")
-    webhook_secret: Optional[str] = Field(None, description="Webhook secret for verification")
-    default_owner: Optional[str] = Field(None, description="Default repository owner")
-    default_repo: Optional[str] = Field(None, description="Default repository name")
+    base_url: str = Field(
+        default="https://api.github.com", description="GitHub API base URL"
+    )
+    enterprise_url: str | None = Field(None, description="GitHub Enterprise URL")
+    webhook_secret: str | None = Field(
+        None, description="Webhook secret for verification"
+    )
+    default_owner: str | None = Field(None, description="Default repository owner")
+    default_repo: str | None = Field(None, description="Default repository name")
 
 
 class GitHubUser(BaseModel):
@@ -53,10 +56,10 @@ class GitHubUser(BaseModel):
 
     id: int
     login: str
-    name: Optional[str] = None
-    email: Optional[str] = None
-    avatar_url: Optional[HttpUrl] = None
-    html_url: Optional[HttpUrl] = None
+    name: str | None = None
+    email: str | None = None
+    avatar_url: HttpUrl | None = None
+    html_url: HttpUrl | None = None
 
 
 class GitHubLabel(BaseModel):
@@ -65,7 +68,7 @@ class GitHubLabel(BaseModel):
     id: int
     name: str
     color: str
-    description: Optional[str] = None
+    description: str | None = None
 
 
 class GitHubMilestone(BaseModel):
@@ -74,9 +77,9 @@ class GitHubMilestone(BaseModel):
     id: int
     number: int
     title: str
-    description: Optional[str] = None
+    description: str | None = None
     state: str
-    due_on: Optional[datetime] = None
+    due_on: datetime | None = None
     open_issues: int = 0
     closed_issues: int = 0
 
@@ -87,13 +90,13 @@ class GitHubRepository(BaseModel):
     id: int
     name: str
     full_name: str
-    description: Optional[str] = None
+    description: str | None = None
     private: bool = False
     html_url: HttpUrl
     clone_url: str
     ssh_url: str
     default_branch: str = "main"
-    language: Optional[str] = None
+    language: str | None = None
     stargazers_count: int = 0
     forks_count: int = 0
     open_issues_count: int = 0
@@ -111,9 +114,9 @@ class GitHubComment(BaseModel):
     html_url: HttpUrl
     created_at: datetime
     updated_at: datetime
-    path: Optional[str] = None  # For review comments
-    line: Optional[int] = None  # For review comments
-    commit_id: Optional[str] = None
+    path: str | None = None  # For review comments
+    line: int | None = None  # For review comments
+    commit_id: str | None = None
 
 
 class GitHubReview(BaseModel):
@@ -121,10 +124,10 @@ class GitHubReview(BaseModel):
 
     id: int
     user: GitHubUser
-    body: Optional[str] = None
+    body: str | None = None
     state: ReviewState
     html_url: HttpUrl
-    submitted_at: Optional[datetime] = None
+    submitted_at: datetime | None = None
     commit_id: str
 
 
@@ -134,26 +137,26 @@ class GitHubPullRequest(BaseModel):
     id: int
     number: int
     title: str
-    body: Optional[str] = None
+    body: str | None = None
     state: PullRequestState
     html_url: HttpUrl
     user: GitHubUser
     assignees: list[GitHubUser] = Field(default_factory=list)
     reviewers: list[GitHubUser] = Field(default_factory=list)
     labels: list[GitHubLabel] = Field(default_factory=list)
-    milestone: Optional[GitHubMilestone] = None
+    milestone: GitHubMilestone | None = None
     head_ref: str
     base_ref: str
     head_sha: str
     base_sha: str
-    mergeable: Optional[bool] = None
+    mergeable: bool | None = None
     merged: bool = False
-    merged_at: Optional[datetime] = None
-    merged_by: Optional[GitHubUser] = None
+    merged_at: datetime | None = None
+    merged_by: GitHubUser | None = None
     draft: bool = False
     created_at: datetime
     updated_at: datetime
-    closed_at: Optional[datetime] = None
+    closed_at: datetime | None = None
     additions: int = 0
     deletions: int = 0
     changed_files: int = 0
@@ -165,16 +168,16 @@ class GitHubIssue(BaseModel):
     id: int
     number: int
     title: str
-    body: Optional[str] = None
+    body: str | None = None
     state: IssueState
     html_url: HttpUrl
     user: GitHubUser
     assignees: list[GitHubUser] = Field(default_factory=list)
     labels: list[GitHubLabel] = Field(default_factory=list)
-    milestone: Optional[GitHubMilestone] = None
+    milestone: GitHubMilestone | None = None
     locked: bool = False
     comments: int = 0
     created_at: datetime
     updated_at: datetime
-    closed_at: Optional[datetime] = None
-    closed_by: Optional[GitHubUser] = None
+    closed_at: datetime | None = None
+    closed_by: GitHubUser | None = None

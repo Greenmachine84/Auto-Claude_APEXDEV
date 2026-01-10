@@ -314,7 +314,7 @@ export function Sidebar({
       <div className="flex h-full w-64 flex-col bg-sidebar border-r border-border">
         {/* Header with drag area - extra top padding for macOS traffic lights */}
         <div className="electron-drag flex h-14 items-center px-4 pt-6">
-          <span className="electron-no-drag text-lg font-bold text-primary">Auto Claude</span>
+          <div className="electron-no-drag flex items-center gap-2"><div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center font-bold text-primary-foreground text-sm">D</div><span className="text-lg font-bold text-foreground">APEXDEV</span></div>
         </div>
 
         <Separator className="mt-2" />
@@ -368,7 +368,7 @@ export function Sidebar({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => window.open('https://github.com/AndyMik90/Auto-Claude/issues', '_blank')}
+                  onClick={() => window.open('https://github.com/Greenmachine84/Auto-Claude_APEXDEV/issues', '_blank')}
                   aria-label={t('tooltips.help')}
                 >
                   <HelpCircle className="h-4 w-4" />
@@ -395,7 +395,7 @@ export function Sidebar({
         </div>
       </div>
 
-      {/* Initialize Auto Claude Dialog */}
+      {/* Initialize APEXDEV Dialog */}
       <Dialog open={showInitDialog} onOpenChange={(open) => {
         // Only allow closing if user manually closes (not during initialization)
         if (!open && !isInitializing) {
@@ -477,6 +477,11 @@ export function Sidebar({
     </TooltipProvider>
   );
 }
+
+
+
+
+
 
 
 

@@ -47,7 +47,7 @@ def get_allowed_tools(
         project_capabilities: Optional dict from detect_project_capabilities()
                             containing flags like is_electron, is_web_frontend, etc.
         linear_enabled: Whether Linear integration is enabled for this project
-        mcp_config: Per-project MCP server toggles from .auto-claude/.env
+        mcp_config: Per-project MCP server toggles from .apexdev/.env
 
     Returns:
         List of allowed tool names
@@ -71,7 +71,7 @@ def get_allowed_tools(
 
     # Add auto-claude tools ONLY if the MCP server is available
     # This prevents allowing tools that won't work because the server isn't running
-    if "auto-claude" in required_servers and is_tools_available():
+    if "apexdev" in required_servers and is_tools_available():
         tools.extend(config.get("auto_claude_tools", []))
 
     # Add MCP tool names based on required servers

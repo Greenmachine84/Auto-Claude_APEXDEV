@@ -23,6 +23,7 @@ import { registerGithubOAuthHandlers } from './oauth-handlers';
 import { registerAutoFixHandlers } from './autofix-handlers';
 import { registerPRHandlers } from './pr-handlers';
 import { registerTriageHandlers } from './triage-handlers';
+import { registerVirtualRepoHandlers } from './virtual-repo-handlers';
 
 /**
  * Register all GitHub-related IPC handlers
@@ -40,8 +41,10 @@ export function registerGithubHandlers(
   registerAutoFixHandlers(agentManager, getMainWindow);
   registerPRHandlers(getMainWindow);
   registerTriageHandlers(getMainWindow);
+  registerVirtualRepoHandlers();
 }
 
 // Re-export utilities for potential external use
 export { getGitHubConfig, githubFetch } from './utils';
 export type { GitHubConfig } from './types';
+

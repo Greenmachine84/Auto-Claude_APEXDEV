@@ -6,7 +6,7 @@ Provides abstract base class for all documentation generators.
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from ..config import DocumentationConfig
 from ..models import DocumentationEntry, DocumentationIndex
@@ -52,9 +52,7 @@ class BaseGenerator(ABC):
         pass
 
     def generate_from_directory(
-        self,
-        directory: Path,
-        recursive: bool = True
+        self, directory: Path, recursive: bool = True
     ) -> list[DocumentationEntry]:
         """
         Generate documentation from all files in a directory.
@@ -97,11 +95,13 @@ class BaseGenerator(ABC):
     def _matches_pattern(self, file_path: Path, pattern: str) -> bool:
         """Check if file matches include pattern."""
         import fnmatch
+
         return fnmatch.fnmatch(str(file_path), pattern)
 
     def _should_exclude(self, file_path: Path) -> bool:
         """Check if file should be excluded."""
         import fnmatch
+
         for pattern in self.config.exclude_patterns:
             if fnmatch.fnmatch(str(file_path), pattern):
                 return True
@@ -121,7 +121,7 @@ class BaseGenerator(ABC):
             self.index.add_entry(entry)
         return self.index
 
-    def get_entry_id(self, name: str, parent: Optional[str] = None) -> str:
+    def get_entry_id(self, name: str, parent: str | None = None) -> str:
         """
         Generate unique entry ID.
 

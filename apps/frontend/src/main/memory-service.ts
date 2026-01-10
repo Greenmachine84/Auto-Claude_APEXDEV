@@ -4,7 +4,7 @@
  * Queries the LadybugDB graph database for memories stored by Graphiti.
  * Uses Python subprocess to communicate with the embedded database.
  *
- * LadybugDB stores data in Kuzu format at ~/.auto-claude/memories/<database>/
+ * LadybugDB stores data in Kuzu format at ~/.APEXDEV/memories/<database>/
  */
 
 import { spawn } from 'child_process';
@@ -767,3 +767,6 @@ export function getMemoryServiceStatus(dbPath?: string): MemoryServiceStatus {
     databases,
   };
 }
+
+
+

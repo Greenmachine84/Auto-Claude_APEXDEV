@@ -8,14 +8,14 @@ Defines:
 """
 
 from enum import Enum, Flag, auto
-from typing import Dict, List, Set
 
 
 class SkillCategory(Enum):
     """Categories of skills.
-    
+
     Skills are organized into categories based on their primary function.
     """
+
     CODING = "coding"
     TESTING = "testing"
     REVIEW = "review"
@@ -24,12 +24,12 @@ class SkillCategory(Enum):
     SECURITY = "security"
     DEPLOYMENT = "deployment"
     CUSTOM = "custom"
-    
+
     @classmethod
-    def list_all(cls) -> List[str]:
+    def list_all(cls) -> list[str]:
         """List all category values."""
         return [c.value for c in cls]
-    
+
     @classmethod
     def from_string(cls, value: str) -> "SkillCategory":
         """Create from string value."""
@@ -41,9 +41,10 @@ class SkillCategory(Enum):
 
 class SkillStatus(Enum):
     """Skill execution status.
-    
+
     Represents the current state of a skill execution.
     """
+
     PENDING = "pending"
     QUEUED = "queued"
     RUNNING = "running"
@@ -52,7 +53,7 @@ class SkillStatus(Enum):
     FAILED = "failed"
     CANCELLED = "cancelled"
     TIMEOUT = "timeout"
-    
+
     @property
     def is_terminal(self) -> bool:
         """Check if status is terminal (no further transitions)."""
@@ -62,12 +63,12 @@ class SkillStatus(Enum):
             SkillStatus.CANCELLED,
             SkillStatus.TIMEOUT,
         )
-    
+
     @property
     def is_active(self) -> bool:
         """Check if status represents active execution."""
         return self in (SkillStatus.RUNNING, SkillStatus.PAUSED)
-    
+
     @property
     def is_success(self) -> bool:
         """Check if status represents successful completion."""
@@ -76,15 +77,16 @@ class SkillStatus(Enum):
 
 class SkillPriority(Enum):
     """Skill execution priority.
-    
+
     Lower values = higher priority.
     """
+
     CRITICAL = 0
     HIGH = 1
     MEDIUM = 2
     LOW = 3
     BACKGROUND = 4
-    
+
     @classmethod
     def from_int(cls, value: int) -> "SkillPriority":
         """Create from integer value."""
@@ -92,19 +94,20 @@ class SkillPriority(Enum):
             if priority.value == value:
                 return priority
         return cls.MEDIUM
-    
+
     def __lt__(self, other: "SkillPriority") -> bool:
         return self.value < other.value
-    
+
     def __le__(self, other: "SkillPriority") -> bool:
         return self.value <= other.value
 
 
 class SkillCapability(Flag):
     """Capability flags for skills.
-    
+
     Flags indicating what capabilities a skill has.
     """
+
     NONE = 0
     READ_FILES = auto()
     WRITE_FILES = auto()
@@ -116,14 +119,14 @@ class SkillCapability(Flag):
     TOOL_EXECUTION = auto()
     PARALLEL_EXECUTION = auto()
     STREAMING = auto()
-    
+
     # Common combinations
     READ_ONLY = READ_FILES
     READ_WRITE = READ_FILES | WRITE_FILES
     FULL_ACCESS = READ_FILES | WRITE_FILES | EXECUTE_CODE | GIT_OPERATIONS
-    
+
     @classmethod
-    def from_list(cls, capabilities: List[str]) -> "SkillCapability":
+    def from_list(cls, capabilities: list[str]) -> "SkillCapability":
         """Create from list of capability names."""
         result = cls.NONE
         for cap_name in capabilities:
@@ -131,8 +134,8 @@ class SkillCapability(Flag):
             if hasattr(cls, cap_name):
                 result |= getattr(cls, cap_name)
         return result
-    
-    def to_list(self) -> List[str]:
+
+    def to_list(self) -> list[str]:
         """Convert to list of capability names."""
         caps = []
         for cap in SkillCapability:
@@ -142,8 +145,12 @@ class SkillCapability(Flag):
 
 
 # Valid status transitions
-VALID_TRANSITIONS: Dict[SkillStatus, Set[SkillStatus]] = {
-    SkillStatus.PENDING: {SkillStatus.QUEUED, SkillStatus.RUNNING, SkillStatus.CANCELLED},
+VALID_TRANSITIONS: dict[SkillStatus, set[SkillStatus]] = {
+    SkillStatus.PENDING: {
+        SkillStatus.QUEUED,
+        SkillStatus.RUNNING,
+        SkillStatus.CANCELLED,
+    },
     SkillStatus.QUEUED: {SkillStatus.RUNNING, SkillStatus.CANCELLED},
     SkillStatus.RUNNING: {
         SkillStatus.PAUSED,
@@ -162,11 +169,11 @@ VALID_TRANSITIONS: Dict[SkillStatus, Set[SkillStatus]] = {
 
 def can_transition(from_status: SkillStatus, to_status: SkillStatus) -> bool:
     """Check if status transition is valid.
-    
+
     Args:
         from_status: Current status
         to_status: Target status
-        
+
     Returns:
         True if transition is valid
     """

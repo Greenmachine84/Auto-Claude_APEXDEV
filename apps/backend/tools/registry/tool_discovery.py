@@ -10,17 +10,15 @@ World-Class Standards:
 - Version compatibility
 """
 
-from typing import Dict, Any, Optional, List
-from pathlib import Path
 import importlib
-import pkgutil
 import json
 import logging
+import pkgutil
+from pathlib import Path
+from typing import Any
 
-from ..models import Tool, ToolCategory
-from .tool_registry import ToolRegistry
 from .tool_loader import ToolLoader
-from .tool_validator import ToolValidator
+from .tool_registry import ToolRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -28,43 +26,43 @@ logger = logging.getLogger(__name__)
 class ToolDiscovery:
     """
     Automatic tool discovery system.
-    
+
     Features:
     - Package scanning
     - Manifest loading
     - Version compatibility
     - Plugin support
     """
-    
+
     def __init__(
         self,
-        registry: Optional[ToolRegistry] = None,
-        loader: Optional[ToolLoader] = None,
+        registry: ToolRegistry | None = None,
+        loader: ToolLoader | None = None,
     ) -> None:
         """Initialize discovery system."""
         self.registry = registry or ToolRegistry()
         self.loader = loader or ToolLoader(self.registry)
-        
-        self._discovered: List[str] = []
-        self._manifests: Dict[str, Dict[str, Any]] = {}
-        
+
+        self._discovered: list[str] = []
+        self._manifests: dict[str, dict[str, Any]] = {}
+
         logger.info("ToolDiscovery initialized")
-    
+
     async def discover_all(
         self,
-        search_paths: Optional[List[str]] = None,
-    ) -> List[str]:
+        search_paths: list[str] | None = None,
+    ) -> list[str]:
         """
         Discover and register all available tools.
-        
+
         Args:
             search_paths: Optional list of paths to search
-            
+
         Returns:
             List of discovered tool names
         """
         discovered = []
-        
+
         # Default search paths
         if not search_paths:
             search_paths = [
@@ -74,7 +72,7 @@ class ToolDiscovery:
                 "tools.search",
                 "tools.web",
             ]
-        
+
         for path in search_paths:
             try:
                 if Path(path).exists():
@@ -86,19 +84,19 @@ class ToolDiscovery:
                 discovered.extend(found)
             except Exception as e:
                 logger.warning("Failed to discover from %s: %s", path, e)
-        
+
         self._discovered = discovered
         logger.info("Discovered %d tools total", len(discovered))
-        
+
         return discovered
-    
-    async def _discover_from_package(self, package_path: str) -> List[str]:
+
+    async def _discover_from_package(self, package_path: str) -> list[str]:
         """Discover tools from a Python package."""
         discovered = []
-        
+
         try:
             package = importlib.import_module(package_path)
-            
+
             # Check for manifest
             manifest_path = Path(package.__file__).parent / "manifest.json"
             if manifest_path.exists():
@@ -115,45 +113,43 @@ class ToolDiscovery:
                                 discovered.extend(loaded)
                             except Exception as e:
                                 logger.debug("Skipping %s: %s", modname, e)
-            
+
         except ImportError as e:
             logger.debug("Package not found: %s (%s)", package_path, e)
-        
+
         return discovered
-    
-    async def _discover_from_directory(self, directory: str) -> List[str]:
+
+    async def _discover_from_directory(self, directory: str) -> list[str]:
         """Discover tools from a directory."""
         discovered = []
         dir_path = Path(directory)
-        
+
         if not dir_path.exists():
             return discovered
-        
+
         # Check for manifest
         manifest_path = dir_path / "manifest.json"
         if manifest_path.exists():
             return await self._load_from_manifest(manifest_path)
-        
+
         # Scan Python files
         return await self.loader.load_from_directory(directory)
-    
-    async def _load_from_manifest(self, manifest_path: Path) -> List[str]:
+
+    async def _load_from_manifest(self, manifest_path: Path) -> list[str]:
         """Load tools defined in a manifest file."""
         discovered = []
-        
+
         try:
             with open(manifest_path) as f:
                 manifest = json.load(f)
-            
+
             self._manifests[str(manifest_path)] = manifest
-            
+
             # Validate manifest version
             version = manifest.get("version", "1.0")
             if not self._check_version_compatibility(version):
-                logger.warning(
-                    "Manifest version %s may not be compatible", version
-                )
-            
+                logger.warning("Manifest version %s may not be compatible", version)
+
             # Load tools from manifest
             tools = manifest.get("tools", [])
             for tool_def in tools:
@@ -166,31 +162,31 @@ class ToolDiscovery:
                         logger.warning(
                             "Failed to load tool from %s: %s", module_path, e
                         )
-            
+
         except json.JSONDecodeError as e:
             logger.error("Invalid manifest JSON: %s", e)
         except Exception as e:
             logger.error("Failed to load manifest: %s", e)
-        
+
         return discovered
-    
+
     def _check_version_compatibility(self, version: str) -> bool:
         """Check if manifest version is compatible."""
         # Simple version check
         major = int(version.split(".")[0])
         return major == 1  # Only version 1.x is supported
-    
-    async def discover_builtin(self) -> List[str]:
+
+    async def discover_builtin(self) -> list[str]:
         """Discover builtin tools only."""
         return await self._discover_from_package("tools.builtin")
-    
+
     async def discover_from_config(
         self,
-        config: Dict[str, Any],
-    ) -> List[str]:
+        config: dict[str, Any],
+    ) -> list[str]:
         """Discover tools based on configuration."""
         discovered = []
-        
+
         # Load enabled tool packages
         packages = config.get("tool_packages", [])
         for package in packages:
@@ -199,23 +195,23 @@ class ToolDiscovery:
                 if path:
                     found = await self._discover_from_package(path)
                     discovered.extend(found)
-        
+
         # Load custom tool directories
         custom_dirs = config.get("custom_tool_directories", [])
         for directory in custom_dirs:
             found = await self._discover_from_directory(directory)
             discovered.extend(found)
-        
+
         return discovered
-    
-    def get_discovered(self) -> List[str]:
+
+    def get_discovered(self) -> list[str]:
         """Get list of discovered tool names."""
         return self._discovered.copy()
-    
-    def get_manifest(self, path: str) -> Optional[Dict[str, Any]]:
+
+    def get_manifest(self, path: str) -> dict[str, Any] | None:
         """Get loaded manifest by path."""
         return self._manifests.get(path)
-    
-    async def refresh(self) -> List[str]:
+
+    async def refresh(self) -> list[str]:
         """Re-discover all tools."""
         return await self.discover_all()

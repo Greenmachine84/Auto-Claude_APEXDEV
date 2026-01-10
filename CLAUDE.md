@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Auto Claude is a multi-agent autonomous coding framework that builds software through coordinated AI agent sessions. It uses the Claude Agent SDK to run agents in isolated workspaces with security controls.
+DEVAPEX is a multi-agent autonomous coding framework that builds software through coordinated AI agent sessions. It uses the Claude Agent SDK to run agents in isolated workspaces with security controls.
 
 **CRITICAL: All AI interactions use the Claude Agent SDK (`claude-agent-sdk` package), NOT the Anthropic API directly.**
 
@@ -217,7 +217,7 @@ See [RELEASE.md](RELEASE.md) for detailed release process documentation.
 
 ### Spec Directory Structure
 
-Each spec in `.auto-claude/specs/XXX-name/` contains:
+Each spec in `.DEVAPEX/specs/XXX-name/` contains:
 - `spec.md` - Feature specification
 - `requirements.json` - Structured user requirements
 - `context.json` - Discovered codebase context
@@ -227,15 +227,15 @@ Each spec in `.auto-claude/specs/XXX-name/` contains:
 
 ### Branching & Worktree Strategy
 
-Auto Claude uses git worktrees for isolated builds. All branches stay LOCAL until user explicitly pushes:
+DEVAPEX uses git worktrees for isolated builds. All branches stay LOCAL until user explicitly pushes:
 
 ```
 main (user's branch)
-└── auto-claude/{spec-name}  ← spec branch (isolated worktree)
+└── DEVAPEX/{spec-name}  ← spec branch (isolated worktree)
 ```
 
 **Key principles:**
-- ONE branch per spec (`auto-claude/{spec-name}`)
+- ONE branch per spec (`DEVAPEX/{spec-name}`)
 - Parallel work uses subagents (agent decides when to spawn)
 - NO automatic pushes to GitHub - user controls when to push
 - User reviews in spec worktree (`.worktrees/{spec-name}/`)
@@ -250,14 +250,14 @@ main (user's branch)
 
 ### Contributing to Upstream
 
-**CRITICAL: When submitting PRs to AndyMik90/Auto-Claude, always target the `develop` branch, NOT `main`.**
+**CRITICAL: When submitting PRs to Greenmachine84/Auto-Claude_APEXDEV, always target the `develop` branch, NOT `main`.**
 
 **Correct workflow for contributions:**
 1. Fetch upstream: `git fetch upstream`
 2. Create feature branch from upstream/develop: `git checkout -b fix/my-fix upstream/develop`
 3. Make changes and commit with sign-off: `git commit -s -m "fix: description"`
 4. Push to your fork: `git push origin fix/my-fix`
-5. Create PR targeting `develop`: `gh pr create --repo AndyMik90/Auto-Claude --base develop`
+5. Create PR targeting `develop`: `gh pr create --repo Greenmachine84/Auto-Claude_APEXDEV --base develop`
 
 **Verify before PR:**
 ```bash
@@ -272,11 +272,11 @@ Three-layer defense:
 2. **Filesystem Permissions** - Operations restricted to project directory
 3. **Command Allowlist** - Dynamic allowlist from project analysis (security.py + project_analyzer.py)
 
-Security profile cached in `.auto-claude-security.json`.
+Security profile cached in `.DEVAPEX-security.json`.
 
 ### Claude Agent SDK Integration
 
-**CRITICAL: Auto Claude uses the Claude Agent SDK for ALL AI interactions. Never use the Anthropic API directly.**
+**CRITICAL: DEVAPEX uses the Claude Agent SDK for ALL AI interactions. Never use the Anthropic API directly.**
 
 **Client Location:** `apps/backend/core/client.py`
 
@@ -324,7 +324,7 @@ response = client.create_agent_session(
 
 **Graphiti Memory (Mandatory)** - `integrations/graphiti/`
 
-Auto Claude uses Graphiti as its primary memory system with embedded LadybugDB (no Docker required):
+DEVAPEX uses Graphiti as its primary memory system with embedded LadybugDB (no Docker required):
 
 - **Graph database with semantic search** - Knowledge graph for cross-session context
 - **Session insights** - Patterns, gotchas, discoveries automatically extracted
@@ -341,7 +341,7 @@ Auto Claude uses Graphiti as its primary memory system with embedded LadybugDB (
 **Configuration:**
 - Set provider credentials in `apps/backend/.env` (see `.env.example`)
 - Required env vars: `GRAPHITI_ENABLED=true`, `ANTHROPIC_API_KEY` or other provider keys
-- Memory data stored in `.auto-claude/specs/XXX/graphiti/`
+- Memory data stored in `.DEVAPEX/specs/XXX/graphiti/`
 
 **Usage in agents:**
 ```python
@@ -495,4 +495,6 @@ npm run dev      # Run in development mode (includes --remote-debugging-port=922
 4. QA agents will automatically interact with the running app for testing
 
 **Project data storage:**
-- `.auto-claude/specs/` - Per-project data (specs, plans, QA reports, memory) - gitignored
+- `.DEVAPEX/specs/` - Per-project data (specs, plans, QA reports, memory) - gitignored
+
+

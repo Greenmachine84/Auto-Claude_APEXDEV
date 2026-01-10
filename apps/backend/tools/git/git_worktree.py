@@ -9,23 +9,22 @@ Capabilities:
 - Prune worktrees
 """
 
-from typing import Any, Dict, List, Optional
-import subprocess
 import os
+import subprocess
 
 from tools.core.base_tool import (
     BaseTool,
     ToolCategory,
     ToolContext,
+    ToolParameter,
     ToolResult,
     ToolStatus,
-    ToolParameter,
 )
 
 
 class GitWorktreeTool(BaseTool):
     """Manage git worktrees.
-    
+
     Example:
         tool = GitWorktreeTool()
         result = await tool.run(ToolContext(
@@ -37,14 +36,14 @@ class GitWorktreeTool(BaseTool):
             }
         ))
     """
-    
+
     name = "git_worktree"
     description = "Manage git worktrees"
     category = ToolCategory.GIT
     required_permissions = {"git_read", "git_write"}
     version = "1.0.0"
-    
-    def get_parameters(self) -> List[ToolParameter]:
+
+    def get_parameters(self) -> list[ToolParameter]:
         """Get parameter definitions."""
         return [
             ToolParameter(
@@ -76,17 +75,17 @@ class GitWorktreeTool(BaseTool):
                 default=None,
             ),
         ]
-    
+
     async def execute(self, context: ToolContext) -> ToolResult:
         """Execute git worktree operation."""
         action = context.parameters.get("action")
         path = context.parameters.get("path", context.working_directory)
         worktree_path = context.parameters.get("worktree_path")
         branch = context.parameters.get("branch")
-        
+
         if not os.path.isabs(path):
             path = os.path.join(context.working_directory, path)
-        
+
         try:
             if action == "list":
                 return await self._list_worktrees(path)
@@ -110,7 +109,7 @@ class GitWorktreeTool(BaseTool):
                 return await self._remove_worktree(path, worktree_path)
             elif action == "prune":
                 return await self._prune_worktrees(path)
-            
+
         except Exception as e:
             return ToolResult(
                 tool_name=self.name,
@@ -118,7 +117,7 @@ class GitWorktreeTool(BaseTool):
                 output=None,
                 error=str(e),
             )
-    
+
     async def _list_worktrees(self, path: str) -> ToolResult:
         """List worktrees."""
         result = subprocess.run(
@@ -128,10 +127,10 @@ class GitWorktreeTool(BaseTool):
             text=True,
             timeout=30,
         )
-        
+
         worktrees = []
         current = {}
-        
+
         for line in result.stdout.split("\n"):
             if line.startswith("worktree "):
                 if current:
@@ -141,10 +140,10 @@ class GitWorktreeTool(BaseTool):
                 current["head"] = line[5:]
             elif line.startswith("branch "):
                 current["branch"] = line[7:]
-        
+
         if current:
             worktrees.append(current)
-        
+
         return ToolResult(
             tool_name=self.name,
             status=ToolStatus.COMPLETED,
@@ -153,13 +152,15 @@ class GitWorktreeTool(BaseTool):
                 "count": len(worktrees),
             },
         )
-    
-    async def _add_worktree(self, path: str, worktree_path: str, branch: Optional[str]) -> ToolResult:
+
+    async def _add_worktree(
+        self, path: str, worktree_path: str, branch: str | None
+    ) -> ToolResult:
         """Add worktree."""
         cmd = ["git", "worktree", "add", worktree_path]
         if branch:
             cmd.append(branch)
-        
+
         result = subprocess.run(
             cmd,
             cwd=path,
@@ -167,7 +168,7 @@ class GitWorktreeTool(BaseTool):
             text=True,
             timeout=60,
         )
-        
+
         if result.returncode != 0:
             return ToolResult(
                 tool_name=self.name,
@@ -175,7 +176,7 @@ class GitWorktreeTool(BaseTool):
                 output=None,
                 error=result.stderr,
             )
-        
+
         return ToolResult(
             tool_name=self.name,
             status=ToolStatus.COMPLETED,
@@ -185,7 +186,7 @@ class GitWorktreeTool(BaseTool):
                 "action": "added",
             },
         )
-    
+
     async def _remove_worktree(self, path: str, worktree_path: str) -> ToolResult:
         """Remove worktree."""
         result = subprocess.run(
@@ -195,7 +196,7 @@ class GitWorktreeTool(BaseTool):
             text=True,
             timeout=30,
         )
-        
+
         if result.returncode != 0:
             return ToolResult(
                 tool_name=self.name,
@@ -203,13 +204,13 @@ class GitWorktreeTool(BaseTool):
                 output=None,
                 error=result.stderr,
             )
-        
+
         return ToolResult(
             tool_name=self.name,
             status=ToolStatus.COMPLETED,
             output={"worktree": worktree_path, "action": "removed"},
         )
-    
+
     async def _prune_worktrees(self, path: str) -> ToolResult:
         """Prune stale worktrees."""
         result = subprocess.run(
@@ -219,7 +220,7 @@ class GitWorktreeTool(BaseTool):
             text=True,
             timeout=30,
         )
-        
+
         return ToolResult(
             tool_name=self.name,
             status=ToolStatus.COMPLETED,

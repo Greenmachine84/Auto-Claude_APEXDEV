@@ -16,18 +16,18 @@ export const API_PROVIDER_PRESETS: readonly ApiProviderPreset[] = [
     labelKey: 'settings:apiProfiles.presets.openrouter'
   },
   {
+    id: 'gemini',
+    baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
+    labelKey: 'settings:apiProfiles.presets.gemini'
+  },
+  {
+    id: 'github-copilot',
+    baseUrl: 'https://api.githubcopilot.com',
+    labelKey: 'settings:apiProfiles.presets.githubCopilot'
+  },
+  {
     id: 'groq',
     baseUrl: 'https://api.groq.com/openai/v1',
     labelKey: 'settings:apiProfiles.presets.groq'
-  },
-  {
-    id: 'glm-global',
-    baseUrl: 'https://api.z.ai/api/anthropic',
-    labelKey: 'settings:apiProfiles.presets.glmGlobal'
-  },
-  {
-    id: 'glm-cn',
-    baseUrl: 'https://open.bigmodel.cn/api/paas/v4',
-    labelKey: 'settings:apiProfiles.presets.glmChina'
   }
 ];

@@ -8,11 +8,12 @@ export, and template rendering.
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 
 class OutputFormat(Enum):
     """Documentation output formats."""
+
     MARKDOWN = "markdown"
     HTML = "html"
     PDF = "pdf"
@@ -21,6 +22,7 @@ class OutputFormat(Enum):
 
 class DocumentationType(Enum):
     """Types of documentation."""
+
     API = "api"
     GUIDE = "guide"
     REFERENCE = "reference"
@@ -30,6 +32,7 @@ class DocumentationType(Enum):
 
 class CodeLanguage(Enum):
     """Supported code languages for examples."""
+
     PYTHON = "python"
     TYPESCRIPT = "typescript"
     JAVASCRIPT = "javascript"
@@ -41,6 +44,7 @@ class CodeLanguage(Enum):
 @dataclass
 class TemplateConfig:
     """Template configuration."""
+
     template_dir: Path = field(default_factory=lambda: Path("templates"))
     default_template: str = "default"
     syntax_highlighting: bool = True
@@ -48,13 +52,14 @@ class TemplateConfig:
     include_breadcrumbs: bool = True
     max_heading_depth: int = 4
     code_theme: str = "github-dark"
-    custom_css: Optional[str] = None
-    custom_js: Optional[str] = None
+    custom_css: str | None = None
+    custom_js: str | None = None
 
 
 @dataclass
 class ExportConfig:
     """Export configuration."""
+
     output_dir: Path = field(default_factory=lambda: Path("docs/generated"))
     format: OutputFormat = OutputFormat.MARKDOWN
     include_timestamp: bool = True
@@ -69,6 +74,7 @@ class ExportConfig:
 @dataclass
 class ParserConfig:
     """Parser configuration."""
+
     extract_docstrings: bool = True
     extract_type_hints: bool = True
     extract_examples: bool = True
@@ -82,6 +88,7 @@ class ParserConfig:
 @dataclass
 class DocumentationConfig:
     """Main documentation configuration."""
+
     # Paths
     source_dirs: list[Path] = field(default_factory=list)
     output_dir: Path = field(default_factory=lambda: Path("docs"))
@@ -130,8 +137,7 @@ class DocumentationConfig:
 
         # Normalize source dirs
         self.source_dirs = [
-            Path(d) if isinstance(d, str) else d
-            for d in self.source_dirs
+            Path(d) if isinstance(d, str) else d for d in self.source_dirs
         ]
 
     def to_dict(self) -> dict[str, Any]:
@@ -156,13 +162,9 @@ class DocumentationConfig:
         """Create from dictionary."""
         # Convert string values back to enums
         if "doc_types" in data:
-            data["doc_types"] = [
-                DocumentationType(t) for t in data["doc_types"]
-            ]
+            data["doc_types"] = [DocumentationType(t) for t in data["doc_types"]]
         if "output_formats" in data:
-            data["output_formats"] = [
-                OutputFormat(f) for f in data["output_formats"]
-            ]
+            data["output_formats"] = [OutputFormat(f) for f in data["output_formats"]]
         return cls(**data)
 
 

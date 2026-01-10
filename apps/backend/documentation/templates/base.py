@@ -7,7 +7,7 @@ Provides abstract base class for documentation templates.
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from ..config import TemplateConfig
 from ..models import DocumentationEntry, DocumentationIndex
@@ -16,9 +16,10 @@ from ..models import DocumentationEntry, DocumentationIndex
 @dataclass
 class TemplateContext:
     """Context data for template rendering."""
-    entry: Optional[DocumentationEntry] = None
-    index: Optional[DocumentationIndex] = None
-    config: Optional[TemplateConfig] = None
+
+    entry: DocumentationEntry | None = None
+    index: DocumentationIndex | None = None
+    config: TemplateConfig | None = None
     project_name: str = ""
     project_version: str = ""
     base_url: str = ""

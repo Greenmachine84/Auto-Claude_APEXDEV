@@ -5,6 +5,20 @@ import { WebLinksAddon } from '@xterm/addon-web-links';
 import { SerializeAddon } from '@xterm/addon-serialize';
 import { terminalBufferManager } from '../../lib/terminal-buffer-manager';
 
+/**
+ * Platform detection helper for keyboard shortcut handling
+ * Uses modern Navigator API with fallback for older browsers
+ */
+const getPlatform = (): string => {
+  if ((navigator as any).userAgentData?.platform) { return ((navigator as any).userAgentData.platform as string).toLowerCase();
+  }
+  return navigator.platform.toLowerCase();
+};
+
+const isMacOS = (): boolean => getPlatform().includes('mac');
+const isLinux = (): boolean => getPlatform().includes('linux');
+const isWindows = (): boolean => getPlatform().includes('win');
+
 interface UseXtermOptions {
   terminalId: string;
   onCommandEnter?: (command: string) => void;
@@ -115,6 +129,71 @@ export function useXterm({ terminalId, onCommandEnter, onResize, onDimensionsRea
       // Let Cmd/Ctrl + W pass through for close terminal shortcut
       if (isMod && (event.key === 't' || event.key === 'T' || event.key === 'w' || event.key === 'W')) {
         return false;
+      }
+
+      // ===============================================
+      // COPY/PASTE KEYBOARD SHORTCUTS (APEX Integration)
+      // Implements platform-aware copy/paste for Windows/Linux
+      // macOS uses native Cmd+C/V handled by system
+      // ===============================================
+
+      // Helper: Copy selection to clipboard
+      const handleCopyToClipboard = (): boolean => {
+        if (xterm.hasSelection()) {
+          const selection = xterm.getSelection();
+          if (selection) {
+            navigator.clipboard.writeText(selection);
+            return true;
+          }
+        }
+        return false;
+      };
+
+      // Helper: Paste from clipboard
+      const handlePasteFromClipboard = (): void => {
+        navigator.clipboard.readText().then((text) => {
+          if (text) {
+            xterm.paste(text);
+          }
+        }).catch((err) => {
+          console.error('[useXterm] Clipboard read failed:', err);
+        });
+      };
+
+      // CTRL+SHIFT+C - Copy (Linux terminal standard)
+      if (event.ctrlKey && event.shiftKey && (event.key === 'c' || event.key === 'C') && event.type === 'keydown') {
+        if (!isMacOS()) {
+          handleCopyToClipboard();
+          return false;
+        }
+      }
+
+      // CTRL+SHIFT+V - Paste (Linux terminal standard)
+      if (event.ctrlKey && event.shiftKey && (event.key === 'v' || event.key === 'V') && event.type === 'keydown') {
+        if (!isMacOS()) {
+          handlePasteFromClipboard();
+          return false;
+        }
+      }
+
+      // CTRL+V - Paste (Windows standard, also works on Linux)
+      if (event.ctrlKey && !event.shiftKey && (event.key === 'v' || event.key === 'V') && event.type === 'keydown') {
+        if (isWindows() || isLinux()) {
+          handlePasteFromClipboard();
+          return false;
+        }
+      }
+
+      // CTRL+C - Smart copy/interrupt (Windows/Linux)
+      // If text is selected, copy it. Otherwise, send SIGINT
+      if (event.ctrlKey && !event.shiftKey && (event.key === 'c' || event.key === 'C') && event.type === 'keydown') {
+        if (isWindows() || isLinux()) {
+          if (handleCopyToClipboard()) {
+            return false; // Copied selection, don't send SIGINT
+          }
+          // No selection - let xterm handle CTRL+C as SIGINT
+          return true;
+        }
       }
 
       // Handle all other keys in xterm
@@ -295,3 +374,4 @@ export function useXterm({ terminalId, onCommandEnter, onResize, onDimensionsRea
     dimensionsReady: dimensionsReadyCalledRef.current,
   };
 }
+

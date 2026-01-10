@@ -25,8 +25,9 @@ export interface ProviderConfig {
   defaultModel?: string;
 }
 
-/** Application settings */
+/** Application settings - indexable for compatibility */
 export interface AppSettings {
+  [key: string]: unknown;  // Index signature for Record<string, unknown> compatibility
   general: {
     theme: ThemeSetting;
     language: string;
@@ -64,6 +65,9 @@ export interface AppSettings {
     terminalHeight: number;
     kanbanColumns: string[];
   };
+  // Additional settings that components may expect
+  fontSize?: number;
+  agentConfig?: Record<string, unknown>;
 }
 
 /** Default settings */
@@ -114,6 +118,8 @@ const DEFAULT_SETTINGS: AppSettings = {
     terminalHeight: 300,
     kanbanColumns: ['pending', 'running', 'completed'],
   },
+  fontSize: 14,
+  agentConfig: {},
 };
 
 let cachedSettings: AppSettings | null = null;
@@ -137,7 +143,7 @@ async function loadSettings(): Promise<AppSettings> {
   } catch {
     cachedSettings = { ...DEFAULT_SETTINGS };
   }
-  return cachedSettings;
+  return cachedSettings!;
 }
 
 /**
@@ -188,7 +194,7 @@ export function registerSettingsIPCHandlers(ipcMain: IpcMain): void {
     async (_, updates: Partial<AppSettings>): Promise<void> => {
       try {
         const current = await loadSettings();
-        const updated = deepMerge(current, updates);
+        const updated = deepMergeSettings(current, updates);
         await saveSettings(updated);
 
         // Apply theme if changed
@@ -211,14 +217,14 @@ export function registerSettingsIPCHandlers(ipcMain: IpcMain): void {
     async (_, key: keyof AppSettings, value: AppSettings[keyof AppSettings]): Promise<void> => {
       try {
         const current = await loadSettings();
-        (current as Record<string, unknown>)[key] = value;
+        current[key as string] = value;
         await saveSettings(current);
 
         // Apply theme if changed
-        if (key === 'general' && (value as AppSettings['general']).theme) {
+        if (key === 'general' && (value as AppSettings['general'])?.theme) {
           nativeTheme.themeSource = (value as AppSettings['general']).theme;
         }
-        if (key === 'ui' && (value as AppSettings['ui']).theme) {
+        if (key === 'ui' && (value as AppSettings['ui'])?.theme) {
           nativeTheme.themeSource = (value as AppSettings['ui']).theme;
         }
       } catch (error) {
@@ -235,7 +241,7 @@ export function registerSettingsIPCHandlers(ipcMain: IpcMain): void {
       try {
         if (key) {
           const current = await loadSettings();
-          (current as Record<string, unknown>)[key] = DEFAULT_SETTINGS[key];
+          current[key as string] = DEFAULT_SETTINGS[key];
           await saveSettings(current);
         } else {
           await saveSettings({ ...DEFAULT_SETTINGS });
@@ -262,7 +268,7 @@ export function registerSettingsIPCHandlers(ipcMain: IpcMain): void {
             exportable.llm.providers[provider].apiKey = '***';
           }
         });
-        
+
         if (filePath) {
           await fs.writeFile(filePath, JSON.stringify(exportable, null, 2), 'utf-8');
           return createIPCSuccess(true);
@@ -280,7 +286,7 @@ export function registerSettingsIPCHandlers(ipcMain: IpcMain): void {
     async (_, input: string): Promise<IPCResponse<AppSettings | boolean>> => {
       try {
         let imported: Partial<AppSettings>;
-        
+
         // Check if input is a file path or JSON string
         if (input.startsWith('{')) {
           imported = JSON.parse(input) as Partial<AppSettings>;
@@ -288,9 +294,9 @@ export function registerSettingsIPCHandlers(ipcMain: IpcMain): void {
           const data = await fs.readFile(input, 'utf-8');
           imported = JSON.parse(data) as Partial<AppSettings>;
         }
-        
+
         const current = await loadSettings();
-        const merged = deepMerge(current, imported);
+        const merged = deepMergeSettings(current, imported);
         await saveSettings(merged);
         return createIPCSuccess(merged);
       } catch (error) {
@@ -323,18 +329,21 @@ export function registerSettingsIPCHandlers(ipcMain: IpcMain): void {
 }
 
 /**
- * Deep merge utility
+ * Deep merge utility for AppSettings
  */
-function deepMerge<T extends Record<string, unknown>>(target: T, source: Partial<T>): T {
+function deepMergeSettings(target: AppSettings, source: Partial<AppSettings>): AppSettings {
   const result = { ...target };
   for (const key in source) {
     if (Object.prototype.hasOwnProperty.call(source, key)) {
       const sourceValue = source[key];
       const targetValue = result[key];
       if (isObject(targetValue) && isObject(sourceValue)) {
-        result[key] = deepMerge(targetValue, sourceValue) as T[typeof key];
+        result[key] = deepMergeSettings(
+          targetValue as AppSettings, 
+          sourceValue as Partial<AppSettings>
+        );
       } else if (sourceValue !== undefined) {
-        result[key] = sourceValue as T[typeof key];
+        result[key] = sourceValue;
       }
     }
   }

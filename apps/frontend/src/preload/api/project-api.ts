@@ -11,7 +11,8 @@ import type {
   InfrastructureStatus,
   GraphitiValidationResult,
   GraphitiConnectionTestResult,
-  GitStatus
+  GitStatus,
+  VirtualRepoInfo
 } from '../../shared/types';
 
 // Tab state interface (persisted in main process)
@@ -24,6 +25,7 @@ export interface TabState {
 export interface ProjectAPI {
   // Project Management
   addProject: (projectPath: string) => Promise<IPCResult<Project>>;
+  addVirtualProject: (repoInfo: VirtualRepoInfo, githubToken: string) => Promise<IPCResult<Project>>;
   removeProject: (projectId: string) => Promise<IPCResult>;
   getProjects: () => Promise<IPCResult<Project[]>>;
   updateProjectSettings: (
@@ -144,6 +146,9 @@ export const createProjectAPI = (): ProjectAPI => ({
   // Project Management
   addProject: (projectPath: string): Promise<IPCResult<Project>> =>
     ipcRenderer.invoke(IPC_CHANNELS.PROJECT_ADD, projectPath),
+
+  addVirtualProject: (repoInfo: VirtualRepoInfo, githubToken: string): Promise<IPCResult<Project>> =>
+    ipcRenderer.invoke(IPC_CHANNELS.PROJECT_ADD_VIRTUAL, repoInfo, githubToken),
 
   removeProject: (projectId: string): Promise<IPCResult> =>
     ipcRenderer.invoke(IPC_CHANNELS.PROJECT_REMOVE, projectId),
@@ -296,3 +301,5 @@ export const createProjectAPI = (): ProjectAPI => ({
   pullOllamaModel: (modelName: string, baseUrl?: string) =>
     ipcRenderer.invoke(IPC_CHANNELS.OLLAMA_PULL_MODEL, modelName, baseUrl)
 });
+
+

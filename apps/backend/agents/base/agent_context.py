@@ -10,11 +10,11 @@ Context provides access to:
 - Parent agent (for MDA)
 """
 
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, TYPE_CHECKING
-import uuid
+from typing import TYPE_CHECKING, Any
 
 from ..types import AgentType, Priority
 
@@ -163,7 +163,9 @@ class ExecutionContext:
                 "task_id": self.task.task_id,
                 "subtask_id": self.task.subtask_id,
                 "description": self.task.description,
-            } if self.task else None,
+            }
+            if self.task
+            else None,
             "project_dir": str(self.project_dir) if self.project_dir else None,
             "spec_dir": str(self.spec_dir) if self.spec_dir else None,
             "has_parent": self.has_parent,
@@ -196,7 +198,7 @@ class ContextBuilder:
         self._spec_dir: Path | None = None
         self._memory = MemoryAccess()
         self._tools = ToolPermissions()
-        self._parent_agent: "BaseAgent | None" = None
+        self._parent_agent: BaseAgent | None = None
         self._timeout_seconds = 3600
         self._metadata: dict[str, Any] = {}
 

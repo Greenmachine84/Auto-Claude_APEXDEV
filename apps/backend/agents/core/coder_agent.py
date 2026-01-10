@@ -11,17 +11,15 @@ Responsibilities:
 """
 
 import logging
-from typing import ClassVar, Any
+from typing import Any, ClassVar
 
-from ..types import AgentType, AgentResult, SuccessResult, ErrorResult, ErrorCode
 from ..base import (
-    BaseAgent,
     AgentConfig,
+    BaseAgent,
     ExecutionContext,
-    AgentCapabilities,
-    CODER_CAPABILITIES,
 )
 from ..base.agent_hooks import HookType
+from ..types import AgentResult, AgentType, ErrorCode, ErrorResult, SuccessResult
 
 logger = logging.getLogger(__name__)
 
